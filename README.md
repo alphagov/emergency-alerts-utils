@@ -1,6 +1,6 @@
-# notifications-utils
+# emergency-alerts-utils
 
-Shared Python code for GOV.UK Notify applications. Standardises how to do logging, rendering message templates, parsing spreadsheets, talking to external services and more.
+Shared Python code for GOV.UK Emergency Alerts applications. Standardises how to do logging, rendering message templates, parsing spreadsheets, talking to external services and more.
 
 ## Setting up
 
