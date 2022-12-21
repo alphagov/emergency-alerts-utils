@@ -1,6 +1,6 @@
 import pytest
 
-from notifications_utils.sanitise_text import SanitiseASCII, SanitiseSMS, SanitiseText
+from emergency_alerts_utils.sanitise_text import SanitiseASCII, SanitiseSMS, SanitiseText
 
 params, ids = zip(
     (("a", "a"), "ascii char (a)"),

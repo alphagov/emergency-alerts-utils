@@ -1,4 +1,4 @@
-from notifications_utils.take import Take
+from emergency_alerts_utils.take import Take
 
 
 def _uppercase(value):

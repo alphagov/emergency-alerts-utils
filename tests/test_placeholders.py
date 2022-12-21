@@ -2,7 +2,7 @@ import re
 
 import pytest
 
-from notifications_utils.field import Placeholder
+from emergency_alerts_utils.field import Placeholder
 
 
 @pytest.mark.parametrize(

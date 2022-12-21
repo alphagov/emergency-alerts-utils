@@ -3,7 +3,7 @@ from uuid import UUID
 
 import pytest
 
-from notifications_utils.base64_uuid import (
+from emergency_alerts_utils.base64_uuid import (
     base64_to_bytes,
     base64_to_uuid,
     bytes_to_base64,

@@ -1,10 +1,10 @@
 import pytest
 
-from notifications_utils.international_billing_rates import (
+from emergency_alerts_utils.international_billing_rates import (
     COUNTRY_PREFIXES,
     INTERNATIONAL_BILLING_RATES,
 )
-from notifications_utils.recipients import use_numeric_sender
+from emergency_alerts_utils.recipients import use_numeric_sender
 
 
 def test_international_billing_rates_exists():

@@ -1,6 +1,6 @@
 from orderedset import OrderedSet
 
-from notifications_utils.insensitive_dict import InsensitiveDict
+from emergency_alerts_utils.insensitive_dict import InsensitiveDict
 
 
 class TemplateChange:

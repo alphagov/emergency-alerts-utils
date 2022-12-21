@@ -3,7 +3,7 @@ from math import isclose, pow
 import pytest
 from shapely.geometry.polygon import Polygon
 
-from notifications_utils.polygons import Polygons
+from emergency_alerts_utils.polygons import Polygons
 
 APPROX_METRES_TO_DEGREE = 111_320
 SQUARE_M_TO_SQUARE_KM = 1e-6

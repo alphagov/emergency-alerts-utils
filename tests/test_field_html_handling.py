@@ -1,6 +1,6 @@
 import pytest
 
-from notifications_utils.field import Field
+from emergency_alerts_utils.field import Field
 
 
 @pytest.mark.parametrize(

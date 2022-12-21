@@ -2,7 +2,7 @@ import pytest
 import requests_mock
 from flask import Flask
 
-from notifications_utils import request_helper
+from emergency_alerts_utils import request_helper
 
 
 class FakeService:

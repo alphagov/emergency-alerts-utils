@@ -1,9 +1,9 @@
 import pytest
 
-from notifications_utils.countries import Country
-from notifications_utils.countries.data import Postage
-from notifications_utils.insensitive_dict import InsensitiveDict
-from notifications_utils.postal_address import (
+from emergency_alerts_utils.countries import Country
+from emergency_alerts_utils.countries.data import Postage
+from emergency_alerts_utils.insensitive_dict import InsensitiveDict
+from emergency_alerts_utils.postal_address import (
     PostalAddress,
     format_postcode_for_printing,
     is_a_real_uk_postcode,
@@ -579,7 +579,7 @@ def test_if_postcode_is_a_real_uk_postcode(postcode, result):
 
 
 def test_if_postcode_is_a_real_uk_postcode_normalises_before_checking_postcode(mocker):
-    normalise_postcode_mock = mocker.patch("notifications_utils.postal_address.normalise_postcode")
+    normalise_postcode_mock = mocker.patch("emergency_alerts_utils.postal_address.normalise_postcode")
     normalise_postcode_mock.return_value = "SW11AA"
     assert is_a_real_uk_postcode("sw1  1aa") is True
 

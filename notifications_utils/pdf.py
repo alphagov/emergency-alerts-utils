@@ -4,7 +4,7 @@ import PyPDF2
 from PyPDF2 import PdfWriter
 from PyPDF2.errors import PdfReadError
 
-from notifications_utils import LETTER_MAX_PAGE_COUNT
+from emergency_alerts_utils import LETTER_MAX_PAGE_COUNT
 
 
 def pdf_page_count(src_pdf):

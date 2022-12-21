@@ -1,6 +1,6 @@
 from itsdangerous import URLSafeTimedSerializer
 
-from notifications_utils.formatters import url_encode_full_stops
+from emergency_alerts_utils.formatters import url_encode_full_stops
 
 
 def generate_token(payload, secret, salt):

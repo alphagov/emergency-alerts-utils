@@ -1,9 +1,9 @@
 import re
 from functools import lru_cache
 
-from notifications_utils.countries import UK, Country, CountryNotFoundError
-from notifications_utils.countries.data import Postage
-from notifications_utils.formatters import (
+from emergency_alerts_utils.countries import UK, Country, CountryNotFoundError
+from emergency_alerts_utils.countries.data import Postage
+from emergency_alerts_utils.formatters import (
     get_lines_with_normalised_whitespace,
     remove_whitespace,
     remove_whitespace_before_punctuation,

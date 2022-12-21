@@ -8,14 +8,14 @@ from os import path
 from jinja2 import Environment, FileSystemLoader
 from markupsafe import Markup
 
-from notifications_utils import (
+from emergency_alerts_utils import (
     LETTER_MAX_PAGE_COUNT,
     MAGIC_SEQUENCE,
     SMS_CHAR_COUNT_LIMIT,
 )
-from notifications_utils.countries.data import Postage
-from notifications_utils.field import Field, PlainTextField
-from notifications_utils.formatters import (
+from emergency_alerts_utils.countries.data import Postage
+from emergency_alerts_utils.field import Field, PlainTextField
+from emergency_alerts_utils.formatters import (
     add_prefix,
     add_trailing_newline,
     autolink_urls,
@@ -35,17 +35,17 @@ from notifications_utils.formatters import (
     strip_unsupported_characters,
     unlink_govuk_escaped,
 )
-from notifications_utils.insensitive_dict import InsensitiveDict
-from notifications_utils.markdown import (
+from emergency_alerts_utils.insensitive_dict import InsensitiveDict
+from emergency_alerts_utils.markdown import (
     notify_email_markdown,
     notify_email_preheader_markdown,
     notify_letter_preview_markdown,
     notify_plain_text_email_markdown,
 )
-from notifications_utils.postal_address import PostalAddress, address_lines_1_to_7_keys
-from notifications_utils.sanitise_text import SanitiseSMS
-from notifications_utils.take import Take
-from notifications_utils.template_change import TemplateChange
+from emergency_alerts_utils.postal_address import PostalAddress, address_lines_1_to_7_keys
+from emergency_alerts_utils.sanitise_text import SanitiseSMS
+from emergency_alerts_utils.take import Take
+from emergency_alerts_utils.template_change import TemplateChange
 
 template_env = Environment(
     loader=FileSystemLoader(

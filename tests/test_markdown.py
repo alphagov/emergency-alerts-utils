@@ -1,11 +1,11 @@
 import pytest
 
-from notifications_utils.markdown import (
+from emergency_alerts_utils.markdown import (
     notify_email_markdown,
     notify_letter_preview_markdown,
     notify_plain_text_email_markdown,
 )
-from notifications_utils.template import HTMLEmailTemplate
+from emergency_alerts_utils.template import HTMLEmailTemplate
 
 
 @pytest.mark.parametrize(

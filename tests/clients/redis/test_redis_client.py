@@ -5,7 +5,7 @@ from unittest.mock import Mock, call
 import pytest
 from freezegun import freeze_time
 
-from notifications_utils.clients.redis.redis_client import RedisClient, prepare_value
+from emergency_alerts_utils.clients.redis.redis_client import RedisClient, prepare_value
 
 
 @pytest.fixture(scope="function")

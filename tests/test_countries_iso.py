@@ -1,6 +1,6 @@
 import pytest
 
-from notifications_utils.countries import Country, CountryNotFoundError
+from emergency_alerts_utils.countries import Country, CountryNotFoundError
 
 
 def _country_not_found(*test_case):

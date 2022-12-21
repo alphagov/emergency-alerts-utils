@@ -8,15 +8,15 @@ from unittest.mock import Mock
 import pytest
 from orderedset import OrderedSet
 
-from notifications_utils import SMS_CHAR_COUNT_LIMIT
-from notifications_utils.countries import Country
-from notifications_utils.recipients import (
+from emergency_alerts_utils import SMS_CHAR_COUNT_LIMIT
+from emergency_alerts_utils.countries import Country
+from emergency_alerts_utils.recipients import (
     Cell,
     RecipientCSV,
     Row,
     first_column_headings,
 )
-from notifications_utils.template import (
+from emergency_alerts_utils.template import (
     EmailPreviewTemplate,
     LetterImageTemplate,
     SMSMessageTemplate,
@@ -229,7 +229,7 @@ def test_get_rows_does_no_error_checking_of_rows_or_cells(mocker):
 
 
 def test_get_rows_only_iterates_over_file_once(mocker):
-    row_mock = mocker.patch("notifications_utils.recipients.Row")
+    row_mock = mocker.patch("emergency_alerts_utils.recipients.Row")
 
     recipients = RecipientCSV(
         """
@@ -351,7 +351,7 @@ def test_check_if_message_too_long_for_sms_but_not_email_in_CSV(mocker, template
         max_errors_shown=100,
         max_initial_rows_shown=3,
     )
-    is_message_too_long = mocker.patch("notifications_utils.template.Template.is_message_too_long", side_effect=False)
+    is_message_too_long = mocker.patch("emergency_alerts_utils.template.Template.is_message_too_long", side_effect=False)
     if template_type == "email":
         is_message_too_long.assert_not_called
     else:
@@ -360,9 +360,9 @@ def test_check_if_message_too_long_for_sms_but_not_email_in_CSV(mocker, template
 
 def test_overly_big_list_stops_processing_rows_beyond_max(mocker):
     mock_strip_and_remove_obscure_whitespace = mocker.patch(
-        "notifications_utils.recipients.strip_and_remove_obscure_whitespace"
+        "emergency_alerts_utils.recipients.strip_and_remove_obscure_whitespace"
     )
-    mock_insert_or_append_to_dict = mocker.patch("notifications_utils.recipients.insert_or_append_to_dict")
+    mock_insert_or_append_to_dict = mocker.patch("emergency_alerts_utils.recipients.insert_or_append_to_dict")
 
     big_csv = RecipientCSV(
         "phonenumber,name\n" + ("07700900123,example\n" * 123),

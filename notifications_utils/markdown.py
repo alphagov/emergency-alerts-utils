@@ -4,8 +4,8 @@ from itertools import count
 import mistune
 from orderedset import OrderedSet
 
-from notifications_utils import MAGIC_SEQUENCE, magic_sequence_regex
-from notifications_utils.formatters import create_sanitised_html_for_url
+from emergency_alerts_utils import MAGIC_SEQUENCE, magic_sequence_regex
+from emergency_alerts_utils.formatters import create_sanitised_html_for_url
 
 LINK_STYLE = "word-wrap: break-word; color: #1D70B8;"
 
