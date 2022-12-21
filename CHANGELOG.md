@@ -3,6 +3,10 @@
 This is only used for recording changes for major version bumps.
 More minor changes may optionally be recorded here too.
 
+## 60.0.0
+
+* Package name change to follow repository name change (notifications-utils -> emergency-alerts-utils)
+
 ## 59.3.0
 
 * Add tooling to bump utils version in apps

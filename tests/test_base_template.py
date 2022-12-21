@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from notifications_utils.template import SubjectMixin, Template
+from emergency_alerts_utils.template import SubjectMixin, Template
 
 
 class ConcreteImplementation:
@@ -97,7 +97,7 @@ def test_random_variable_retrieve():
 
 
 def test_compare_template():
-    with patch("notifications_utils.template_change.TemplateChange.__init__", return_value=None) as mocked:
+    with patch("emergency_alerts_utils.template_change.TemplateChange.__init__", return_value=None) as mocked:
         old_template = ConcreteTemplate({"content": "faked"})
         new_template = ConcreteTemplate({"content": "faked"})
         old_template.compare_to(new_template)

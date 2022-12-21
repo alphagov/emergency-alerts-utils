@@ -1,6 +1,6 @@
 import pytest
 
-from notifications_utils.safe_string import (
+from emergency_alerts_utils.safe_string import (
     make_string_safe_for_email_local_part,
     make_string_safe_for_id,
 )

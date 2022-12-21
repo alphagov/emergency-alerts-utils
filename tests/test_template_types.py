@@ -11,8 +11,8 @@ from freezegun import freeze_time
 from markupsafe import Markup
 from orderedset import OrderedSet
 
-from notifications_utils.formatters import unlink_govuk_escaped
-from notifications_utils.template import (
+from emergency_alerts_utils.formatters import unlink_govuk_escaped
+from emergency_alerts_utils.template import (
     BaseBroadcastTemplate,
     BaseEmailTemplate,
     BaseLetterTemplate,
@@ -340,7 +340,7 @@ def test_preheader_is_at_start_of_html_emails():
         ),
     ],
 )
-@mock.patch("notifications_utils.template.HTMLEmailTemplate.jinja_template.render", return_value="mocked")
+@mock.patch("emergency_alerts_utils.template.HTMLEmailTemplate.jinja_template.render", return_value="mocked")
 def test_content_of_preheader_in_html_emails(
     mock_jinja_template,
     content,
@@ -361,14 +361,14 @@ def test_content_of_preheader_in_html_emails(
             "email",
             {},
             ("the quick brown fox\n" "\n" "jumped over the lazy dog\n"),
-            "notifications_utils.template.notify_email_markdown",
+            "emergency_alerts_utils.template.notify_email_markdown",
         ],
         [
             LetterPreviewTemplate,
             "letter",
             {},
             ("the quick brown fox\n" "\n" "jumped over the lazy dog\n"),
-            "notifications_utils.template.notify_letter_preview_markdown",
+            "emergency_alerts_utils.template.notify_letter_preview_markdown",
         ],
     ],
 )
@@ -557,7 +557,7 @@ def test_stripping_of_unsupported_characters_in_email_templates():
     )
 
 
-@mock.patch("notifications_utils.template.add_prefix", return_value="")
+@mock.patch("emergency_alerts_utils.template.add_prefix", return_value="")
 @pytest.mark.parametrize(
     "template_class, prefix, body, expected_call",
     [
@@ -580,7 +580,7 @@ def test_sms_message_adds_prefix(add_prefix, template_class, prefix, body, expec
     add_prefix.assert_called_once_with(*expected_call)
 
 
-@mock.patch("notifications_utils.template.add_prefix", return_value="")
+@mock.patch("emergency_alerts_utils.template.add_prefix", return_value="")
 @pytest.mark.parametrize(
     "template_class",
     [
@@ -641,7 +641,7 @@ def test_sms_message_preview_hides_sender_by_default():
     assert SMSPreviewTemplate({"content": "foo", "template_type": "sms"}).show_sender is False
 
 
-@mock.patch("notifications_utils.template.sms_encode", return_value="downgraded")
+@mock.patch("emergency_alerts_utils.template.sms_encode", return_value="downgraded")
 @pytest.mark.parametrize(
     "template_class, extra_args, expected_call",
     (
@@ -670,7 +670,7 @@ def test_sms_messages_downgrade_non_sms(
         BroadcastPreviewTemplate,
     ),
 )
-@mock.patch("notifications_utils.template.sms_encode", return_value="downgraded")
+@mock.patch("emergency_alerts_utils.template.sms_encode", return_value="downgraded")
 def test_sms_messages_dont_downgrade_non_sms_if_setting_is_false(mock_sms_encode, template_class):
     template = str(
         template_class(
@@ -690,7 +690,7 @@ def test_sms_messages_dont_downgrade_non_sms_if_setting_is_false(mock_sms_encode
         BroadcastPreviewTemplate,
     ),
 )
-@mock.patch("notifications_utils.template.nl2br")
+@mock.patch("emergency_alerts_utils.template.nl2br")
 def test_sms_preview_adds_newlines(nl2br, template_class):
     content = "the\nquick\n\nbrown fox"
     str(template_class({"content": content, "template_type": template_class.template_type}))
@@ -745,9 +745,9 @@ def test_phone_templates_normalise_whitespace(template_class):
 
 
 @freeze_time("2012-12-12 12:12:12")
-@mock.patch("notifications_utils.template.LetterPreviewTemplate.jinja_template.render")
-@mock.patch("notifications_utils.template.unlink_govuk_escaped")
-@mock.patch("notifications_utils.template.notify_letter_preview_markdown", return_value="Bar")
+@mock.patch("emergency_alerts_utils.template.LetterPreviewTemplate.jinja_template.render")
+@mock.patch("emergency_alerts_utils.template.unlink_govuk_escaped")
+@mock.patch("emergency_alerts_utils.template.notify_letter_preview_markdown", return_value="Bar")
 @pytest.mark.parametrize(
     "values, expected_address",
     [
@@ -876,7 +876,7 @@ def test_letter_preview_renderer(
 
 
 @freeze_time("2001-01-01 12:00:00.000000")
-@mock.patch("notifications_utils.template.LetterPreviewTemplate.jinja_template.render")
+@mock.patch("emergency_alerts_utils.template.LetterPreviewTemplate.jinja_template.render")
 def test_letter_preview_renderer_without_mocks(jinja_template):
 
     str(
@@ -903,7 +903,7 @@ def test_letter_preview_renderer_without_mocks(jinja_template):
 
 
 @freeze_time("2012-12-12 12:12:12")
-@mock.patch("notifications_utils.template.LetterImageTemplate.jinja_template.render")
+@mock.patch("emergency_alerts_utils.template.LetterImageTemplate.jinja_template.render")
 @pytest.mark.parametrize(
     "page_count, expected_oversized, expected_page_numbers",
     [
@@ -996,7 +996,7 @@ def test_letter_image_renderer(
 
 
 @freeze_time("2012-12-12 12:12:12")
-@mock.patch("notifications_utils.template.LetterImageTemplate.jinja_template.render")
+@mock.patch("emergency_alerts_utils.template.LetterImageTemplate.jinja_template.render")
 @pytest.mark.parametrize(
     "postage_argument",
     (
@@ -1732,8 +1732,8 @@ def test_is_message_empty_email_and_letter_templates_tries_not_to_count_chars(
         ),
     ],
 )
-@mock.patch("notifications_utils.template.Field.__init__", return_value=None)
-@mock.patch("notifications_utils.template.Field.__str__", return_value="1\n2\n3\n4\n5\n6\n7\n8")
+@mock.patch("emergency_alerts_utils.template.Field.__init__", return_value=None)
+@mock.patch("emergency_alerts_utils.template.Field.__str__", return_value="1\n2\n3\n4\n5\n6\n7\n8")
 def test_templates_handle_html_and_redacting(
     mock_field_str,
     mock_field_init,
@@ -1846,7 +1846,7 @@ def test_templates_handle_html_and_redacting(
         ),
     ],
 )
-@mock.patch("notifications_utils.template.remove_whitespace_before_punctuation", side_effect=lambda x: x)
+@mock.patch("emergency_alerts_utils.template.remove_whitespace_before_punctuation", side_effect=lambda x: x)
 def test_templates_remove_whitespace_before_punctuation(
     mock_remove_whitespace,
     template_class,
@@ -1921,8 +1921,8 @@ def test_templates_remove_whitespace_before_punctuation(
         ),
     ],
 )
-@mock.patch("notifications_utils.template.make_quotes_smart", side_effect=lambda x: x)
-@mock.patch("notifications_utils.template.replace_hyphens_with_en_dashes", side_effect=lambda x: x)
+@mock.patch("emergency_alerts_utils.template.make_quotes_smart", side_effect=lambda x: x)
+@mock.patch("emergency_alerts_utils.template.replace_hyphens_with_en_dashes", side_effect=lambda x: x)
 def test_templates_make_quotes_smart_and_dashes_en(
     mock_en_dash_replacement,
     mock_smart_quotes,

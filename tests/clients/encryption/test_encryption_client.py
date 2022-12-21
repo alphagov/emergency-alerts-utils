@@ -1,6 +1,6 @@
 import pytest
 
-from notifications_utils.clients.encryption.encryption_client import Encryption
+from emergency_alerts_utils.clients.encryption.encryption_client import Encryption
 
 
 @pytest.fixture()

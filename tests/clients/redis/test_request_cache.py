@@ -1,7 +1,7 @@
 import pytest
 
-from notifications_utils.clients.redis import RequestCache
-from notifications_utils.clients.redis.redis_client import RedisClient
+from emergency_alerts_utils.clients.redis import RequestCache
+from emergency_alerts_utils.clients.redis.redis_client import RedisClient
 
 
 @pytest.fixture(scope="function")

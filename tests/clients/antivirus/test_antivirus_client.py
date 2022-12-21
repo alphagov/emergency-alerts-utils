@@ -3,7 +3,7 @@ import io
 import pytest
 import requests
 
-from notifications_utils.clients.antivirus.antivirus_client import (
+from emergency_alerts_utils.clients.antivirus.antivirus_client import (
     AntivirusClient,
     AntivirusError,
 )

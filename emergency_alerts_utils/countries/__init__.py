@@ -1,7 +1,7 @@
 from functools import lru_cache
 
-from notifications_utils.insensitive_dict import InsensitiveDict
-from notifications_utils.sanitise_text import SanitiseASCII
+from emergency_alerts_utils.insensitive_dict import InsensitiveDict
+from emergency_alerts_utils.sanitise_text import SanitiseASCII
 
 from .data import (
     ADDITIONAL_SYNONYMS,

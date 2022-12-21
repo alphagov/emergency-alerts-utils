@@ -6,7 +6,7 @@ from html import _replace_charref, escape
 import smartypants
 from markupsafe import Markup
 
-from notifications_utils.sanitise_text import SanitiseSMS
+from emergency_alerts_utils.sanitise_text import SanitiseSMS
 
 from . import email_with_smart_quotes_regex
 

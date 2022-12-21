@@ -4,7 +4,7 @@ import logging.handlers as builtin_logging_handlers
 
 import pytest
 
-from notifications_utils import logging
+from emergency_alerts_utils import logging
 
 
 def test_get_handlers_sets_up_logging_appropriately_with_debug(tmpdir):

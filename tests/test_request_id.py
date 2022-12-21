@@ -1,4 +1,4 @@
-from notifications_utils import request_helper
+from emergency_alerts_utils import request_helper
 
 
 def test_request_id_is_set_on_response(app):

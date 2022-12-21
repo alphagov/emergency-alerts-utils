@@ -1,7 +1,7 @@
 import pytest
 from markupsafe import Markup
 
-from notifications_utils.formatters import (
+from emergency_alerts_utils.formatters import (
     autolink_urls,
     escape_html,
     formatted_list,
@@ -16,7 +16,7 @@ from notifications_utils.formatters import (
     strip_unsupported_characters,
     unlink_govuk_escaped,
 )
-from notifications_utils.template import (
+from emergency_alerts_utils.template import (
     HTMLEmailTemplate,
     PlainTextEmailTemplate,
     SMSMessageTemplate,
@@ -149,7 +149,7 @@ def test_sms_preview_adds_newlines():
 
 
 def test_sms_encode(mocker):
-    sanitise_mock = mocker.patch("notifications_utils.formatters.SanitiseSMS")
+    sanitise_mock = mocker.patch("emergency_alerts_utils.formatters.SanitiseSMS")
     assert sms_encode("foo") == sanitise_mock.encode.return_value
     sanitise_mock.encode.assert_called_once_with("foo")
 

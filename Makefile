@@ -12,7 +12,7 @@ bootstrap: ## Build project
 .PHONY: test
 test: ## Run tests
 	flake8 .
-	isort --check-only ./notifications_utils ./tests
+	isort --check-only ./emergency_alerts_utils ./tests
 	black --check .
 	pytest -n auto
 	python setup.py sdist
@@ -22,12 +22,12 @@ clean:
 
 .PHONY: fix-imports
 fix-imports:
-	isort ./notifications_utils ./tests
+	isort ./emergency_alerts_utils ./tests
 
 .PHONY: reset-version
 reset-version:
 	git fetch
-	git checkout origin/main -- notifications_utils/version.py
+	git checkout origin/main -- emergency_alerts_utils/version.py
 
 .PHONY: version-major
 version-major: reset-version ## Update the major version number

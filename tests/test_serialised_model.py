@@ -2,7 +2,7 @@ import sys
 
 import pytest
 
-from notifications_utils.serialised_model import (
+from emergency_alerts_utils.serialised_model import (
     SerialisedModel,
     SerialisedModelCollection,
 )

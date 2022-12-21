@@ -8,13 +8,13 @@ from setuptools import find_packages, setup
 
 _version_re = re.compile(r"__version__\s+=\s+(.*)")
 
-with open("notifications_utils/version.py", "rb") as f:
+with open("emergency_alerts_utils/version.py", "rb") as f:
     version = str(ast.literal_eval(_version_re.search(f.read().decode("utf-8")).group(1)))
 
 setup(
-    name="notifications-utils",
+    name="emergency-alerts-utils",
     version=version,
-    url="https://github.com/alphagov/notifications-utils",
+    url="https://github.com/alphagov/emergency-alerts-utils",
     license="MIT",
     author="Government Digital Service",
     description="Shared python code for GOV.UK Notify.",

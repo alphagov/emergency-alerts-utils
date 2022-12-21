@@ -5,7 +5,7 @@ import PyPDF2
 import pytest
 from PyPDF2.errors import PdfReadError
 
-from notifications_utils.pdf import (
+from emergency_alerts_utils.pdf import (
     extract_page_from_pdf,
     is_letter_too_long,
     pdf_page_count,

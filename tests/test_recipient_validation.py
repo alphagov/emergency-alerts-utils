@@ -1,6 +1,6 @@
 import pytest
 
-from notifications_utils.recipients import (
+from emergency_alerts_utils.recipients import (
     InvalidEmailError,
     InvalidPhoneError,
     allowed_to_send_to,

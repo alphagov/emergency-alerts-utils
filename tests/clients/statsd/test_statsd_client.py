@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from notifications_utils.clients.statsd.statsd_client import (
+from emergency_alerts_utils.clients.statsd.statsd_client import (
     NotifyStatsClient,
     StatsdClient,
 )

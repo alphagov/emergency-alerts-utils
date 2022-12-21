@@ -11,22 +11,22 @@ import phonenumbers
 from flask import current_app
 from orderedset import OrderedSet
 
-from notifications_utils.formatters import (
+from emergency_alerts_utils.formatters import (
     ALL_WHITESPACE,
     strip_all_whitespace,
     strip_and_remove_obscure_whitespace,
 )
-from notifications_utils.insensitive_dict import InsensitiveDict
-from notifications_utils.international_billing_rates import (
+from emergency_alerts_utils.insensitive_dict import InsensitiveDict
+from emergency_alerts_utils.international_billing_rates import (
     COUNTRY_PREFIXES,
     INTERNATIONAL_BILLING_RATES,
 )
-from notifications_utils.postal_address import (
+from emergency_alerts_utils.postal_address import (
     address_line_7_key,
     address_lines_1_to_6_and_postcode_keys,
     address_lines_1_to_7_keys,
 )
-from notifications_utils.template import Template
+from emergency_alerts_utils.template import Template
 
 from . import EMAIL_REGEX_PATTERN, hostname_part, tld_part
 
@@ -94,7 +94,7 @@ class RecipientCSV:
     @template.setter
     def template(self, value):
         if not isinstance(value, Template):
-            raise TypeError("template must be an instance of " "notifications_utils.template.Template")
+            raise TypeError("template must be an instance of " "emergency_alerts_utils.template.Template")
         self._template = value
         self.template_type = self._template.template_type
         self.recipient_column_headers = first_column_headings[self.template_type]
@@ -420,7 +420,7 @@ class Row(InsensitiveDict):
 
     @property
     def as_postal_address(self):
-        from notifications_utils.postal_address import PostalAddress
+        from emergency_alerts_utils.postal_address import PostalAddress
 
         return PostalAddress.from_personalisation(
             self.recipient_and_personalisation,

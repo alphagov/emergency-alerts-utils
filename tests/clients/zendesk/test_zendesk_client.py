@@ -2,7 +2,7 @@ from base64 import b64decode
 
 import pytest
 
-from notifications_utils.clients.zendesk.zendesk_client import (
+from emergency_alerts_utils.clients.zendesk.zendesk_client import (
     NotifySupportTicket,
     ZendeskClient,
     ZendeskError,

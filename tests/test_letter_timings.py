@@ -4,7 +4,7 @@ import pytest
 import pytz
 from freezegun import freeze_time
 
-from notifications_utils.letter_timings import (
+from emergency_alerts_utils.letter_timings import (
     get_letter_timings,
     letter_can_be_cancelled,
 )

@@ -4,7 +4,7 @@ import pytest
 from flask import g
 from freezegun import freeze_time
 
-from notifications_utils.celery import NotifyCelery
+from emergency_alerts_utils.celery import NotifyCelery
 
 
 @pytest.fixture
@@ -90,13 +90,13 @@ def test_failure_queue_when_applied_synchronously(mocker, celery_app, celery_tas
 
 
 def test_call_exports_request_id_from_headers(mocker, request_id_task):
-    g = mocker.patch("notifications_utils.celery.g")
+    g = mocker.patch("emergency_alerts_utils.celery.g")
     request_id_task()
     assert g.request_id == "1234"
 
 
 def test_call_copes_if_request_id_not_in_headers(mocker, celery_task):
-    g = mocker.patch("notifications_utils.celery.g")
+    g = mocker.patch("emergency_alerts_utils.celery.g")
     celery_task()
     assert g.request_id is None
 

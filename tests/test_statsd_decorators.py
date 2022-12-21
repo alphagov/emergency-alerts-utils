@@ -1,6 +1,6 @@
 from unittest.mock import ANY, Mock
 
-from notifications_utils.statsd_decorators import statsd
+from emergency_alerts_utils.statsd_decorators import statsd
 
 
 class AnyStringWith(str):

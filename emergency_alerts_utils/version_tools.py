@@ -3,7 +3,7 @@ import pathlib
 import requests
 
 requirements_file = pathlib.Path("requirements.in")
-repo_name = "alphagov/notifications-utils"
+repo_name = "alphagov/emergency-alerts-utils"
 
 
 class color:
@@ -27,7 +27,7 @@ def upgrade_version():
     write_version_to_requirements_file(newest_version)
 
     print(
-        f"{color.GREEN}✅ {color.BOLD}notifications-utils bumped to {newest_version}{color.END}\n\n"
+        f"{color.GREEN}✅ {color.BOLD}emergency-alerts-utils bumped to {newest_version}{color.END}\n\n"
         f"{color.YELLOW}{color.UNDERLINE}Now run:{color.END}\n\n"
         f"  make freeze-requirements\n"
         f"  git add requirements* && git commit\n\n"
@@ -39,7 +39,7 @@ def upgrade_version():
 
 
 def get_remote_version():
-    exec(get_file_contents_from_github("main", "notifications_utils/version.py"))
+    exec(get_file_contents_from_github("main", "emergency_alerts_utils/version.py"))
     return locals()["__version__"]
 
 
@@ -50,7 +50,7 @@ def get_app_version():
 def write_version_to_requirements_file(version):
     def replace_line(line):
         if repo_name in line:
-            return f"notifications-utils @ git+https://github.com/{repo_name}.git@{version}\n"
+            return f"emergency-alerts-utils @ git+https://github.com/{repo_name}.git@{version}\n"
         return line
 
     new_requirements_file_contents = "".join(

@@ -3,12 +3,12 @@ import re
 from markupsafe import Markup
 from orderedset import OrderedSet
 
-from notifications_utils.formatters import (
+from emergency_alerts_utils.formatters import (
     escape_html,
     strip_and_remove_obscure_whitespace,
     unescaped_formatted_list,
 )
-from notifications_utils.insensitive_dict import InsensitiveDict
+from emergency_alerts_utils.insensitive_dict import InsensitiveDict
 
 
 class Placeholder:

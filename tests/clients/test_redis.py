@@ -1,7 +1,7 @@
 import pytest
 from freezegun import freeze_time
 
-from notifications_utils.clients.redis import (
+from emergency_alerts_utils.clients.redis import (
     daily_limit_cache_key,
     rate_limit_cache_key,
 )
