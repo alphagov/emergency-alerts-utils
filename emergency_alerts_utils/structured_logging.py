@@ -32,6 +32,7 @@ class LogData:
     def addData(self, attribute, value):
         setattr(self, attribute, value)
 
+
 class UUIDEncoder(json.JSONEncoder):
     # Solution to the runtime error: [TypeError: Object of type UUID is not JSON serializable]
     def default(self, obj):
