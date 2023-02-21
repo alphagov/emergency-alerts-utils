@@ -42,7 +42,7 @@ class UUIDEncoder(json.JSONEncoder):
 def log_to_cloudwatch(logData: LogData):
     try:
         b3client.put_log_events(
-            logGroupName='LOG_GROUP_NAME',
+            logGroupName=os.environ.get('LOG_GROUP_NAME'),
             logStreamName=os.environ.get('HOSTNAME'),
             logEvents=[
                 {
