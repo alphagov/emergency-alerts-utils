@@ -4,7 +4,7 @@ import os
 import time
 
 from botocore.exceptions import ClientError
-from dataclasses import dataclass, asdict
+from dataclasses import asdict
 from uuid import UUID
 
 
@@ -19,7 +19,6 @@ except ClientError as e:
         raise e
 
 
-@dataclass(frozen=True)
 class LogData():
     source: str
     module: str
