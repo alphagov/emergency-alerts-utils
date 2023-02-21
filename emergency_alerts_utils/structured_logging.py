@@ -50,5 +50,5 @@ def log_to_cloudwatch(logData: LogData):
                 }
             ]
         )
-    except Exception as e:
+    except ClientError as e:
         raise e
