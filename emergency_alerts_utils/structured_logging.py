@@ -18,12 +18,13 @@ except ClientError as e:
         raise e
 
 
-class LogData():
-    source: str
-    module: str
-    method: str
-    serviceId: UUID
-    broadcastMessageId: UUID
+class LogData:
+    def __init__(self, source: str, module: str, method: str, serviceId: UUID = "", broadcastMessageId: UUID = ""):
+        self.source = source
+        self.module = module
+        self.method = method
+        self.serviceId = serviceId
+        self.broadcastMessageId = broadcastMessageId
 
     def __str__(self) -> str:
         return json.dumps(self.__dict__, cls=UUIDEncoder)
