@@ -1,7 +1,23 @@
+import boto3
 import json
+import os
+import time
 
+from botocore.exceptions import ClientError
 from dataclasses import dataclass, asdict
+from flask import current_app
 from uuid import UUID
+
+
+b3client = boto3.client("logs", region_name=os.environ.get('AWS_REGION'))
+try:
+    b3client.create_log_stream(
+        logGroupName='/ecs/eas-app-api-container',
+        logStreamName=os.environ.get('HOSTNAME')
+    )
+except ClientError as e:
+    if e.response['Error']['Code'] != 'ResourceAlreadyExistsException':
+        current_app.logger.info("Unexpected error: %s", e)
 
 
 @dataclass(frozen=True)
@@ -15,10 +31,25 @@ class LogData():
     def __str__(self) -> str:
         return json.dumps(asdict(self), cls=UUIDEncoder)
 
-
 class UUIDEncoder(json.JSONEncoder):
     # Solution to the runtime error: [TypeError: Object of type UUID is not JSON serializable]
     def default(self, obj):
         if isinstance(obj, UUID):
             return str(obj)
         return json.JSONEncoder.default(self, obj)
+
+
+def log_to_cloudwatch(logData: LogData):
+    try:
+        b3client.put_log_events(
+            logGroupName='/ecs/eas-app-api-container',
+            logStreamName=os.environ.get('HOSTNAME'),
+            logEvents=[
+                {
+                    'timestamp': int(round(time.time() * 1000)),
+                    'message': str(logData)
+                }
+            ]
+        )
+    except Exception as e:
+        current_app.logger.info("CloudWatch error: %s", e)
