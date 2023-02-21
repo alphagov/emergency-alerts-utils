@@ -5,7 +5,6 @@ import time
 
 from botocore.exceptions import ClientError
 from dataclasses import dataclass, asdict
-from flask import current_app
 from uuid import UUID
 
 
@@ -17,7 +16,7 @@ try:
     )
 except ClientError as e:
     if e.response['Error']['Code'] != 'ResourceAlreadyExistsException':
-        current_app.logger.info("Unexpected error: %s", e)
+        raise e
 
 
 @dataclass(frozen=True)
@@ -52,4 +51,4 @@ def log_to_cloudwatch(logData: LogData):
             ]
         )
     except Exception as e:
-        current_app.logger.info("CloudWatch error: %s", e)
+        raise e
