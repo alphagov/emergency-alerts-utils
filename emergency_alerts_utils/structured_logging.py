@@ -29,6 +29,9 @@ class LogData:
     def __str__(self) -> str:
         return json.dumps(self.__dict__, cls=UUIDEncoder)
 
+    def addData(self, attribute, value):
+        setattr(self, attribute, value)
+
 class UUIDEncoder(json.JSONEncoder):
     # Solution to the runtime error: [TypeError: Object of type UUID is not JSON serializable]
     def default(self, obj):
