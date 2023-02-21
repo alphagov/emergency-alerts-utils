@@ -4,7 +4,6 @@ import os
 import time
 
 from botocore.exceptions import ClientError
-from dataclasses import asdict
 from uuid import UUID
 
 
@@ -27,7 +26,7 @@ class LogData():
     broadcastMessageId: UUID
 
     def __str__(self) -> str:
-        return json.dumps(asdict(self), cls=UUIDEncoder)
+        return json.dumps(self.__dict__, cls=UUIDEncoder)
 
 class UUIDEncoder(json.JSONEncoder):
     # Solution to the runtime error: [TypeError: Object of type UUID is not JSON serializable]
