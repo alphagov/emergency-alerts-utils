@@ -32,17 +32,8 @@ RUN update-ca-certificates
 # Install OpenSSL libs.
 RUN apt-get install libcurl4-openssl-dev libssl-dev -y
 
-# Prequisites for bdist_wheel
-# RUN apt-get install build-essential -y
-
-# Install pre-requisite of pg_config
-# RUN apt-get install libpq-dev -y
-
 # Install Python and VENV.
 RUN apt-get install $PYTHON_VERSION $PYTHON_VERSION-venv python3-pip libpython3.9-dev -y && mkdir $VENV_ROOT
-
-# Install diagnostic tools.
-# RUN apt install apt-utils telnet dnsutils -y
 
 # Install AWS CLI
 RUN curl 'https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip' -o 'awscliv2.zip'; unzip 'awscliv2.zip' && ./aws/install;
