@@ -6,14 +6,11 @@ from uuid import UUID
 import boto3
 from botocore.exceptions import ClientError
 
-b3client = boto3.client("logs", region_name=os.environ.get('AWS_REGION', "eu-west-2"))
+b3client = boto3.client("logs", region_name=os.environ.get("AWS_REGION", "eu-west-2"))
 try:
-    b3client.create_log_stream(
-        logGroupName=os.environ.get('LOG_GROUP_NAME'),
-        logStreamName=os.environ.get('HOSTNAME')
-    )
+    b3client.create_log_stream(logGroupName=os.environ.get("LOG_GROUP_NAME"), logStreamName=os.environ.get("HOSTNAME"))
 except ClientError as e:
-    if e.response['Error']['Code'] != 'ResourceAlreadyExistsException':
+    if e.response["Error"]["Code"] != "ResourceAlreadyExistsException":
         raise e
 
 
@@ -43,14 +40,9 @@ class UUIDEncoder(json.JSONEncoder):
 def log_to_cloudwatch(logData: LogData):
     try:
         b3client.put_log_events(
-            logGroupName=os.environ.get('LOG_GROUP_NAME'),
-            logStreamName=os.environ.get('HOSTNAME'),
-            logEvents=[
-                {
-                    'timestamp': int(round(time.time() * 1000)),
-                    'message': str(logData)
-                }
-            ]
+            logGroupName=os.environ.get("LOG_GROUP_NAME"),
+            logStreamName=os.environ.get("HOSTNAME"),
+            logEvents=[{"timestamp": int(round(time.time() * 1000)), "message": str(logData)}],
         )
     except ClientError as e:
         raise e
