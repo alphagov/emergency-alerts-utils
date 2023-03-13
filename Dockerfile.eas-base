@@ -20,8 +20,7 @@ RUN mv $SHELL_CONF $SHELL_CONF.bak; cat $SHELL_CONF.bak | sed 's/\[ -z "$PS1" \]
 RUN apt-get update -y
 
 # Install commonly used tools, python related pre-reqs and ca-certs
-RUN apt-get install wget curl git unzip vim make systemctl jq apt-utils telnet dnsutils build-essential \
-    ca-certificates libcurl4-openssl-dev libssl-dev -y --no-install-recommends
+RUN apt-get install wget curl git unzip vim make systemctl jq apt-utils telnet dnsutils build-essential ca-certificates libcurl4-openssl-dev libssl-dev -y --no-install-recommends
 
 # Download the database certificate
 RUN wget https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem -O /etc/ssl/certs/global-bundle.pem && \
