@@ -8,7 +8,10 @@ from botocore.exceptions import ClientError
 
 b3client = boto3.client("logs", region_name=os.environ.get("AWS_REGION", "eu-west-2"))
 try:
-    b3client.create_log_stream(logGroupName=os.environ.get("LOG_GROUP_NAME"), logStreamName=os.environ.get("HOSTNAME"))
+    b3client.create_log_stream(
+        logGroupName=os.environ.get("LOG_GROUP_NAME", "/aws/ecs/eas-app"),
+        logStreamName=os.environ.get("HOSTNAME", "placeholder"),
+    )
 except ClientError as e:
     if e.response["Error"]["Code"] != "ResourceAlreadyExistsException":
         raise e
