@@ -3,7 +3,10 @@ from unittest import mock  # noqa
 import pytest
 from werkzeug.test import EnvironBuilder
 
-from emergency_alerts_utils.request_helper import NotifyRequest, _check_proxy_header_secret
+from emergency_alerts_utils.request_helper import (
+    NotifyRequest,
+    _check_proxy_header_secret,
+)
 
 
 @pytest.mark.parametrize(

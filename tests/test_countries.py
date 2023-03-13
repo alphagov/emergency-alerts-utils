@@ -1,6 +1,10 @@
 import pytest
 
-from emergency_alerts_utils.countries import Country, CountryMapping, CountryNotFoundError
+from emergency_alerts_utils.countries import (
+    Country,
+    CountryMapping,
+    CountryNotFoundError,
+)
 from emergency_alerts_utils.countries.data import (
     _EUROPEAN_ISLANDS_LIST,
     _UK_ISLANDS_LIST,
