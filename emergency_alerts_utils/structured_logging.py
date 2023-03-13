@@ -1,11 +1,10 @@
-import boto3
 import json
 import os
 import time
-
-from botocore.exceptions import ClientError
 from uuid import UUID
 
+import boto3
+from botocore.exceptions import ClientError
 
 b3client = boto3.client("logs", region_name=os.environ.get('AWS_REGION', "eu-west-2"))
 try:

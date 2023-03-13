@@ -42,7 +42,10 @@ from emergency_alerts_utils.markdown import (
     notify_letter_preview_markdown,
     notify_plain_text_email_markdown,
 )
-from emergency_alerts_utils.postal_address import PostalAddress, address_lines_1_to_7_keys
+from emergency_alerts_utils.postal_address import (
+    PostalAddress,
+    address_lines_1_to_7_keys,
+)
 from emergency_alerts_utils.sanitise_text import SanitiseSMS
 from emergency_alerts_utils.take import Take
 from emergency_alerts_utils.template_change import TemplateChange
