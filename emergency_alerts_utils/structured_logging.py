@@ -43,8 +43,8 @@ class UUIDEncoder(json.JSONEncoder):
 def log_to_cloudwatch(logData: LogData):
     try:
         b3client.put_log_events(
-            logGroupName=os.environ.get("LOG_GROUP_NAME"),
-            logStreamName=os.environ.get("HOSTNAME"),
+            logGroupName=os.environ.get("LOG_GROUP_NAME", "/aws/ecs/eas-app"),
+            logStreamName=os.environ.get("HOSTNAME", "placeholder"),
             logEvents=[{"timestamp": int(round(time.time() * 1000)), "message": str(logData)}],
         )
     except ClientError as e:
