@@ -7,7 +7,7 @@ from botocore.exceptions import ClientError
 from uuid import UUID
 
 
-b3client = boto3.client("logs", region_name=os.environ.get('AWS_REGION'))
+b3client = boto3.client("logs", region_name=os.environ.get('AWS_REGION', "eu-west-2"))
 try:
     b3client.create_log_stream(
         logGroupName=os.environ.get('LOG_GROUP_NAME'),
