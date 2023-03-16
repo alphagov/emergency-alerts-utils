@@ -5,7 +5,6 @@ from uuid import UUID
 
 import boto3
 from botocore.exceptions import ClientError
-
 from moto import mock_logs
 
 
@@ -14,6 +13,7 @@ class LogData:
     b3client = None
     logGroupName = ""
     logStreamName = ""
+
     def __init__(self, source: str, module: str, method: str, serviceId: UUID = "", broadcastMessageId: UUID = ""):
         self.source = source
         self.module = module
@@ -24,16 +24,18 @@ class LogData:
         LogData.logGroupName = os.environ.get("LOG_GROUP_NAME", "/aws/ecs/eas-app")
         LogData.logStreamName = os.environ.get("HOSTNAME", "placeholder")
 
-        if LogData.b3client == None:
+        if LogData.b3client is None:
             try:
                 LogData.b3client = boto3.client("logs", region_name=os.environ.get("AWS_REGION", "eu-west-2"))
-                LogData.b3client.create_log_stream(logGroupName=LogData.logGroupName, logStreamName=LogData.logStreamName)
+                LogData.b3client.create_log_stream(
+                    logGroupName=LogData.logGroupName, logStreamName=LogData.logStreamName
+                )
             except ClientError as e:
                 if e.response["Error"]["Code"] != "ResourceAlreadyExistsException":
                     raise e
 
     def log_to_cloudwatch(self):
-        if not LogData.b3client == None:
+        if LogData.b3client is not None:
             try:
                 LogData.b3client.put_log_events(
                     logGroupName=LogData.logGroupName,
