@@ -5,10 +5,8 @@ from uuid import UUID
 
 import boto3
 from botocore.exceptions import ClientError
-from moto import mock_logs
 
 
-@mock_logs
 class LogData:
     b3client = None
     logGroupName = ""
