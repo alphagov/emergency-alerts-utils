@@ -7,10 +7,10 @@ phases:
       - curl --silent -L "https://github.com/docker/buildx/releases/download/v0.3.0/buildx-v0.3.0.linux-amd64" > ~/.docker/cli-plugins/docker-buildx
       - chmod a+x ~/.docker/cli-plugins/docker-buildx
       - apt-get update
-      - apt-get -y install python3-dev --fix-missing
-      - apt-get install gcc libpq-dev -y
+      - apt-get install python3-dev --fix-missing -y
       - apt-get install python3-dev python3-pip python3-venv python3-wheel -y
-      - pip3 install wheel
+      - pip install --upgrade setuptools
+      - pip install cmake
   pre_build:
     commands:
       - docker buildx create --name builder
