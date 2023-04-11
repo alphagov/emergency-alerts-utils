@@ -37,6 +37,9 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.s
 RUN . $SHELL_CONF && nvm install $NODE_VERSION && nvm use $NODE_VERSION && \
     node --version || echo 'Could not find node version';
 
+# Install wheel
+RUN python -m pip install wheel
+
 # Build emergency-alerts-utils
 COPY . $UTILS_DIR
 RUN $PYTHON_VERSION -m venv $VENV_UTILS && cd $UTILS_DIR && . $VENV_UTILS/bin/activate && make bootstrap
