@@ -11,8 +11,9 @@ phases:
       - pip3 install --upgrade pip
       - pip3 install --upgrade setuptools
       - pip3 install cmake
-      - python3 -m venv venv
-      - . venv/bin/activate
+      - python3 -m venv .
+      - . bin/activate
+      - pip3 install Flask
   pre_build:
     commands:
       - docker buildx create --name builder
