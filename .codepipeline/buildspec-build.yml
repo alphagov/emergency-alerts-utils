@@ -14,6 +14,8 @@ phases:
       - python3 -m venv .
       - . bin/activate
       - pip3 install Flask
+      - make bootstrap
+      - python -m pip install wheel
   pre_build:
     commands:
       - docker buildx create --name builder
