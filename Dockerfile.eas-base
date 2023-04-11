@@ -26,9 +26,6 @@ RUN apt-get install wget curl git unzip vim make jq apt-utils telnet dnsutils bu
 RUN apt-get install $PYTHON_VERSION $PYTHON_VERSION-venv python3-pip libpython3.9-dev -y --no-install-recommends && \
     mkdir $VENV_ROOT
 
-# Install wheel
-RUN pip install --upgrade wheel setuptools
-
 # Install AWS CLI
 RUN curl 'https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip' -o 'awscliv2.zip'; unzip 'awscliv2.zip' && \
     ./aws/install;
@@ -42,4 +39,4 @@ RUN . $SHELL_CONF && nvm install $NODE_VERSION && nvm use $NODE_VERSION && \
 
 # Build emergency-alerts-utils
 COPY . $UTILS_DIR
-RUN $PYTHON_VERSION -m venv $VENV_UTILS && cd $UTILS_DIR && . $VENV_UTILS/bin/activate && make bootstrap
+RUN $PYTHON_VERSION -m venv $VENV_UTILS && cd $UTILS_DIR && . $VENV_UTILS/bin/activate && pip install --upgrade pip wheel setuptools && make bootstrap
