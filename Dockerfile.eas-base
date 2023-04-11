@@ -23,8 +23,12 @@ RUN apt-get update -y
 RUN apt-get install wget curl git unzip vim make jq apt-utils telnet dnsutils build-essential ca-certificates libcurl4-openssl-dev libssl-dev -y --no-install-recommends
 
 # Install Python and VENV.
-RUN apt-get install $PYTHON_VERSION $PYTHON_VERSION-venv python3-pip python3-wheel libpython3.9-dev -y --no-install-recommends && \
+RUN apt-get install $PYTHON_VERSION $PYTHON_VERSION-venv python3-pip libpython3.9-dev -y --no-install-recommends && \
     mkdir $VENV_ROOT
+
+# Install wheel
+RUN pip install wheel
+RUN pip install fisher goatools
 
 # Install AWS CLI
 RUN curl 'https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip' -o 'awscliv2.zip'; unzip 'awscliv2.zip' && \
