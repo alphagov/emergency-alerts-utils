@@ -21,7 +21,7 @@ RUN apt-get update -y
 
 # Install commonly used tools, python related pre-reqs and ca-certs
 RUN apt-get install wget curl git unzip vim make jq apt-utils gnupg telnet dnsutils build-essential ca-certificates libcurl4-openssl-dev libssl-dev gcc libpq-dev -y --no-install-recommends
-RUN apt install docker -y
+RUN apt install docker snapd -y
 RUN snap install docker -y
 
 # Install Python and VENV.
