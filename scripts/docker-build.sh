@@ -27,7 +27,7 @@ function ecr_login(){
 
 function docker_build(){
   if [ -z $EXECUTION_ID ] && [ -z $COMMIT_ID ]; then
-    docker buildx build \
+    docker build \
       --platform $PLATFORM \
       -t $ECS_ACCOUNT_NUMBER.dkr.ecr.$REGION.amazonaws.com/eas-app-$IMAGE:latest \
       --build-arg ECS_ACCOUNT_NUMBER=$ECS_ACCOUNT_NUMBER \
@@ -36,7 +36,7 @@ function docker_build(){
       $ARGS \
       .
   else
-    docker buildx build \
+    docker build \
       --platform $PLATFORM \
       -t $ECS_ACCOUNT_NUMBER.dkr.ecr.$REGION.amazonaws.com/eas-app-$IMAGE:pipeline-$EXECUTION_ID \
       -t $ECS_ACCOUNT_NUMBER.dkr.ecr.$REGION.amazonaws.com/eas-app-$IMAGE:commit-$COMMIT_ID \
