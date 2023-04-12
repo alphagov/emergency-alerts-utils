@@ -40,4 +40,4 @@ RUN . $SHELL_CONF && nvm install $NODE_VERSION && nvm use $NODE_VERSION && \
 # Build emergency-alerts-utils
 COPY . $UTILS_DIR
 WORKDIR $UTILS_DIR
-RUN $PYTHON_VERSION -m venv $VENV_UTILS && . $VENV_UTILS/bin/activate && make bootstrap
+RUN $PYTHON_VERSION -m venv $VENV_UTILS && . $VENV_UTILS/bin/activate && pip install .
