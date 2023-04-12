@@ -22,31 +22,32 @@ function get_account_number(){
 }
 
 function ecr_login(){
-  aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ECS_ACCOUNT_NUMBER.dkr.ecr.$REGION.amazonaws.com
+  # aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ECS_ACCOUNT_NUMBER.dkr.ecr.$REGION.amazonaws.com
 }
 
 function docker_build(){
-  if [ -z $EXECUTION_ID ] && [ -z $COMMIT_ID ]; then
-    docker buildx build \
-      --platform $PLATFORM \
-      -t $ECS_ACCOUNT_NUMBER.dkr.ecr.$REGION.amazonaws.com/eas-app-$IMAGE:latest \
-      --build-arg ECS_ACCOUNT_NUMBER=$ECS_ACCOUNT_NUMBER \
-      -f Dockerfile.eas-$IMAGE \
-      --no-cache \
-      $ARGS \
-      .
-  else
-    docker buildx build \
-      --platform $PLATFORM \
-      -t $ECS_ACCOUNT_NUMBER.dkr.ecr.$REGION.amazonaws.com/eas-app-$IMAGE:pipeline-$EXECUTION_ID \
-      -t $ECS_ACCOUNT_NUMBER.dkr.ecr.$REGION.amazonaws.com/eas-app-$IMAGE:commit-$COMMIT_ID \
-      -t $ECS_ACCOUNT_NUMBER.dkr.ecr.$REGION.amazonaws.com/eas-app-$IMAGE:latest \
-      --build-arg ECS_ACCOUNT_NUMBER=$ECS_ACCOUNT_NUMBER \
-      -f Dockerfile.eas-$IMAGE \
-      --no-cache \
-      $ARGS \
-      .
-  fi
+  # if [ -z $EXECUTION_ID ] && [ -z $COMMIT_ID ]; then
+  #   docker buildx build \
+  #     --platform $PLATFORM \
+  #     -t $ECS_ACCOUNT_NUMBER.dkr.ecr.$REGION.amazonaws.com/eas-app-$IMAGE:latest \
+  #     --build-arg ECS_ACCOUNT_NUMBER=$ECS_ACCOUNT_NUMBER \
+  #     -f Dockerfile.eas-$IMAGE \
+  #     --no-cache \
+  #     $ARGS \
+  #     .
+  # else
+  #   docker buildx build \
+  #     --platform $PLATFORM \
+  #     -t $ECS_ACCOUNT_NUMBER.dkr.ecr.$REGION.amazonaws.com/eas-app-$IMAGE:pipeline-$EXECUTION_ID \
+  #     -t $ECS_ACCOUNT_NUMBER.dkr.ecr.$REGION.amazonaws.com/eas-app-$IMAGE:commit-$COMMIT_ID \
+  #     -t $ECS_ACCOUNT_NUMBER.dkr.ecr.$REGION.amazonaws.com/eas-app-$IMAGE:latest \
+  #     --build-arg ECS_ACCOUNT_NUMBER=$ECS_ACCOUNT_NUMBER \
+  #     -f Dockerfile.eas-$IMAGE \
+  #     --no-cache \
+  #     $ARGS \
+  #     .
+  # fi
+  docker build --no-cache -t $ECS_ACCOUNT_NUMBER.dkr.ecr.$REGION.amazonaws.com/eas-app-$IMAGE:latest -f Dockerfile.eas-$IMAGE .
 }
 
 get_account_number
