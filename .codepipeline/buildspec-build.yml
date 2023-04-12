@@ -12,8 +12,7 @@ phases:
       - docker buildx use builder
   build:
     commands:
-      - cd emergency_alerts_utils/
-      - bash ../scripts/docker-build.sh --EXECUTION_ID $EXECUTION_ID --COMMIT_ID $COMMIT_ID --IMAGE base --ARGS '--push'
+      - bash ./scripts/docker-build.sh --EXECUTION_ID $EXECUTION_ID --COMMIT_ID $COMMIT_ID --IMAGE base --ARGS '--push'
   post_build:
     commands:
       - echo "No post build commands"
