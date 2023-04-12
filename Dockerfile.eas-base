@@ -20,10 +20,10 @@ RUN mv $SHELL_CONF $SHELL_CONF.bak; cat $SHELL_CONF.bak | sed 's/\[ -z "$PS1" \]
 RUN apt-get update -y
 
 # Install commonly used tools, python related pre-reqs and ca-certs
-RUN apt-get install wget curl git unzip vim make jq apt-utils gnupg telnet dnsutils build-essential ca-certificates libcurl4-openssl-dev libssl-dev gcc libpq-dev -y --no-install-recommends
+RUN apt-get install wget curl git unzip vim make jq apt-utils telnet dnsutils build-essential ca-certificates libcurl4-openssl-dev libssl-dev -y --no-install-recommends
 
 # Install Python and VENV.
-RUN apt-get install $PYTHON_VERSION $PYTHON_VERSION-venv python3-pip python3-dev python3-wheel python3-venv libpython3.9-dev -y --no-install-recommends && \
+RUN apt-get install $PYTHON_VERSION $PYTHON_VERSION-venv python3-pip libpython3.9-dev -y --no-install-recommends && \
     mkdir $VENV_ROOT
 
 # Install AWS CLI
@@ -40,4 +40,4 @@ RUN . $SHELL_CONF && nvm install $NODE_VERSION && nvm use $NODE_VERSION && \
 # Build emergency-alerts-utils
 COPY . $UTILS_DIR
 WORKDIR $UTILS_DIR
-RUN $PYTHON_VERSION -m venv $VENV_UTILS && . $VENV_UTILS/bin/activate && $PYTHON_VERSION -m pip install wheel cmake Flask Flask-Migrate  && $PYTHON_VERSION -m pip install --upgrade pip wheel setuptools && make bootstrap
+RUN $PYTHON_VERSION -m venv $VENV_UTILS && . $VENV_UTILS/bin/activate && $PYTHON_VERSION -m pip install --upgrade pip wheel setuptools && make bootstrap

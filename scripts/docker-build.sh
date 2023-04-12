@@ -36,7 +36,7 @@ function docker_build(){
       $ARGS \
       .
   else
-    docker build \
+    docker buildx build \
       --platform $PLATFORM \
       -t $ECS_ACCOUNT_NUMBER.dkr.ecr.$REGION.amazonaws.com/eas-app-$IMAGE:pipeline-$EXECUTION_ID \
       -t $ECS_ACCOUNT_NUMBER.dkr.ecr.$REGION.amazonaws.com/eas-app-$IMAGE:commit-$COMMIT_ID \
