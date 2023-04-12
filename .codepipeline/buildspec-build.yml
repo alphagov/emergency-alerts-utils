@@ -15,6 +15,7 @@ phases:
       - docker buildx use builder
   build:
     commands:
+      - python3 -m pip install .
       - bash ./scripts/docker-build.sh --EXECUTION_ID $EXECUTION_ID --COMMIT_ID $COMMIT_ID --IMAGE base --ARGS '--push'
   post_build:
     commands:
