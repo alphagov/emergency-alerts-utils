@@ -1,22 +1,24 @@
 version: 0.2
 
 phases:
-  install:
-    commands:
-      # - export BUILDX_VERSION=$(curl --silent "https://api.github.com/repos/docker/buildx/releases/latest" |jq -r .tag_name)
-      # - curl -JLO "https://github.com/docker/buildx/releases/download/$BUILDX_VERSION/buildx-$BUILDX_VERSION.linux-amd64"
-      # - mkdir -p ~/.docker/cli-plugins
-      # - mv "buildx-$BUILDX_VERSION.linux-amd64" ~/.docker/cli-plugins/docker-buildx
-      # - chmod +x ~/.docker/cli-plugins/docker-buildx
-      # - docker buildx bake
-      # - docker run --privileged --rm tonistiigi/binfmt --install amd64
   pre_build:
     commands:
-      # - docker buildx create --name builder
-      # - docker buildx use builder
+      - echo Logging in to AMmazon ECR...
+      - $(aws ecr get-login --region $AWS_REGION)
   build:
     commands:
-      - bash ./scripts/docker-build.sh --IMAGE base
+      - echo Build started on `date`
+      - echo Building Docker image...
+      - |
+        docker build
+        -t $REPOSITORY_URI:latest
+        -t $REPOSITORY_URI:$EXECUTION_ID
+        -t $REPOSITORY_URI:$COMMIT_ID
+        --build-arg $(aws sts get-caller-identity)
+        -f Dockerfile.eas-base
+        --no-cache .
   post_build:
     commands:
-      - echo "No post build commands"
+      - echo Building complete on `date`
+      - echo Pushing the Docker image...
+      - docker push $REPOSITORY_URI:latest
