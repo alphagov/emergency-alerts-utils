@@ -9,14 +9,16 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building Docker image...
+      - ls -la
       - |
         docker build
         -t $REPOSITORY_URI:latest
         -t $REPOSITORY_URI:$EXECUTION_ID
         -t $REPOSITORY_URI:$COMMIT_ID
-        --build-arg $(aws sts get-caller-identity)
+        --build-arg ECS_ACCOUNT_NUMBER=$(aws sts get-caller-identity)
         -f Dockerfile.eas-base
-        --no-cache .
+        --no-cache
+        .
   post_build:
     commands:
       - echo Building complete on `date`
