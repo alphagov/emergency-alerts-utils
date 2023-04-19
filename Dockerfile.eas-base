@@ -3,7 +3,6 @@ FROM ubuntu:20.04
 ARG DEBIAN_FRONTEND='noninteractive'
 ARG ENVIRONMENT='development'
 ARG PIP_DEFAULT_TIMEOUT=1000
-
 # App root required to be ENV due to start.sh script
 ENV VENV_ROOT=/venv
 ENV SHELL_CONF=/root/.bashrc
@@ -11,6 +10,8 @@ ENV PYTHON_VERSION='python3.9'
 ENV NODE_VERSION='v16.14.0'
 ENV NVM_VERSION='v0.39.1'
 ENV VENV_UTILS=/venv/eas-utils
+ENV VENV_API=/venv/eas-api
+ENV VENV_ADMIN=/venv/eas-admin
 ENV UTILS_DIR=/eas/emergency-alerts-utils
 
 # Copy the bashrc file and remove command that exits bashrc file if not running interactively.
@@ -37,7 +38,10 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.s
 RUN . $SHELL_CONF && nvm install $NODE_VERSION && nvm use $NODE_VERSION && \
     node --version || echo 'Could not find node version';
 
+RUN $PYTHON_VERSION -m venv $VENV_UTILS && . $VENV_UTILS/bin/activate && $PYTHON_VERSION -m pip install --upgrade pip wheel setuptools
+RUN $PYTHON_VERSION -m venv $VENV_ADMIN
+RUN $PYTHON_VERSION -m venv $VENV_API
+
 # Build emergency-alerts-utils
 COPY . $UTILS_DIR
-WORKDIR $UTILS_DIR
-RUN $PYTHON_VERSION -m venv $VENV_UTILS && . $VENV_UTILS/bin/activate && $PYTHON_VERSION -m pip install --upgrade pip wheel setuptools && make bootstrap
+RUN cd $UTILS_DIR && . $VENV_UTILS/bin/activate && make bootstrap
