@@ -1,7 +1,6 @@
 FROM ubuntu:20.04
 
 ARG DEBIAN_FRONTEND='noninteractive'
-ARG ENVIRONMENT='development'
 ARG PIP_DEFAULT_TIMEOUT=1000
 
 # App root required to be ENV due to start.sh script
