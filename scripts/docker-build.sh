@@ -49,12 +49,6 @@ function docker_build(){
   fi
 }
 
-function docker_build_basic(){
-  docker build --no-cache -t $ECS_ACCOUNT_NUMBER.dkr.ecr.$REGION.amazonaws.com/eas-app-$IMAGE:latest -f Dockerfile.eas-$IMAGE .
-  docker push $ECS_ACCOUNT_NUMBER.dkr.ecr.$REGION.amazonaws.com/eas-app-$IMAGE:latest
-}
-
 get_account_number
 ecr_login
-# docker_build
-docker_build_basic
+docker_build
