@@ -39,8 +39,8 @@ RUN . $SHELL_CONF && nvm install $NODE_VERSION && nvm use $NODE_VERSION && \
     node --version || echo 'Could not find node version';
 
 RUN $PYTHON_VERSION -m venv $VENV_UTILS && . $VENV_UTILS/bin/activate && $PYTHON_VERSION -m pip install --upgrade pip wheel setuptools
-RUN $PYTHON_VERSION -m venv $VENV_ADMIN && . $VENV_ADMIN/bin/activate && $PYTHON_VERSION -m pip install pycurl
-RUN $PYTHON_VERSION -m venv $VENV_API && . $VENV_API/bin/activate && $PYTHON_VERSION -m pip install pycurl
+RUN $PYTHON_VERSION -m venv $VENV_ADMIN && . $VENV_ADMIN/bin/activate && $PYTHON_VERSION -m pip3 install pycurl
+RUN $PYTHON_VERSION -m venv $VENV_API && . $VENV_API/bin/activate && $PYTHON_VERSION -m pip3 install pycurl
 
 # Build emergency-alerts-utils
 COPY . $UTILS_DIR
