@@ -6,7 +6,7 @@ from random import choice, randrange
 from unittest.mock import Mock
 
 import pytest
-from orderedset import OrderedSet
+from ordered_set import OrderedSet
 
 from emergency_alerts_utils import SMS_CHAR_COUNT_LIMIT
 from emergency_alerts_utils.countries import Country
