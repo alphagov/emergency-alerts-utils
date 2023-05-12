@@ -7,7 +7,7 @@ help:
 
 .PHONY: bootstrap
 bootstrap: ## Build project
-	pip install -r requirements_for_test.txt
+	pip3 install -r requirements_for_test.txt
 
 .PHONY: test
 test: ## Run tests
