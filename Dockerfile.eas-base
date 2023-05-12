@@ -6,7 +6,8 @@ ARG PIP_DEFAULT_TIMEOUT=1000
 # App root required to be ENV due to start.sh script
 ENV VENV_ROOT=/venv
 ENV SHELL_CONF=/root/.bashrc
-ENV PYTHON_VERSION='python3.9'
+ENV PYTHON_VERSION='3.9'
+ENV PYTHON_FULL_VERSION=$PYTHON_VERSION'.16'
 ENV NODE_VERSION='v16.14.0'
 ENV NVM_VERSION='v0.39.1'
 ENV VENV_UTILS=/venv/eas-utils
@@ -20,12 +21,41 @@ RUN mv $SHELL_CONF $SHELL_CONF.bak; cat $SHELL_CONF.bak | sed 's/\[ -z "$PS1" \]
 # Update OS to latest.
 RUN apt-get update -y
 
-# Install commonly used tools, python related pre-reqs and ca-certs
-RUN apt-get install wget curl git unzip vim make jq apt-utils telnet dnsutils build-essential ca-certificates libcurl4-openssl-dev libssl-dev -y --no-install-recommends
+# Install commonly used tools, python related pre-reqs, ca-certs and OS tools
+RUN apt-get install build-essential \
+                    libssl-dev \
+                    zlib1g-dev \
+                    libbz2-dev \
+                    libreadline-dev \
+                    libsqlite3-dev \
+                    llvm \
+                    libncurses5-dev \
+                    libncursesw5-dev \
+                    xz-utils \
+                    tk-dev \
+                    libffi-dev \
+                    liblzma-dev \
+                    python-openssl \
+                    libcurl4-openssl-dev \
+                    dnsutils \
+                    telnet \
+                    apt-utils \
+                    make \
+                    vim \
+                    unzip \
+                    git \
+                    curl \
+                    wget -y --no-install-recommends
 
-# Install Python and VENV.
-RUN apt-get install $PYTHON_VERSION $PYTHON_VERSION-venv python3-pip libpython3.9-dev -y --no-install-recommends && \
-    mkdir $VENV_ROOT
+# Install Python.
+RUN cd /opt && \
+    wget https://www.python.org/ftp/python/$PYTHON_FULL_VERSION/Python-$PYTHON_FULL_VERSION.tgz --no-check-certificate && \
+    tar xzvf Python-$PYTHON_FULL_VERSION.tgz && \
+    cd Python-$PYTHON_FULL_VERSION && \
+    ./configure && \
+    make && \
+    make install && \
+    ln -fs /opt/Python-$PYTHON_FULL_VERSION/Python /usr/bin/python$PYTHON_VERSION
 
 # Install AWS CLI
 RUN curl 'https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip' -o 'awscliv2.zip'; unzip 'awscliv2.zip' && \
@@ -38,9 +68,9 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.s
 RUN . $SHELL_CONF && nvm install $NODE_VERSION && nvm use $NODE_VERSION && \
     node --version || echo 'Could not find node version';
 
-RUN $PYTHON_VERSION -m venv $VENV_UTILS && . $VENV_UTILS/bin/activate && $PYTHON_VERSION -m pip install --upgrade pip wheel setuptools
-RUN $PYTHON_VERSION -m venv $VENV_ADMIN
-RUN $PYTHON_VERSION -m venv $VENV_API
+RUN python$PYTHON_VERSION -m venv $VENV_UTILS && . $VENV_UTILS/bin/activate && python$PYTHON_VERSION -m pip install --upgrade pip wheel setuptools
+RUN python$PYTHON_VERSION -m venv $VENV_ADMIN
+RUN python$PYTHON_VERSION -m venv $VENV_API
 
 # Build emergency-alerts-utils
 COPY . $UTILS_DIR
