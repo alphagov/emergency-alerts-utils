@@ -22,7 +22,7 @@ class LogData:
         LogData.logGroupName = os.environ.get("LOG_GROUP_NAME", "/aws/ecs/eas-app")
         LogData.logStreamName = os.environ.get("HOSTNAME", "placeholder")
 
-        if LogData.b3client is None:
+        if LogData.b3client is None and os.environ.get("NOTIFY_ENVIRONMENT") != "development":
             try:
                 LogData.b3client = boto3.client("logs", region_name=os.environ.get("AWS_REGION", "eu-west-2"))
                 LogData.b3client.create_log_stream(
