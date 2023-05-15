@@ -88,3 +88,5 @@ RUN python$PYTHON_VERSION -m venv $VENV_GOVUK
 # Build emergency-alerts-utils
 COPY . $DIR_UTILS
 RUN cd $DIR_UTILS && . $VENV_UTILS/bin/activate && make bootstrap
+
+#
