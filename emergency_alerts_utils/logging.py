@@ -7,7 +7,7 @@ from pathlib import Path
 
 from flask import g, request
 from flask.ctx import has_app_context, has_request_context
-from pythonjsonlogger.jsonlogger import JsonFormatter as BaseJSONFormatter
+from pythonjsonlogger.jsonlogger import JsonFormatter as JSONFormatter # as BaseJSONFormatter
 
 LOG_FORMAT = (
     "%(asctime)s %(app_name)s %(name)s %(levelname)s " '%(request_id)s "%(message)s" [in %(pathname)s:%(lineno)d]'
@@ -154,19 +154,19 @@ class CustomLogFormatter(logging.Formatter):
         return super(CustomLogFormatter, self).format(record)
 
 
-class JSONFormatter(BaseJSONFormatter):
-    def process_log_record(self, log_record):
-        rename_map = {
-            "asctime": "time",
-            "request_id": "requestId",
-            "app_name": "application",
-            "service_id": "service_id",
-        }
-        for key, newkey in rename_map.items():
-            log_record[newkey] = log_record.pop(key)
-        log_record["logType"] = "application"
-        try:
-            log_record["message"] = log_record["message"].format(**log_record)
-        except (KeyError, IndexError) as e:
-            logger.exception(f"failed to format log message: {e} not found")
-        return log_record
+# class JSONFormatter(BaseJSONFormatter):
+#     def process_log_record(self, log_record):
+#         rename_map = {
+#             "asctime": "time",
+#             "request_id": "requestId",
+#             "app_name": "application",
+#             "service_id": "service_id",
+#         }
+#         for key, newkey in rename_map.items():
+#             log_record[newkey] = log_record.pop(key)
+#         log_record["logType"] = "application"
+#         try:
+#             log_record["message"] = log_record["message"].format(**log_record)
+#         except (KeyError, IndexError) as e:
+#             logger.exception(f"failed to format log message: {e} not found")
+#         return log_record
