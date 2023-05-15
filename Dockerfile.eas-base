@@ -10,11 +10,18 @@ ENV PYTHON_VERSION='3.9'
 ENV PYTHON_FULL_VERSION=$PYTHON_VERSION'.16'
 ENV NODE_VERSION='v16.14.0'
 ENV NVM_VERSION='v0.39.1'
-ENV VENV_UTILS=/venv/eas-utils
-ENV VENV_API=/venv/eas-api
-ENV VENV_GOVUK=/venv/eas-govuk
-ENV VENV_ADMIN=/venv/eas-admin
-ENV UTILS_DIR=/eas/emergency-alerts-utils
+
+# Virtual Envs
+ENV VENV_UTILS=/venv/emergency-alerts-utils
+ENV VENV_API=/venv/emergency-alerts-api
+ENV VENV_GOVUK=/venv/emergency-alerts-govuk
+ENV VENV_ADMIN=/venv/emergency-alerts-admin
+
+# Directories
+ENV DIR_UTILS=/eas/emergency-alerts-utils
+ENV DIR_API=/eas/emergency-alerts-api
+ENV DIR_GOVUK=/eas/emergency-alerts-govuk
+ENV DIR_ADMIN=/eas/emergency-alerts-admin
 
 # Copy the bashrc file and remove command that exits bashrc file if not running interactively.
 RUN mv $SHELL_CONF $SHELL_CONF.bak; cat $SHELL_CONF.bak | sed 's/\[ -z "$PS1" \] && return//' > $SHELL_CONF;
@@ -79,5 +86,5 @@ RUN python$PYTHON_VERSION -m venv $VENV_API
 RUN python$PYTHON_VERSION -m venv $VENV_GOVUK
 
 # Build emergency-alerts-utils
-COPY . $UTILS_DIR
-RUN cd $UTILS_DIR && . $VENV_UTILS/bin/activate && make bootstrap
+COPY . $DIR_UTILS
+RUN cd $DIR_UTILS && . $VENV_UTILS/bin/activate && make bootstrap
