@@ -85,5 +85,5 @@ def test_base_json_formatter_contains_service_id(tmpdir):
     )
 
     service_id_filter = logging.ServiceIdFilter()
-    assert json.loads(logging.BaseJSONFormatter().format(record))["message"] == "message to log"
+    assert json.loads(logging.JSONFormatter().format(record))["message"] == "message to log"
     assert service_id_filter.filter(record).service_id == "no-service-id"

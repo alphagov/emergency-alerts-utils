@@ -7,7 +7,9 @@ from pathlib import Path
 
 from flask import g, request
 from flask.ctx import has_app_context, has_request_context
-from pythonjsonlogger.jsonlogger import JsonFormatter as JSONFormatter # as BaseJSONFormatter
+from pythonjsonlogger.jsonlogger import (
+    JsonFormatter as JSONFormatter,  # as BaseJSONFormatter
+)
 
 LOG_FORMAT = (
     "%(asctime)s %(app_name)s %(name)s %(levelname)s " '%(request_id)s "%(message)s" [in %(pathname)s:%(lineno)d]'
