@@ -12,6 +12,7 @@ ENV NODE_VERSION='v16.14.0'
 ENV NVM_VERSION='v0.39.1'
 ENV VENV_UTILS=/venv/eas-utils
 ENV VENV_API=/venv/eas-api
+ENV VENV_GOVUK=/venv/eas-govuk
 ENV VENV_ADMIN=/venv/eas-admin
 ENV UTILS_DIR=/eas/emergency-alerts-utils
 
@@ -75,6 +76,7 @@ RUN . $SHELL_CONF && nvm install $NODE_VERSION && nvm use $NODE_VERSION && \
 RUN python$PYTHON_VERSION -m venv $VENV_UTILS && . $VENV_UTILS/bin/activate && python$PYTHON_VERSION -m pip install --upgrade pip wheel setuptools
 RUN python$PYTHON_VERSION -m venv $VENV_ADMIN
 RUN python$PYTHON_VERSION -m venv $VENV_API
+RUN python$PYTHON_VERSION -m venv $VENV_GOVUK
 
 # Build emergency-alerts-utils
 COPY . $UTILS_DIR
