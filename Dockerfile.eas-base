@@ -10,7 +10,7 @@ ENV PYTHON_VERSION='3.9'
 ENV PYTHON_FULL_VERSION=$PYTHON_VERSION'.16'
 ENV NODE_VERSION='v16.14.0'
 ENV NVM_VERSION='v0.39.1'
-
+ENV FLASK_APP=application.py
 
 # Virtual Envs
 ENV VENV_UTILS=/venv/emergency-alerts-utils
@@ -85,6 +85,7 @@ RUN python$PYTHON_VERSION -m venv $VENV_UTILS && . $VENV_UTILS/bin/activate && p
 RUN python$PYTHON_VERSION -m venv $VENV_ADMIN
 RUN python$PYTHON_VERSION -m venv $VENV_API
 RUN python$PYTHON_VERSION -m venv $VENV_GOVUK
+RUN python$PYTHON_VERSION -m venv /venv/eas-api
 
 # Build emergency-alerts-utils
 COPY . $DIR_UTILS
