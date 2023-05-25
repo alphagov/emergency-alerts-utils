@@ -1,3 +1,4 @@
+from requests.auth import HTTPBasicAuth
 import requests
 from flask import current_app
 
@@ -8,9 +9,6 @@ class ZendeskError(Exception):
 
 
 class ZendeskClient:
-    # the account used to authenticate with. If no requester is provided, the ticket will come from this account.
-    NOTIFY_ZENDESK_EMAIL = "zd-api-notify@digital.cabinet-office.gov.uk"
-
     ZENDESK_TICKET_URL = "https://govuk.zendesk.com/api/v2/tickets.json"
 
     def __init__(self):
@@ -20,8 +18,12 @@ class ZendeskClient:
         self.api_key = app.config.get("ZENDESK_API_KEY")
 
     def send_ticket_to_zendesk(self, ticket):
+        headers = {
+            'Accept': 'application/json',
+            'Authorization': f"Basic {self.api_key}"
+        }
         response = requests.post(
-            self.ZENDESK_TICKET_URL, json=ticket.request_data, auth=(f"{self.NOTIFY_ZENDESK_EMAIL}/token", self.api_key)
+            self.ZENDESK_TICKET_URL, json=ticket.request_data, headers=headers
         )
 
         if response.status_code != 201:
