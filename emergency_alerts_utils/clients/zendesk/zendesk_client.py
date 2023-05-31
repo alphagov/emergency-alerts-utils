@@ -1,4 +1,3 @@
-from requests.auth import HTTPBasicAuth
 import requests
 from flask import current_app
 
@@ -18,13 +17,8 @@ class ZendeskClient:
         self.api_key = app.config.get("ZENDESK_API_KEY")
 
     def send_ticket_to_zendesk(self, ticket):
-        headers = {
-            'Accept': 'application/json',
-            'Authorization': f"Basic {self.api_key}"
-        }
-        response = requests.post(
-            self.ZENDESK_TICKET_URL, json=ticket.request_data, headers=headers
-        )
+        headers = {"Accept": "application/json", "Authorization": f"Basic {self.api_key}"}
+        response = requests.post(self.ZENDESK_TICKET_URL, json=ticket.request_data, headers=headers)
 
         if response.status_code != 201:
             current_app.logger.error(

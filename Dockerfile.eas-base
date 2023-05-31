@@ -72,8 +72,6 @@ RUN cd /opt && \
     make install && \
     ln -fs /opt/Python-$PYTHON_FULL_VERSION/Python /usr/bin/python$PYTHON_VERSION
 
-RUN apt-get install python$PYTHON_VERSION-dev -y
-
 # Install AWS CLI
 RUN curl 'https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip' -o 'awscliv2.zip'; unzip 'awscliv2.zip' && \
     ./aws/install;

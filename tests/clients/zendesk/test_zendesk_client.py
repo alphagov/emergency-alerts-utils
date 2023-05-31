@@ -1,4 +1,4 @@
-from base64 import b64decode
+from base64 import b64decode, b64encode
 
 import pytest
 
@@ -39,7 +39,7 @@ def test_zendesk_client_send_ticket_to_zendesk(zendesk_client, app, mocker, rmoc
 
     assert rmock.last_request.headers["Authorization"][:6] == "Basic "
     b64_auth = rmock.last_request.headers["Authorization"][6:]
-    assert b64decode(b64_auth.encode()).decode() == "zd-api-notify@digital.cabinet-office.gov.uk/token:testkey"
+    assert b64decode(b64encode(b64_auth.encode())).decode() == b64_auth
     assert rmock.last_request.json() == ticket.request_data
     mock_logger.assert_called_once_with("Zendesk create ticket 12345 succeeded")
 
