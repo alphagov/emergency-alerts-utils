@@ -33,32 +33,34 @@ RUN mv $SHELL_CONF $SHELL_CONF.bak; cat $SHELL_CONF.bak | sed 's/\[ -z "$PS1" \]
 RUN apt-get update -y
 
 # Install commonly used tools, python related pre-reqs, ca-certs and OS tools
-RUN apt-get install build-essential \
-                    libssl-dev \
-                    zlib1g-dev \
-                    libbz2-dev \
-                    libreadline-dev \
-                    libsqlite3-dev \
-                    llvm \
-                    libncurses5-dev \
-                    libncursesw5-dev \
-                    xz-utils \
-                    tk-dev \
-                    libffi-dev \
-                    liblzma-dev \
-                    python-openssl \
-                    libcurl4-openssl-dev \
-                    dnsutils \
-                    telnet \
-                    apt-utils \
-                    make \
-                    vim \
-                    unzip \
-                    git \
-                    curl \
-                    wget \
-                    ca-certificates -y --no-install-recommends && \
-                    update-ca-certificates
+RUN apt-get install -y build-essential
+RUN apt-get install -y libssl-dev
+RUN apt-get install -y zlib1g-dev
+RUN apt-get install -y libbz2-dev
+RUN apt-get install -y libreadline-dev
+RUN apt-get install -y libsqlite3-dev
+RUN apt-get install -y llvm
+RUN apt-get install -y libncurses5-dev
+RUN apt-get install -y libncursesw5-dev
+RUN apt-get install -y xz-utils
+RUN apt-get install -y tk-dev
+RUN apt-get install -y libffi-dev
+RUN apt-get install -y liblzma-dev
+RUN apt-get install -y python-openssl
+RUN apt-get install -y libcurl4-openssl-dev
+RUN apt-get install -y dnsutils
+RUN apt-get install -y telnet
+RUN apt-get install -y apt-utils
+RUN apt-get install -y make
+RUN apt-get install -y vim
+RUN apt-get install -y unzip
+RUN apt-get install -y git
+RUN apt-get install -y curl
+RUN apt-get install -y wget
+RUN apt-get install -y ca-certificates
+RUN apt-get install -y build-essential
+
+RUN update-ca-certificates
 
 # Install Python.
 RUN cd /opt && \
