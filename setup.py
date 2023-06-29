@@ -17,7 +17,7 @@ setup(
     url="https://github.com/alphagov/emergency-alerts-utils",
     license="MIT",
     author="Government Digital Service",
-    description="Shared python code for GOV.UK Notify.",
+    description="Shared python code for GOV.UK Emergency Alerts",
     long_description=__doc__,
     packages=find_packages(),
     include_package_data=True,

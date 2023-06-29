@@ -7,7 +7,7 @@ from pathlib import Path
 
 from flask import g, request
 from flask.ctx import has_app_context, has_request_context
-from pythonjsonlogger.jsonlogger import JsonFormatter as BaseJSONFormatter
+from pythonjsonlogger.jsonlogger import JsonFormatter
 
 LOG_FORMAT = (
     "%(asctime)s %(app_name)s %(name)s %(levelname)s " '%(request_id)s "%(message)s" [in %(pathname)s:%(lineno)d]'
@@ -56,7 +56,7 @@ def ensure_log_path_exists(path):
 def get_handlers(app):
     handlers = []
     standard_formatter = CustomLogFormatter(LOG_FORMAT, TIME_FORMAT)
-    json_formatter = JSONFormatter(LOG_FORMAT, TIME_FORMAT)
+    json_formatter = JsonFormatter(LOG_FORMAT, TIME_FORMAT)
 
     stream_handler = logging.StreamHandler(sys.stdout)
 
@@ -154,7 +154,7 @@ class CustomLogFormatter(logging.Formatter):
         return super(CustomLogFormatter, self).format(record)
 
 
-class JSONFormatter(BaseJSONFormatter):
+class JSONFormatter(JsonFormatter):
     def process_log_record(self, log_record):
         rename_map = {
             "asctime": "time",

@@ -3,6 +3,7 @@ import logging as builtin_logging
 import logging.handlers as builtin_logging_handlers
 
 import pytest
+import pythonjsonlogger.jsonlogger
 
 from emergency_alerts_utils import logging
 
@@ -47,10 +48,10 @@ def test_get_handlers_sets_up_logging_appropriately_without_debug_when_not_on_ec
 
     assert len(handlers) == 2
     assert type(handlers[0]) == builtin_logging.StreamHandler
-    assert type(handlers[0].formatter) == logging.JSONFormatter
+    assert type(handlers[0].formatter) == pythonjsonlogger.jsonlogger.JsonFormatter
 
     assert type(handlers[1]) == builtin_logging_handlers.WatchedFileHandler
-    assert type(handlers[1].formatter) == logging.JSONFormatter
+    assert type(handlers[1].formatter) == pythonjsonlogger.jsonlogger.JsonFormatter
 
     dir_contents = tmpdir.listdir()
     assert len(dir_contents) == 1
@@ -74,7 +75,7 @@ def test_get_handlers_sets_up_logging_appropriately_without_debug_on_ecs(tmpdir)
 
     assert len(handlers) == 1
     assert type(handlers[0]) == builtin_logging.StreamHandler
-    assert type(handlers[0].formatter) == logging.JSONFormatter
+    assert type(handlers[0].formatter) == pythonjsonlogger.jsonlogger.JsonFormatter
 
     assert not (tmpdir / "foo.json").exists()
 
@@ -85,5 +86,5 @@ def test_base_json_formatter_contains_service_id(tmpdir):
     )
 
     service_id_filter = logging.ServiceIdFilter()
-    assert json.loads(logging.BaseJSONFormatter().format(record))["message"] == "message to log"
+    assert json.loads(logging.JsonFormatter().format(record))["message"] == "message to log"
     assert service_id_filter.filter(record).service_id == "no-service-id"
