@@ -1,5 +1,3 @@
-from base64 import b64decode, b64encode
-
 import pytest
 
 from emergency_alerts_utils.clients.zendesk.zendesk_client import (
@@ -38,8 +36,6 @@ def test_zendesk_client_send_ticket_to_zendesk(zendesk_client, app, mocker, rmoc
     zendesk_client.send_ticket_to_zendesk(ticket)
 
     assert rmock.last_request.headers["Authorization"][:6] == "Basic "
-    b64_auth = rmock.last_request.headers["Authorization"][6:]
-    assert b64decode(b64encode(b64_auth.encode())).decode() == b64_auth
     assert rmock.last_request.json() == ticket.request_data
     mock_logger.assert_called_once_with("Zendesk create ticket 12345 succeeded")
 
@@ -62,21 +58,21 @@ def test_zendesk_client_send_ticket_to_zendesk_error(zendesk_client, app, mocker
     (
         (
             {},
-            ["govuk_notify_support"],
+            ["emergency_alerts_support"],
             "normal",
         ),
         (
             {
                 "p1": False,
             },
-            ["govuk_notify_support"],
+            ["emergency_alerts_support"],
             "normal",
         ),
         (
             {
                 "p1": True,
             },
-            ["govuk_notify_emergency"],
+            ["emergency_alerts_emergency"],
             "urgent",
         ),
     ),
@@ -98,11 +94,11 @@ def test_notify_support_ticket_request_data(p1_arg, expected_tags, expected_prio
             "tags": expected_tags,
             "type": "question",
             "custom_fields": [
-                {"id": "1900000744994", "value": "notify_ticket_type_non_technical"},
-                {"id": "360022836500", "value": []},
-                {"id": "360022943959", "value": None},
-                {"id": "360022943979", "value": None},
-                {"id": "1900000745014", "value": None},
+                {"id": "9450265441308", "value": "emergency_alerts_ticket_type_non_technical"},
+                {"id": "9450275731228", "value": []},
+                {"id": "9450285728028", "value": None},
+                {"id": "9450288116380", "value": None},
+                {"id": "9450320852636", "value": None},
             ],
         }
     }
@@ -127,30 +123,30 @@ def test_notify_support_ticket_request_data_with_user_name_and_email(name, zende
 @pytest.mark.parametrize(
     "custom_fields, tech_ticket_tag, categories, org_id, org_type, service_id",
     [
-        ({"technical_ticket": True}, "notify_ticket_type_technical", [], None, None, None),
-        ({"technical_ticket": False}, "notify_ticket_type_non_technical", [], None, None, None),
+        ({"technical_ticket": True}, "emergency_alerts_ticket_type_technical", [], None, None, None),
+        ({"technical_ticket": False}, "emergency_alerts_ticket_type_non_technical", [], None, None, None),
         (
-            {"ticket_categories": ["notify_billing", "notify_bug"]},
-            "notify_ticket_type_non_technical",
-            ["notify_billing", "notify_bug"],
+            {"ticket_categories": ["notify_bug"]},
+            "emergency_alerts_ticket_type_non_technical",
+            ["notify_bug"],
             None,
             None,
             None,
         ),
         (
             {"org_id": "1234", "org_type": "local"},
-            "notify_ticket_type_non_technical",
+            "emergency_alerts_ticket_type_non_technical",
             [],
             "1234",
-            "notify_org_type_local",
+            "emergency_alerts_org_type_local",
             None,
         ),
         (
             {"service_id": "abcd", "org_type": "nhs"},
-            "notify_ticket_type_non_technical",
+            "emergency_alerts_ticket_type_non_technical",
             [],
             None,
-            "notify_org_type_nhs",
+            "emergency_alerts_org_type_nhs",
             "abcd",
         ),
     ],
@@ -166,11 +162,11 @@ def test_notify_support_ticket_request_data_custom_fields(
     notify_ticket_form = NotifySupportTicket("subject", "message", "question", **custom_fields)
 
     assert notify_ticket_form.request_data["ticket"]["custom_fields"] == [
-        {"id": "1900000744994", "value": tech_ticket_tag},
-        {"id": "360022836500", "value": categories},
-        {"id": "360022943959", "value": org_id},
-        {"id": "360022943979", "value": org_type},
-        {"id": "1900000745014", "value": service_id},
+        {"id": "9450265441308", "value": tech_ticket_tag},
+        {"id": "9450275731228", "value": categories},
+        {"id": "9450285728028", "value": org_id},
+        {"id": "9450288116380", "value": org_type},
+        {"id": "9450320852636", "value": service_id},
     ]
 
 
@@ -196,14 +192,14 @@ def test_notify_support_ticket_with_html_body():
             "organization_id": NotifySupportTicket.NOTIFY_ORG_ID,
             "ticket_form_id": NotifySupportTicket.NOTIFY_TICKET_FORM_ID,
             "priority": "normal",
-            "tags": ["govuk_notify_support"],
+            "tags": ["emergency_alerts_support"],
             "type": "task",
             "custom_fields": [
-                {"id": "1900000744994", "value": "notify_ticket_type_non_technical"},
-                {"id": "360022836500", "value": []},
-                {"id": "360022943959", "value": None},
-                {"id": "360022943979", "value": None},
-                {"id": "1900000745014", "value": None},
+                {"id": "9450265441308", "value": "emergency_alerts_ticket_type_non_technical"},
+                {"id": "9450275731228", "value": []},
+                {"id": "9450285728028", "value": None},
+                {"id": "9450288116380", "value": None},
+                {"id": "9450320852636", "value": None},
             ],
         }
     }

@@ -37,19 +37,19 @@ class NotifySupportTicket:
     PRIORITY_NORMAL = "normal"
     PRIORITY_LOW = "low"
 
-    TAGS_P2 = "govuk_notify_support"
-    TAGS_P1 = "govuk_notify_emergency"
+    TAGS_P2 = "emergency_alerts_support"
+    TAGS_P1 = "emergency_alerts_emergency"
 
     TYPE_PROBLEM = "problem"
     TYPE_INCIDENT = "incident"
     TYPE_QUESTION = "question"
     TYPE_TASK = "task"
 
-    # Group: 3rd Line--Notify Support
-    NOTIFY_GROUP_ID = 360000036529
+    # Group: 3rd Line--Emergency Alerts Support
+    NOTIFY_GROUP_ID = 21842358
     # Organization: GDS
     NOTIFY_ORG_ID = 21891972
-    NOTIFY_TICKET_FORM_ID = 1900000284794
+    NOTIFY_TICKET_FORM_ID = 9450316961820
 
     def __init__(
         self,
@@ -112,13 +112,13 @@ class NotifySupportTicket:
         return data
 
     def _get_custom_fields(self):
-        technical_ticket_tag = f'notify_ticket_type_{"" if self.technical_ticket else "non_"}technical'
-        org_type_tag = f"notify_org_type_{self.org_type}" if self.org_type else None
+        technical_ticket_tag = f'emergency_alerts_ticket_type_{"" if self.technical_ticket else "non_"}technical'
+        org_type_tag = f"emergency_alerts_org_type_{self.org_type}" if self.org_type else None
 
         return [
-            {"id": "1900000744994", "value": technical_ticket_tag},  # Notify Ticket type field
-            {"id": "360022836500", "value": self.ticket_categories},  # Notify Ticket category field
-            {"id": "360022943959", "value": self.org_id},  # Notify Organisation ID field
-            {"id": "360022943979", "value": org_type_tag},  # Notify Organisation type field
-            {"id": "1900000745014", "value": self.service_id},  # Notify Service ID field
+            {"id": "9450265441308", "value": technical_ticket_tag},  # Notify Ticket type field
+            {"id": "9450275731228", "value": self.ticket_categories},  # Notify Ticket category field
+            {"id": "9450285728028", "value": self.org_id},  # Notify Organisation ID field
+            {"id": "9450288116380", "value": org_type_tag},  # Notify Organisation type field
+            {"id": "9450320852636", "value": self.service_id},  # Notify Service ID field
         ]
