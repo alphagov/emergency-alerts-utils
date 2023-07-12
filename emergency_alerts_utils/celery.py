@@ -6,7 +6,6 @@ from flask import g, request
 from flask.ctx import has_app_context, has_request_context
 
 
-# add comment to test pre-commit
 def make_task(app):
     class NotifyTask(Task):
         abstract = True
