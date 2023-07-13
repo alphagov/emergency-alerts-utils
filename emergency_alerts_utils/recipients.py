@@ -42,7 +42,6 @@ address_columns = InsensitiveDict.from_keys(first_column_headings["letter"])
 
 
 class RecipientCSV:
-
     max_rows = 100_000
 
     def __init__(
@@ -149,7 +148,6 @@ class RecipientCSV:
         )
 
     def get_rows(self):
-
         column_headers = self._raw_column_headers  # this is for caching
         length_of_column_headers = len(column_headers)
 
@@ -158,7 +156,6 @@ class RecipientCSV:
         next(rows_as_lists_of_columns, None)  # skip the header row
 
         for index, row in enumerate(rows_as_lists_of_columns):
-
             if index >= self.max_rows:
                 yield None
                 continue
@@ -166,7 +163,6 @@ class RecipientCSV:
             output_dict = {}
 
             for column_name, column_value in zip(column_headers, row):
-
                 column_value = strip_and_remove_obscure_whitespace(column_value)
 
                 if InsensitiveDict.make_key(column_name) in self.recipient_column_headers_as_column_keys:
@@ -265,7 +261,6 @@ class RecipientCSV:
 
     @property
     def duplicate_recipient_column_headers(self):
-
         raw_recipient_column_headers = [
             InsensitiveDict.make_key(column_header)
             for column_header in self._raw_column_headers
@@ -289,7 +284,6 @@ class RecipientCSV:
 
     @property
     def has_recipient_columns(self):
-
         if self.template_type == "letter":
             sets_to_check = [
                 InsensitiveDict.from_keys(address_lines_1_to_6_and_postcode_keys).keys(),
@@ -316,7 +310,6 @@ class RecipientCSV:
         return False
 
     def _get_error_for_field(self, key, value):  # noqa: C901
-
         if self.is_address_column(key):
             return
 
@@ -342,7 +335,6 @@ class RecipientCSV:
 
 
 class Row(InsensitiveDict):
-
     message_too_long = False
     message_empty = False
 
@@ -437,7 +429,6 @@ class Row(InsensitiveDict):
 
 
 class Cell:
-
     missing_field_error = "Missing"
 
     def __init__(self, key=None, value=None, error_fn=None, placeholders=None):
@@ -475,7 +466,6 @@ class InvalidAddressError(InvalidEmailError):
 
 
 def normalise_phone_number(number):
-
     for character in ALL_WHITESPACE + "()-+":
         number = number.replace(character, "")
 
@@ -488,7 +478,6 @@ def normalise_phone_number(number):
 
 
 def is_uk_phone_number(number):
-
     if number.startswith("0") and not number.startswith("00"):
         return True
 
@@ -512,7 +501,6 @@ international_phone_info = namedtuple(
 
 
 def get_international_phone_info(number):
-
     number = validate_phone_number(number, international=True)
     prefix = get_international_prefix(number)
     crown_dependency = _is_a_crown_dependency_number(number)
@@ -549,7 +537,6 @@ def use_numeric_sender(number):
 
 
 def validate_uk_phone_number(number):
-
     number = normalise_phone_number(number).lstrip(uk_prefix).lstrip("0")
 
     if not number.startswith("7"):
@@ -565,7 +552,6 @@ def validate_uk_phone_number(number):
 
 
 def validate_phone_number(number, international=False):
-
     if (not international) or is_uk_phone_number(number):
         return validate_uk_phone_number(number)
 
