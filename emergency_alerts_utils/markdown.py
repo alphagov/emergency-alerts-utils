@@ -188,7 +188,6 @@ class NotifyEmailMarkdownRenderer(NotifyLetterMarkdownPreviewRenderer):
 
 
 class NotifyPlainTextEmailMarkdownRenderer(NotifyEmailMarkdownRenderer):
-
     COLUMN_WIDTH = 65
 
     def header(self, text, level, raw=None):
