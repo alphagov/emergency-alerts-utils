@@ -55,32 +55,33 @@ def ensure_log_path_exists(path):
 
 def get_handlers(app):
     handlers = []
-    standard_formatter = CustomLogFormatter(LOG_FORMAT, TIME_FORMAT)
-    json_formatter = JsonFormatter(LOG_FORMAT, TIME_FORMAT)
+    # standard_formatter = CustomLogFormatter(LOG_FORMAT, TIME_FORMAT)
+    # json_formatter = JsonFormatter(LOG_FORMAT, TIME_FORMAT)
+    json_formatter = JsonFormatter()
 
     stream_handler = logging.StreamHandler(sys.stdout)
 
-    if app.debug:
-        # turn off 200 OK static logs in development
-        def is_200_static_log(log):
-            msg = log.getMessage()
-            return not ("GET /static/" in msg and " 200 " in msg)
+    # if app.debug:
+    #     # turn off 200 OK static logs in development
+    #     def is_200_static_log(log):
+    #         msg = log.getMessage()
+    #         return not ("GET /static/" in msg and " 200 " in msg)
 
-        logging.getLogger("werkzeug").addFilter(is_200_static_log)
+    #     logging.getLogger("werkzeug").addFilter(is_200_static_log)
 
-        # human readable stdout logs
-        handlers.append(configure_handler(stream_handler, app, standard_formatter))
-        return handlers
+    #     # human readable stdout logs
+    #     handlers.append(configure_handler(stream_handler, app, standard_formatter))
+    #     return handlers
 
     # stream json to stdout in all cases
     handlers.append(configure_handler(stream_handler, app, json_formatter))
 
     # TODO: ecs-migration: delete this when we migrate to ecs
     # only write json to file if we're not running on ECS
-    if app.config["NOTIFY_RUNTIME_PLATFORM"] != "ecs":
-        # machine readable json to both file and stdout
-        file_handler = logging.handlers.WatchedFileHandler(filename=f"{app.config['NOTIFY_LOG_PATH']}.json")
-        handlers.append(configure_handler(file_handler, app, json_formatter))
+    # if app.config["NOTIFY_RUNTIME_PLATFORM"] != "ecs":
+    #     # machine readable json to both file and stdout
+    #     file_handler = logging.handlers.WatchedFileHandler(filename=f"{app.config['NOTIFY_LOG_PATH']}.json")
+    #     handlers.append(configure_handler(file_handler, app, json_formatter))
 
     return handlers
 
