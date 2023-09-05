@@ -111,11 +111,24 @@ def _configure_celery_logger():
     celeryLogger = logging.getLogger("celery")
     celeryLogger.addHandler(logging.NullHandler())
     celeryLogger.setLevel(logging.ERROR)
-    traceback_formatter = JsonFormatterNoNewlines()
-    celery_handler = logging.StreamHandler(sys.stdout)
+    # traceback_formatter = JsonFormatterNoNewlines()
+    # celery_handler = logging.StreamHandler(sys.stdout)
+    celery_handler = NoTracebackHandler()
     celery_handler.setLevel(logging.ERROR)
-    celery_handler.setFormatter(traceback_formatter)
+    # celery_handler.setFormatter(traceback_formatter)
+    celery_handler.setFormatter(JsonFormatter())
     celeryLogger.addHandler(celery_handler)
+
+
+class NoTracebackHandler(logging.Handler):
+    def handle(self, record):
+        info, text = record.exc_info, record.exc_text
+        record.exc_info, record.exc_text = None, None
+        try:
+            super().handle(record)
+        finally:
+            record.exc_info = info
+            record.exc_text = text
 
 
 class AppNameFilter(logging.Filter):
@@ -177,13 +190,13 @@ class CustomLogFormatter(logging.Formatter):
         return super(CustomLogFormatter, self).format(record)
 
 
-class JsonFormatterNoNewlines(JsonFormatter):
-    def format(self, record):
-        record.exc_info = record.exc_info.replace("\n", "\r")
-        return super().format(record)
+# class JsonFormatterNoNewlines(JsonFormatter):
+# def format(self, record):
+#     record.exc_info = record.exc_info.splitlines("\n"), "\r")
+#     return super().format(record)
 
-    # def formatException(self, exc_info):
-    #     return exc_info.replace("\n", "\r")
+# def formatException(self, exc_info):
+#     return exc_info.replace("\n", "\r")
 
 
 class JSONFormatter(JsonFormatter):
