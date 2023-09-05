@@ -178,11 +178,12 @@ class CustomLogFormatter(logging.Formatter):
 
 
 class JsonFormatterNoNewlines(JsonFormatter):
-    # def format(self, record):
-    #     record["exc_info"] = record["exc_info"].replace("\n", "\r")
-    #     return record
-    def formatException(self, exc_info):
-        return exc_info.replace("\n", "\r")
+    def format(self, record):
+        record.exc_info = record.exc_info.replace("\n", "\r")
+        return super().format(record)
+
+    # def formatException(self, exc_info):
+    #     return exc_info.replace("\n", "\r")
 
 
 class JSONFormatter(JsonFormatter):
