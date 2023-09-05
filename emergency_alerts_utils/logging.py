@@ -35,14 +35,14 @@ def init_app(app, statsd_client=None):
 
     handlers = get_handlers(app)
     loglevel = logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"])
-    loggers = [app.logger, logging.getLogger("utils")]
+    loggers = [app.logger, logging.getLogger("utils"), logging.getLogger("celery")]
     for logger_instance, handler in product(loggers, handlers):
         logger_instance.addHandler(handler)
         logger_instance.setLevel(loglevel)
     logging.getLogger("boto3").setLevel(logging.WARNING)
     logging.getLogger("s3transfer").setLevel(logging.WARNING)
 
-    _configure_celery_logger()
+    # _configure_celery_logger()
 
     app.logger.info("Logging configured")
 
