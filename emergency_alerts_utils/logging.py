@@ -3,11 +3,13 @@ import logging.handlers
 import re
 import sys
 from itertools import product
-from pathlib import Path
 
 from flask import g, request
 from flask.ctx import has_app_context, has_request_context
 from pythonjsonlogger.jsonlogger import JsonFormatter
+
+# from pathlib import Path
+
 
 LOG_FORMAT = (
     "%(asctime)s %(app_name)s %(name)s %(levelname)s " '%(request_id)s "%(message)s" [in %(pathname)s:%(lineno)d]'
@@ -27,9 +29,9 @@ def init_app(app, statsd_client=None):
 
     del app.logger.handlers[:]
 
-    if app.config["NOTIFY_RUNTIME_PLATFORM"] != "ecs":
-        # TODO: ecs-migration: check if we still need this function after we migrate to ecs
-        ensure_log_path_exists(app.config["NOTIFY_LOG_PATH"])
+    # if app.config["NOTIFY_RUNTIME_PLATFORM"] != "ecs":
+    #     # TODO: ecs-migration: check if we still need this function after we migrate to ecs
+    #     ensure_log_path_exists(app.config["NOTIFY_LOG_PATH"])
 
     handlers = get_handlers(app)
     loglevel = logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"])
@@ -39,18 +41,21 @@ def init_app(app, statsd_client=None):
         logger_instance.setLevel(loglevel)
     logging.getLogger("boto3").setLevel(logging.WARNING)
     logging.getLogger("s3transfer").setLevel(logging.WARNING)
+
+    _configure_celery_logger()
+
     app.logger.info("Logging configured")
 
 
-def ensure_log_path_exists(path):
-    """
-    This function assumes you're passing a path to a file and attempts to create
-    the path leading to that file.
-    """
-    try:
-        Path(path).parent.mkdir(mode=755, parents=True)
-    except FileExistsError:
-        pass
+# def ensure_log_path_exists(path):
+#     """
+#     This function assumes you're passing a path to a file and attempts to create
+#     the path leading to that file.
+#     """
+#     try:
+#         Path(path).parent.mkdir(mode=755, parents=True)
+#     except FileExistsError:
+#         pass
 
 
 def get_handlers(app):
@@ -94,6 +99,23 @@ def configure_handler(handler, app, formatter):
     handler.addFilter(ServiceIdFilter())
 
     return handler
+
+
+def _configure_celery_logger():
+    """
+    Error logging in Celery outputs traceback information that clutters
+    the Cloudwatch logs by producing a log entry for each line in the
+    stack trace. This method replaces the '\n' characters with '\r' in
+    the 'exc_info' field of the log output.
+    """
+    celeryLogger = logging.getLogger("celery")
+    celeryLogger.addHandler(logging.NullHandler())
+    celeryLogger.setLevel(logging.ERROR)
+    traceback_formatter = JsonFormatterNoNewlines()
+    celery_handler = logging.StreamHandler(sys.stdout)
+    celery_handler.setLevel(logging.ERROR)
+    celery_handler.setFormatter(traceback_formatter)
+    celeryLogger.addHandler(celery_handler)
 
 
 class AppNameFilter(logging.Filter):
@@ -153,6 +175,12 @@ class CustomLogFormatter(logging.Formatter):
         except (KeyError, IndexError) as e:
             logger.exception(f"failed to format log message: {e} not found")
         return super(CustomLogFormatter, self).format(record)
+
+
+class JsonFormatterNoNewlines(JsonFormatter):
+    def format(self, record):
+        record["exc_info"] = record["exc_info"].replace("\n", "\r")
+        return record
 
 
 class JSONFormatter(JsonFormatter):
