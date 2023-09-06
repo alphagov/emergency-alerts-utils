@@ -42,7 +42,7 @@ def init_app(app, statsd_client=None):
     logging.getLogger("boto3").setLevel(logging.WARNING)
     logging.getLogger("s3transfer").setLevel(logging.WARNING)
 
-    _configure_celery_logger()
+    # _configure_celery_logger()
 
     app.logger.info("Logging configured")
 
@@ -97,6 +97,7 @@ def configure_handler(handler, app, formatter):
     handler.addFilter(AppNameFilter(app.config["NOTIFY_APP_NAME"]))
     handler.addFilter(RequestIdFilter())
     handler.addFilter(ServiceIdFilter())
+    handler.addFilter(SuppressTracebackFilter())
 
     return handler
 
