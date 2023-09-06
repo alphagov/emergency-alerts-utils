@@ -1,12 +1,15 @@
 import logging
 import logging.handlers
-import re
+
+# import re
 import sys
-from itertools import product
 
 from flask import g, request
 from flask.ctx import has_app_context, has_request_context
 from pythonjsonlogger.jsonlogger import JsonFormatter
+
+# from itertools import product
+
 
 # from pathlib import Path
 
@@ -16,7 +19,7 @@ LOG_FORMAT = (
 )
 TIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 
 def init_app(app, statsd_client=None):
@@ -33,16 +36,37 @@ def init_app(app, statsd_client=None):
     #     # TODO: ecs-migration: check if we still need this function after we migrate to ecs
     #     ensure_log_path_exists(app.config["NOTIFY_LOG_PATH"])
 
-    handlers = get_handlers(app)
-    loglevel = logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"])
-    loggers = [app.logger]
-    for logger_instance, handler in product(loggers, handlers):
-        logger_instance.addHandler(handler)
-        logger_instance.setLevel(loglevel)
+    # handlers = get_handlers(app)
+    # loglevel = logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"])
+    # loggers = [app.logger]
+    # for logger_instance, handler in product(loggers, handlers):
+    #     logger_instance.addHandler(handler)
+    #     logger_instance.setLevel(loglevel)
     # logging.getLogger("boto3").setLevel(logging.WARNING)
     # logging.getLogger("s3transfer").setLevel(logging.WARNING)
 
+    stream_handler = logging.StreamHandler(sys.stdout)
+    stream_handler.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
+    stream_handler.setFormatter(JsonFormatter())
+    stream_handler.addFilter(AppNameFilter(app.config["NOTIFY_APP_NAME"]))
+    stream_handler.addFilter(RequestIdFilter())
+    stream_handler.addFilter(ServiceIdFilter())
+    app.logger.addHandler(stream_handler)
+    app.logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
+
     # _configure_celery_logger()
+
+    stream_handler = logging.StreamHandler(sys.stdout)
+    stream_handler.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
+    stream_handler.setFormatter(JsonFormatter())
+    stream_handler.addFilter(AppNameFilter(app.config["NOTIFY_APP_NAME"]))
+    stream_handler.addFilter(RequestIdFilter())
+    stream_handler.addFilter(ServiceIdFilter())
+    stream_handler.addFilter(SuppressTracebackFilter())
+    celery_logger = logging.getLogger("celery")
+    celery_logger.addHandler(stream_handler)
+    celery_logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
+    celery_logger.propagate = False
 
     app.logger.info("Logging configured")
 
@@ -97,7 +121,7 @@ def configure_handler(handler, app, formatter):
     handler.addFilter(AppNameFilter(app.config["NOTIFY_APP_NAME"]))
     handler.addFilter(RequestIdFilter())
     handler.addFilter(ServiceIdFilter())
-    handler.addFilter(SuppressTracebackFilter())
+    # handler.addFilter(SuppressTracebackFilter())
 
     return handler
 
@@ -184,23 +208,23 @@ class ServiceIdFilter(logging.Filter):
         return record
 
 
-class CustomLogFormatter(logging.Formatter):
-    """Accepts a format string for the message and formats it with the extra fields"""
+# class CustomLogFormatter(logging.Formatter):
+#     """Accepts a format string for the message and formats it with the extra fields"""
 
-    FORMAT_STRING_FIELDS_PATTERN = re.compile(r"\((.+?)\)", re.IGNORECASE)
+#     FORMAT_STRING_FIELDS_PATTERN = re.compile(r"\((.+?)\)", re.IGNORECASE)
 
-    def add_fields(self, record):
-        for field in self.FORMAT_STRING_FIELDS_PATTERN.findall(self._fmt):
-            record.__dict__[field] = record.__dict__.get(field)
-        return record
+#     def add_fields(self, record):
+#         for field in self.FORMAT_STRING_FIELDS_PATTERN.findall(self._fmt):
+#             record.__dict__[field] = record.__dict__.get(field)
+#         return record
 
-    def format(self, record):
-        record = self.add_fields(record)
-        try:
-            record.msg = str(record.msg).format(**record.__dict__)
-        except (KeyError, IndexError) as e:
-            logger.exception(f"failed to format log message: {e} not found")
-        return super(CustomLogFormatter, self).format(record)
+#     def format(self, record):
+#         record = self.add_fields(record)
+#         try:
+#             record.msg = str(record.msg).format(**record.__dict__)
+#         except (KeyError, IndexError) as e:
+#             logger.exception(f"failed to format log message: {e} not found")
+#         return super(CustomLogFormatter, self).format(record)
 
 
 # class JsonFormatterNoNewlines(JsonFormatter):
@@ -212,19 +236,19 @@ class CustomLogFormatter(logging.Formatter):
 #     return exc_info.replace("\n", "\r")
 
 
-class JSONFormatter(JsonFormatter):
-    def process_log_record(self, log_record):
-        rename_map = {
-            "asctime": "time",
-            "request_id": "requestId",
-            "app_name": "application",
-            "service_id": "service_id",
-        }
-        for key, newkey in rename_map.items():
-            log_record[newkey] = log_record.pop(key)
-        log_record["logType"] = "application"
-        try:
-            log_record["message"] = log_record["message"].format(**log_record)
-        except (KeyError, IndexError) as e:
-            logger.exception(f"failed to format log message: {e} not found")
-        return log_record
+# class JSONFormatter(JsonFormatter):
+#     def process_log_record(self, log_record):
+#         rename_map = {
+#             "asctime": "time",
+#             "request_id": "requestId",
+#             "app_name": "application",
+#             "service_id": "service_id",
+#         }
+#         for key, newkey in rename_map.items():
+#             log_record[newkey] = log_record.pop(key)
+#         log_record["logType"] = "application"
+#         try:
+#             log_record["message"] = log_record["message"].format(**log_record)
+#         except (KeyError, IndexError) as e:
+#             logger.exception(f"failed to format log message: {e} not found")
+#         return log_record
