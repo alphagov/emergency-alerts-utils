@@ -35,7 +35,7 @@ def init_app(app, statsd_client=None):
 
     handlers = get_handlers(app)
     loglevel = logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"])
-    loggers = [app.logger, logging.getLogger("utils")]
+    loggers = [app.logger, logger]  # logging.getLogger("utils")]
     for logger_instance, handler in product(loggers, handlers):
         logger_instance.addHandler(handler)
         logger_instance.setLevel(loglevel)
