@@ -25,7 +25,7 @@ def init_app(app, statsd_client=None):
     app.config.setdefault("NOTIFY_LOG_PATH", "./log/application.log")
     app.config.setdefault("NOTIFY_RUNTIME_PLATFORM", None)
 
-    logging.getLogger().addHandler(logging.NullHandler())
+    # logging.getLogger().addHandler(logging.NullHandler())
 
     del app.logger.handlers[:]
 
@@ -35,12 +35,12 @@ def init_app(app, statsd_client=None):
 
     handlers = get_handlers(app)
     loglevel = logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"])
-    loggers = [app.logger, logging.getLogger("utils"), logging.getLogger("celery")]
+    loggers = [app.logger]
     for logger_instance, handler in product(loggers, handlers):
         logger_instance.addHandler(handler)
         logger_instance.setLevel(loglevel)
-    logging.getLogger("boto3").setLevel(logging.WARNING)
-    logging.getLogger("s3transfer").setLevel(logging.WARNING)
+    # logging.getLogger("boto3").setLevel(logging.WARNING)
+    # logging.getLogger("s3transfer").setLevel(logging.WARNING)
 
     # _configure_celery_logger()
 
