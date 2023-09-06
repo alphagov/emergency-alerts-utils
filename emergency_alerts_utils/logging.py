@@ -103,20 +103,25 @@ def configure_handler(handler, app, formatter):
 
 def _configure_celery_logger():
     """
-    Error logging in Celery outputs traceback information that clutters
-    the Cloudwatch logs by producing a log entry for each line in the
-    stack trace. This method replaces the '\n' characters with '\r' in
-    the 'exc_info' field of the log output.
+    Use a custom handler for error logging in Celery to suppress output
+    of traceback information that clutters the Cloudwatch logs by
+    producing a log entry for each line in the stack trace.
     """
+    # celeryLogger = logging.getLogger("celery")
+    # celeryLogger.addHandler(logging.NullHandler())
+    # celeryLogger.setLevel(logging.ERROR)
+    # celery_handler = NoTracebackHandler()
+    # celery_handler.setLevel(logging.ERROR)
+    # celery_handler.setFormatter(JsonFormatter())
+    # celeryLogger.addHandler(celery_handler)
+
     celeryLogger = logging.getLogger("celery")
     celeryLogger.addHandler(logging.NullHandler())
     celeryLogger.setLevel(logging.ERROR)
-    # traceback_formatter = JsonFormatterNoNewlines()
-    # celery_handler = logging.StreamHandler(sys.stdout)
-    celery_handler = NoTracebackHandler()
+    celery_handler = logging.StreamHandler(sys.stdout)
     celery_handler.setLevel(logging.ERROR)
-    # celery_handler.setFormatter(traceback_formatter)
-    celery_handler.setFormatter(JsonFormatter())
+    celery_handler.addFilter(SuppressTracebackFilter())
+    # celery_handler.setFormatter(JsonFormatter())
     celeryLogger.addHandler(celery_handler)
 
 
@@ -129,6 +134,13 @@ class NoTracebackHandler(logging.Handler):
         finally:
             record.exc_info = info
             record.exc_text = text
+
+
+class SuppressTracebackFilter(logging.Filter):
+    def filter(self, record):
+        record.exc_info = None
+        record.exc_text = None
+        return True
 
 
 class AppNameFilter(logging.Filter):
