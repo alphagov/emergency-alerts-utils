@@ -2,13 +2,11 @@ import logging
 import logging.handlers
 import re
 import sys
+from itertools import product
 
 from flask import g, request
 from flask.ctx import has_app_context, has_request_context
 from pythonjsonlogger.jsonlogger import JsonFormatter
-
-# from itertools import product
-
 
 # from pathlib import Path
 
@@ -37,12 +35,10 @@ def init_app(app, statsd_client=None):
 
     handlers = get_handlers(app)
     loglevel = logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"])
-    # loggers = [app.logger, logging.getLogger("utils")]
-    # for logger_instance, handler in product(loggers, handlers):
-    #     logger_instance.addHandler(handler)
-    #     logger_instance.setLevel(loglevel)
-    logger.addHandler(handlers[0])
-    logger.setLevel(loglevel)
+    loggers = [app.logger, logging.getLogger("utils"), logging.getLogger("celery")]
+    for logger_instance, handler in product(loggers, handlers):
+        logger_instance.addHandler(handler)
+        logger_instance.setLevel(loglevel)
     logging.getLogger("boto3").setLevel(logging.WARNING)
     logging.getLogger("s3transfer").setLevel(logging.WARNING)
 
