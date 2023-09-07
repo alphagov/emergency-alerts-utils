@@ -10,26 +10,19 @@ from pythonjsonlogger.jsonlogger import JsonFormatter
 def init_app(app, statsd_client=None):
     app.config.setdefault("NOTIFY_LOG_LEVEL", "INFO")
     app.config.setdefault("NOTIFY_APP_NAME", "none")
-    # app.config.setdefault("NOTIFY_LOG_PATH", "./log/application.log")
-    # app.config.setdefault("NOTIFY_RUNTIME_PLATFORM", None)
 
-    root_handler = get_handler(app)
-    app.logger.addHandler(logging.NullHandler())
-    app.logger.addHandler(root_handler)
+    app.logger.addHandler(_configure_root_handler(app))
     app.logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
 
-    no_traceback_handler = get_handler(app)
-    no_traceback_handler.addFilter(SuppressTracebackFilter())
     celery_logger = logging.getLogger("celery")
-    celery_logger.addHandler(logging.NullHandler())
-    celery_logger.addHandler(no_traceback_handler)
+    celery_logger.addHandler(_configure_notraceback_handler(app))
     celery_logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
     celery_logger.propagate = False
 
     app.logger.info("Logging configured")
 
 
-def get_handler(app):
+def _configure_root_handler(app):
     handler = logging.StreamHandler(sys.stdout)
     handler.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
     handler.setFormatter(JsonFormatter())
@@ -39,11 +32,28 @@ def get_handler(app):
     return handler
 
 
+def _configure_notraceback_handler(app):
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
+    handler.setFormatter(NoExceptionFormatter())
+    handler.addFilter(SuppressTracebackFilter())
+    return handler
+
+
 class SuppressTracebackFilter(logging.Filter):
     def filter(self, record):
         record.exc_info = None
         record.exc_text = None
         return True
+
+
+class NoExceptionFormatter(logging.Formatter):
+    def format(self, record):
+        record.exc_text = ""  # ensure formatException is called
+        return super(NoExceptionFormatter, self).format(record)
+
+    def formatException(self, record):
+        return ""
 
 
 class AppNameFilter(logging.Filter):
