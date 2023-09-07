@@ -10,8 +10,8 @@ from pythonjsonlogger.jsonlogger import JsonFormatter
 def init_app(app, statsd_client=None):
     app.config.setdefault("NOTIFY_LOG_LEVEL", "INFO")
     app.config.setdefault("NOTIFY_APP_NAME", "none")
-    app.config.setdefault("NOTIFY_LOG_PATH", "./log/application.log")
-    app.config.setdefault("NOTIFY_RUNTIME_PLATFORM", None)
+    # app.config.setdefault("NOTIFY_LOG_PATH", "./log/application.log")
+    # app.config.setdefault("NOTIFY_RUNTIME_PLATFORM", None)
 
     root_handler = get_handler(app)
     app.logger.addHandler(logging.NullHandler())
@@ -30,12 +30,13 @@ def init_app(app, statsd_client=None):
 
 
 def get_handler(app):
-    stream_handler = logging.StreamHandler(sys.stdout)
-    stream_handler.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
-    stream_handler.setFormatter(JsonFormatter())
-    stream_handler.addFilter(AppNameFilter(app.config["NOTIFY_APP_NAME"]))
-    stream_handler.addFilter(RequestIdFilter())
-    stream_handler.addFilter(ServiceIdFilter())
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
+    handler.setFormatter(JsonFormatter())
+    handler.addFilter(AppNameFilter(app.config["NOTIFY_APP_NAME"]))
+    handler.addFilter(RequestIdFilter())
+    handler.addFilter(ServiceIdFilter())
+    return handler
 
 
 class SuppressTracebackFilter(logging.Filter):

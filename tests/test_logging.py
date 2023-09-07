@@ -59,26 +59,32 @@ from emergency_alerts_utils import logging
 #     assert dir_contents[0].basename == "foo.json"
 
 
-def test_get_handlers_sets_up_logging_appropriately_without_debug_on_ecs(tmpdir):
+def test_get_handler_sets_up_a_stream_logger_with_a_json_formatter(tmpdir):
     class App:
         config = {
             # make a tempfile called foo
-            "NOTIFY_LOG_PATH": str(tmpdir / "foo"),
+            # "NOTIFY_LOG_PATH": str(tmpdir / "foo"),
             "NOTIFY_APP_NAME": "bar",
             "NOTIFY_LOG_LEVEL": "ERROR",
-            "NOTIFY_RUNTIME_PLATFORM": "ecs",
+            # "NOTIFY_RUNTIME_PLATFORM": "ecs",
         }
-        debug = False
+        # debug = False
 
     app = App()
 
-    handlers = logging.get_handlers(app)
+    handler = logging.get_handler(app)
 
-    assert len(handlers) == 1
-    assert type(handlers[0]) == builtin_logging.StreamHandler
-    assert type(handlers[0].formatter) == pythonjsonlogger.jsonlogger.JsonFormatter
+    assert handler is not None
+    assert type(handler) == builtin_logging.StreamHandler
+    assert type(handler.formatter) == pythonjsonlogger.jsonlogger.JsonFormatter
 
-    assert not (tmpdir / "foo.json").exists()
+    # assert not (tmpdir / "foo.json").exists()
+
+
+def test_logging_module_sets_up_root_and_celery_loggers():
+    # Correctly instantiated loggers will have at least one handler
+    assert builtin_logging.getLogger().hasHandlers()
+    assert builtin_logging.getLogger("celery").hasHandlers()
 
 
 def test_base_json_formatter_contains_service_id(tmpdir):
