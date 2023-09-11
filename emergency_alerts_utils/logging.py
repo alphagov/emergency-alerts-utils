@@ -43,7 +43,7 @@ def _configure_notraceback_handler(app):
 
 class SuppressTracebackFilter(logging.Filter):
     def filter(self, record):
-        record.exc_info = None
+        record.exc_info = False
         record.exc_text = None
         return True
 
