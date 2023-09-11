@@ -14,11 +14,6 @@ def init_app(app, statsd_client=None):
     app.logger.addHandler(_configure_root_handler(app))
     app.logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
 
-    celery_logger = logging.getLogger("celery")
-    celery_logger.addHandler(_configure_notraceback_handler(app))
-    celery_logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
-    celery_logger.propagate = False
-
     app.logger.info("Logging configured")
 
 
@@ -30,6 +25,12 @@ def _configure_root_handler(app):
     handler.addFilter(RequestIdFilter())
     handler.addFilter(ServiceIdFilter())
     return handler
+
+
+def configure_notraceback_logger(app, logger):
+    logger.addHandler(_configure_notraceback_handler(app))
+    logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
+    logger.propagate = False
 
 
 def _configure_notraceback_handler(app):
