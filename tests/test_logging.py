@@ -26,7 +26,7 @@ def test_handlers_are_correctly_configured():
     assert type(handler1) == builtin_logging.StreamHandler
     assert type(handler1.formatter) == pythonjsonlogger.jsonlogger.JsonFormatter
 
-    handler2 = logging._configure_notraceback_handler(app)
+    handler2 = logging._configure_notraceback_handler(app.config["NOTIFY_LOG_LEVEL"])
     assert handler2 is not None
     assert type(handler2) == builtin_logging.StreamHandler
     assert type(handler2.formatter) == logging.NoExceptionFormatter
@@ -57,7 +57,7 @@ def test_configure_notraceback_handler_adds_appropriate_filters():
 
     app = App()
 
-    handler = logging._configure_notraceback_handler(app)
+    handler = logging._configure_notraceback_handler(app.config["NOTIFY_LOG_LEVEL"])
     filters = list(map(lambda filter: type(filter), handler.filters))
     assert logging.SuppressTracebackFilter in filters
 

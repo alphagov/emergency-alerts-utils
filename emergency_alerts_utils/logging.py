@@ -27,15 +27,15 @@ def _configure_root_handler(app):
     return handler
 
 
-def configure_notraceback_logger(app, logger):
-    logger.addHandler(_configure_notraceback_handler(app))
-    logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
+def configure_notraceback_logger(level, logger):
+    logger.addHandler(_configure_notraceback_handler(level))
+    logger.setLevel(logging.getLevelName(level))
     logger.propagate = False
 
 
-def _configure_notraceback_handler(app):
+def _configure_notraceback_handler(level):
     handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
+    handler.setLevel(logging.getLevelName(level))
     handler.setFormatter(NoExceptionFormatter())
     handler.addFilter(SuppressTracebackFilter())
     return handler
