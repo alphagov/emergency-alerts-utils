@@ -13,6 +13,7 @@ def init_app(app, statsd_client=None):
 
     app.logger.addHandler(_configure_root_handler(app))
     app.logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
+    app.logger.propagate = False
 
     app.logger.info("Logging configured")
 
