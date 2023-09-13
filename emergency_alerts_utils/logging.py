@@ -41,6 +41,19 @@ def _configure_notraceback_handler(level):
     return handler
 
 
+def configure_json_logger(level, logger):
+    logger.addHandler(_configure_json_handler(level))
+    logger.setLevel(logging.getLevelName(level))
+    logger.propagate = False
+
+
+def _configure_json_handler(level):
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.getLevelName(level))
+    handler.setFormatter(JsonFormatter)
+    return handler
+
+
 class SuppressTracebackFilter(logging.Filter):
     def filter(self, record):
         record.exc_info = False
