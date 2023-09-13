@@ -32,7 +32,7 @@ setup(
         "statsd>=3.3.0",
         "Flask-Redis>=0.4.0",
         "pyyaml>=5.3.1",
-        "phonenumbers>=8.12.13",
+        "phonenumbers>=8.13.20",
         "pyproj>=3.2.1,<=3.4.0",
         "pytz>=2020.4",
         "smartypants>=2.0.1",
