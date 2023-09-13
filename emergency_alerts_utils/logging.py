@@ -24,6 +24,7 @@ def _configure_root_handler(app):
     handler.addFilter(AppNameFilter(app.config["NOTIFY_APP_NAME"]))
     handler.addFilter(RequestIdFilter())
     handler.addFilter(ServiceIdFilter())
+    handler.addFilter(SuppressTracebackFilter())
     return handler
 
 
