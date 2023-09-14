@@ -19,16 +19,9 @@ def init_app(app, statsd_client=None):
     app.logger.info("Logging configured")
 
 
-def configure_celery_logger(app):
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
-    handler.setFormatter(JsonFormatter())
-    handler.addFilter(SuppressTracebackFilter())
-    app.logger.addHandler(handler)
-    app.logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
-
-
 def configure_application_logger(app):
+    app.logger.handlers[:]
+
     handler = logging.StreamHandler(sys.stdout)
 
     handler.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
@@ -40,6 +33,15 @@ def configure_application_logger(app):
 
     app.logger.addHandler(handler)
     app.logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
+
+
+# def configure_celery_logger(app):
+#     handler = logging.StreamHandler(sys.stdout)
+#     handler.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
+#     handler.setFormatter(JsonFormatter())
+#     handler.addFilter(SuppressTracebackFilter())
+#     app.logger.addHandler(handler)
+#     app.logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
 
 
 # def _configure_root_handler(app):
