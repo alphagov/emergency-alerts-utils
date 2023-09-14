@@ -17,6 +17,7 @@ def setup_logger(*args, **kwargs):
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(JsonFormatter())
     logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
     logger.propagate = False
 
 
@@ -60,7 +61,7 @@ def make_task(app):
             # enables request id tracing for these logs
             with self.app_context():
                 # app.logger.exception(f"Celery task {self.name} (queue: {self.queue_name}) failed")
-                logger.exception(f"Celery task {self.name} (queue: {self.queue_name}) failed", exc_info=False)
+                logger.exception(f"Celery task {self.name} (queue: {self.queue_name}) failed")
 
                 app.statsd_client.incr(f"celery.{self.queue_name}.{self.name}.failure")
 
