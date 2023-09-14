@@ -11,49 +11,73 @@ def init_app(app, statsd_client=None):
     app.config.setdefault("NOTIFY_LOG_LEVEL", "INFO")
     app.config.setdefault("NOTIFY_APP_NAME", "none")
 
-    app.logger.addHandler(_configure_root_handler(app))
-    app.logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
-    app.logger.propagate = False
+    if app.name == "delivery":
+        configure_celery_logger(app)
+    else:
+        configure_application_logger(app)
+
+    # app.logger.addHandler(_configure_root_handler(app))
+    # app.logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
 
     app.logger.info("Logging configured")
 
 
-def _configure_root_handler(app):
+def configure_celery_logger(app):
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
+    handler.setFormatter(JsonFormatter())
+    handler.addFilter(SuppressTracebackFilter())
+    app.logger.addHandler(handler)
+    app.logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
+
+
+def configure_application_logger(app):
     handler = logging.StreamHandler(sys.stdout)
     handler.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
     handler.setFormatter(JsonFormatter())
     handler.addFilter(AppNameFilter(app.config["NOTIFY_APP_NAME"]))
     handler.addFilter(RequestIdFilter())
     handler.addFilter(ServiceIdFilter())
-    handler.addFilter(SuppressTracebackFilter())
-    return handler
+    app.logger.addHandler(handler)
+    app.logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
 
 
-def configure_notraceback_logger(level, logger):
-    logger.addHandler(_configure_notraceback_handler(level))
-    logger.setLevel(logging.getLevelName(level))
-    logger.propagate = False
+# def _configure_root_handler(app):
+#     handler = logging.StreamHandler(sys.stdout)
+#     handler.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
+#     handler.setFormatter(JsonFormatter())
+#     handler.addFilter(AppNameFilter(app.config["NOTIFY_APP_NAME"]))
+#     handler.addFilter(RequestIdFilter())
+#     handler.addFilter(ServiceIdFilter())
+#     handler.addFilter(SuppressTracebackFilter())
+#     return handler
 
 
-def _configure_notraceback_handler(level):
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.getLevelName(level))
-    handler.setFormatter(NoExceptionFormatter())
-    handler.addFilter(SuppressTracebackFilter())
-    return handler
+# def configure_notraceback_logger(level, logger):
+#     logger.addHandler(_configure_notraceback_handler(level))
+#     logger.setLevel(logging.getLevelName(level))
+#     logger.propagate = False
 
 
-def configure_json_logger(level, logger):
-    logger.addHandler(_configure_json_handler(level))
-    logger.setLevel(logging.getLevelName(level))
-    logger.propagate = False
+# def _configure_notraceback_handler(level):
+#     handler = logging.StreamHandler(sys.stdout)
+#     handler.setLevel(logging.getLevelName(level))
+#     handler.setFormatter(NoExceptionFormatter())
+#     handler.addFilter(SuppressTracebackFilter())
+#     return handler
 
 
-def _configure_json_handler(level):
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.getLevelName(level))
-    handler.setFormatter(JsonFormatter)
-    return handler
+# def configure_json_logger(level, logger):
+#     logger.addHandler(_configure_json_handler(level))
+#     logger.setLevel(logging.getLevelName(level))
+#     logger.propagate = False
+
+
+# def _configure_json_handler(level):
+#     handler = logging.StreamHandler(sys.stdout)
+#     handler.setLevel(logging.getLevelName(level))
+#     handler.setFormatter(JsonFormatter)
+#     return handler
 
 
 class SuppressTracebackFilter(logging.Filter):
