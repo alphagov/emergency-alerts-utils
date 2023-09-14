@@ -11,10 +11,7 @@ def init_app(app, statsd_client=None):
     app.config.setdefault("NOTIFY_LOG_LEVEL", "INFO")
     app.config.setdefault("NOTIFY_APP_NAME", "none")
 
-    if app.name == "delivery":
-        configure_celery_logger(app)
-    else:
-        configure_application_logger(app)
+    configure_application_logger(app)
 
     # app.logger.addHandler(_configure_root_handler(app))
     # app.logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
@@ -33,11 +30,14 @@ def configure_celery_logger(app):
 
 def configure_application_logger(app):
     handler = logging.StreamHandler(sys.stdout)
+
     handler.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
     handler.setFormatter(JsonFormatter())
+
     handler.addFilter(AppNameFilter(app.config["NOTIFY_APP_NAME"]))
     handler.addFilter(RequestIdFilter())
     handler.addFilter(ServiceIdFilter())
+
     app.logger.addHandler(handler)
     app.logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
 
