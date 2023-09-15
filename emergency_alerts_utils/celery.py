@@ -1,24 +1,26 @@
-import logging
-import sys
+# import logging
+# import sys
 import time
 from contextlib import contextmanager
 
 from celery import Celery, Task
-from celery.signals import setup_logging
-from flask import g, request
+
+# from celery.signals import setup_logging
+from flask import current_app, g, request
 from flask.ctx import has_app_context, has_request_context
-from pythonjsonlogger.jsonlogger import JsonFormatter
 
-logger = logging.getLogger(__name__)
+# from pythonjsonlogger.jsonlogger import JsonFormatter
+
+# logger = logging.getLogger(__name__)
 
 
-@setup_logging.connect
-def setup_logger(*args, **kwargs):
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(JsonFormatter())
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
-    logger.propagate = False
+# @setup_logging.connect
+# def setup_logger(*args, **kwargs):
+#     handler = logging.StreamHandler(sys.stdout)
+#     handler.setFormatter(JsonFormatter())
+#     logger.addHandler(handler)
+#     logger.setLevel(logging.INFO)
+#     logger.propagate = False
 
 
 def make_task(app):
@@ -50,7 +52,10 @@ def make_task(app):
                 elapsed_time = time.monotonic() - self.start
 
                 # app.logger.info(f"Celery task {self.name} (queue: {self.queue_name}) took {elapsed_time:.4f}")
-                logger.info(f"Celery task {self.name} (queue: {self.queue_name}) took {elapsed_time:.4f}")
+                current_app.logger.info(
+                    f"Celery task {self.name} (queue: {self.queue_name}) took {elapsed_time:.4f}",
+                    extra={"python_module": __name__},
+                )
 
                 app.statsd_client.timing(
                     f"celery.{self.queue_name}.{self.name}.success",
@@ -61,7 +66,9 @@ def make_task(app):
             # enables request id tracing for these logs
             with self.app_context():
                 # app.logger.exception(f"Celery task {self.name} (queue: {self.queue_name}) failed")
-                logger.exception(f"Celery task {self.name} (queue: {self.queue_name}) failed")
+                current_app.logger.exception(
+                    f"Celery task {self.name} (queue: {self.queue_name}) failed", extra={"python_module": __name__}
+                )
 
                 app.statsd_client.incr(f"celery.{self.queue_name}.{self.name}.failure")
 
