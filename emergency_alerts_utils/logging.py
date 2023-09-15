@@ -20,7 +20,7 @@ def init_app(app, statsd_client=None):
 
 
 def configure_application_logger(app):
-    app.logger.handlers[:]
+    del app.logger.handlers[:]
 
     handler = logging.StreamHandler(sys.stdout)
 
