@@ -87,13 +87,13 @@ class JsonFormatterForCloudWatch(JsonFormatter):
         """
         Format an exception so that it prints on a single line.
         """
-        result = super().formatException(exc_info)
-        return repr(result)
+        # result = super().formatException(exc_info)
+        return super().formatException(exc_info)
 
     def format(self, record):
         s = super().format(record)
         if record.exc_text:
-            s = s.replace("\n", "") + "|"
+            record.exc_text = record.exc_text.replace("\n", "")
         return s
 
 
