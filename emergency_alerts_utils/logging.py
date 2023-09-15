@@ -25,7 +25,7 @@ def configure_application_logger(app):
     handler = logging.StreamHandler(sys.stdout)
 
     handler.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
-    handler.setFormatter(JsonFormatter())
+    handler.setFormatter(JsonFormatterForCloudWatch())
 
     handler.addFilter(AppNameFilter(app.config["NOTIFY_APP_NAME"]))
     handler.addFilter(RequestIdFilter())
@@ -80,6 +80,21 @@ def configure_application_logger(app):
 #     handler.setLevel(logging.getLevelName(level))
 #     handler.setFormatter(JsonFormatter)
 #     return handler
+
+
+class JsonFormatterForCloudWatch(JsonFormatter):
+    def formatException(self, exc_info):
+        """
+        Format an exception so that it prints on a single line.
+        """
+        result = super().formatException(exc_info)
+        return repr(result)
+
+    def format(self, record):
+        s = super().format(record)
+        if record.exc_text:
+            s = s.replace("\n", "") + "|"
+        return s
 
 
 class SuppressTracebackFilter(logging.Filter):
