@@ -1,26 +1,15 @@
-# import logging
-# import sys
 import time
 from contextlib import contextmanager
 
 from celery import Celery, Task
-from celery.signals import setup_logging
+
+# from celery.signals import setup_logging
 from flask import current_app, g, request
 from flask.ctx import has_app_context, has_request_context
 
-# from pythonjsonlogger.jsonlogger import JsonFormatter
-
-# logger = logging.getLogger(__name__)
-
-
-@setup_logging.connect
-def setup_logger(*args, **kwargs):
-    pass
-    # handler = logging.StreamHandler(sys.stdout)
-    # handler.setFormatter(JsonFormatter())
-    # logger.addHandler(handler)
-    # logger.setLevel(logging.INFO)
-    # logger.propagate = False
+# @setup_logging.connect
+# def setup_logger(*args, **kwargs):
+#     pass
 
 
 def make_task(app):

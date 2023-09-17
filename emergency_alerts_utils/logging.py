@@ -2,9 +2,15 @@ import logging
 import logging.handlers
 import sys
 
+from celery.signals import setup_logging
 from flask import g, request
 from flask.ctx import has_app_context, has_request_context
 from pythonjsonlogger.jsonlogger import JsonFormatter
+
+
+@setup_logging.connect
+def setup_logger(*args, **kwargs):
+    pass
 
 
 def init_app(app, statsd_client=None):
