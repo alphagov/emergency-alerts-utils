@@ -19,6 +19,13 @@ def init_app(app, statsd_client=None):
 def configure_application_logger(app):
     del app.logger.handlers[:]
 
+    handler = _configure_root_handler(app)
+
+    app.logger.addHandler(handler)
+    app.logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
+
+
+def _configure_root_handler(app):
     handler = logging.StreamHandler(sys.stdout)
 
     handler.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
@@ -28,8 +35,7 @@ def configure_application_logger(app):
     handler.addFilter(RequestIdFilter())
     handler.addFilter(ServiceIdFilter())
 
-    app.logger.addHandler(handler)
-    app.logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
+    return handler
 
 
 class JsonFormatterForCloudWatch(JsonFormatter):
