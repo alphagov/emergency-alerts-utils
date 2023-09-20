@@ -51,19 +51,12 @@ def make_task(app):
                     extra={"python_module": __name__, "queue_name": self.queue_name},
                 )
 
-                app.statsd_client.timing(
-                    f"celery.{self.queue_name}.{self.name}.success",
-                    elapsed_time,
-                )
-
         def on_failure(self, exc, task_id, args, kwargs, einfo):
             # enables request id tracing for these logs
             with self.app_context():
-                current_app.logger.exception(
+                current_app.logger.error(
                     f"Celery task {self.name} failed", extra={"python_module": __name__, "queue_name": self.queue_name}
                 )
-
-                app.statsd_client.incr(f"celery.{self.queue_name}.{self.name}.failure")
 
         def __call__(self, *args, **kwargs):
             # ensure task has flask context to access config, logger, etc

@@ -2,10 +2,9 @@ import uuid
 
 import pytest
 from flask import g
+from freezegun import freeze_time
 
 from emergency_alerts_utils.celery import NotifyCelery
-
-# from freezegun import freeze_time
 
 
 @pytest.fixture
@@ -40,54 +39,58 @@ def request_id_task(celery_task):
     celery_task.pop_request()
 
 
-# def test_success_should_log_and_call_statsd(mocker, celery_app, async_task):
-#     logger_mock = mocker.patch.object(celery_app.logger, "info")
-#     statsd_mock = celery_app.statsd_client.timing
+def test_success_should_log_info(mocker, celery_app, async_task):
+    logger_mock = mocker.patch.object(celery_app.logger, "info")
 
-#     with freeze_time() as frozen:
-#         async_task()
-#         frozen.tick(5)
+    with freeze_time() as frozen:
+        async_task()
+        frozen.tick(5)
 
-#         async_task.on_success(retval=None, task_id=1234, args=[], kwargs={})
+        async_task.on_success(retval=None, task_id=1234, args=[], kwargs={})
 
-#     statsd_mock.assert_called_once_with(f"celery.test-queue.{async_task.name}.success", 5.0)
-#     logger_mock.assert_called_once_with(f"Celery task {async_task.name} (queue: test-queue) took 5.0000")
-
-
-# def test_success_queue_when_applied_synchronously(mocker, celery_app, celery_task):
-#     logger_mock = mocker.patch.object(celery_app.logger, "info")
-#     statsd_mock = celery_app.statsd_client.timing
-
-#     with freeze_time() as frozen:
-#         celery_task()
-#         frozen.tick(5)
-
-#         celery_task.on_success(retval=None, task_id=1234, args=[], kwargs={})
-
-#     statsd_mock.assert_called_once_with(f"celery.none.{celery_task.name}.success", 5.0)
-#     logger_mock.assert_called_once_with(f"Celery task {celery_task.name} (queue: none) took 5.0000")
+    logger_mock.assert_called_once_with(
+        f"Celery task {async_task.name} took 5.0000",
+        extra={"python_module": "emergency_alerts_utils.celery", "queue_name": "test-queue"},
+    )
 
 
-# def test_failure_should_log_and_call_statsd(mocker, celery_app, async_task):
-#     logger_mock = mocker.patch.object(celery_app.logger, "error")
-#     statsd_mock = celery_app.statsd_client.incr
+def test_success_queue_when_applied_synchronously(mocker, celery_app, celery_task):
+    logger_mock = mocker.patch.object(celery_app.logger, "info")
+    # statsd_mock = celery_app.statsd_client.timing
 
-#     async_task.on_failure(exc=Exception, task_id=1234, args=[], kwargs={}, einfo=None)
+    with freeze_time() as frozen:
+        celery_task()
+        frozen.tick(5)
 
-#     statsd_mock.assert_called_once_with(f"celery.test-queue.{async_task.name}.failure")
+        celery_task.on_success(retval=None, task_id=1234, args=[], kwargs={})
 
-#     logger_mock.assert_called_once_with(f"Celery task {async_task.name} (queue: test-queue) failed", exc_info=True)
+    # statsd_mock.assert_called_once_with(f"celery.none.{celery_task.name}.success", 5.0)
+    logger_mock.assert_called_once_with(
+        f"Celery task {celery_task.name} took 5.0000",
+        extra={"python_module": "emergency_alerts_utils.celery", "queue_name": "none"},
+    )
 
 
-# def test_failure_queue_when_applied_synchronously(mocker, celery_app, celery_task):
-#     logger_mock = mocker.patch.object(celery_app.logger, "error")
-#     statsd_mock = celery_app.statsd_client.incr
+def test_failure_should_log_error(mocker, celery_app, async_task):
+    logger_mock = mocker.patch.object(celery_app.logger, "error")
 
-#     celery_task.on_failure(exc=Exception, task_id=1234, args=[], kwargs={}, einfo=None)
+    async_task.on_failure(exc=Exception, task_id=1234, args=[], kwargs={}, einfo=None)
 
-#     statsd_mock.assert_called_once_with(f"celery.none.{celery_task.name}.failure")
+    logger_mock.assert_called_once_with(
+        f"Celery task {async_task.name} failed",
+        extra={"python_module": "emergency_alerts_utils.celery", "queue_name": "test-queue"},
+    )
 
-#     logger_mock.assert_called_once_with(f"Celery task {celery_task.name} (queue: none) failed", exc_info=True)
+
+def test_failure_queue_when_applied_synchronously(mocker, celery_app, celery_task):
+    logger_mock = mocker.patch.object(celery_app.logger, "error")
+
+    celery_task.on_failure(exc=Exception, task_id=1234, args=[], kwargs={}, einfo=None)
+
+    logger_mock.assert_called_once_with(
+        f"Celery task {celery_task.name} failed",
+        extra={"python_module": "emergency_alerts_utils.celery", "queue_name": "none"},
+    )
 
 
 def test_call_exports_request_id_from_headers(mocker, request_id_task):
