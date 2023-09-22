@@ -4,7 +4,7 @@ import pytest
 from werkzeug.test import EnvironBuilder
 
 from emergency_alerts_utils.request_helper import (
-    NotifyRequest,
+    EmergencyAlertsRequest,
     _check_proxy_header_secret,
 )
 
@@ -26,7 +26,7 @@ from emergency_alerts_utils.request_helper import (
 def test_request_header_authorization(header, secrets, expected):
     builder = EnvironBuilder()
     builder.headers.extend(header)
-    request = NotifyRequest(builder.get_environ())
+    request = EmergencyAlertsRequest(builder.get_environ())
 
     res = _check_proxy_header_secret(request, secrets, list(header.keys())[0])
     assert res == expected
@@ -40,7 +40,7 @@ def test_request_header_authorization(header, secrets, expected):
 )
 def test_request_header_authorization_missing_header(secrets, expected):
     builder = EnvironBuilder()
-    request = NotifyRequest(builder.get_environ())
+    request = EmergencyAlertsRequest(builder.get_environ())
 
     res = _check_proxy_header_secret(request, secrets)
     assert res == expected

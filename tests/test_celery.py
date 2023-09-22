@@ -4,19 +4,19 @@ import pytest
 from flask import g
 from freezegun import freeze_time
 
-from emergency_alerts_utils.celery import NotifyCelery
+from emergency_alerts_utils.celery import EmergencyAlertsCelery
 
 
 @pytest.fixture
-def notify_celery(celery_app):
-    celery = NotifyCelery()
+def emergency_alerts_celery(celery_app):
+    celery = EmergencyAlertsCelery()
     celery.init_app(celery_app)
     return celery
 
 
 @pytest.fixture
-def celery_task(notify_celery):
-    @notify_celery.task(name=uuid.uuid4(), base=notify_celery.task_cls)
+def celery_task(emergency_alerts_celery):
+    @emergency_alerts_celery.task(name=uuid.uuid4(), base=emergency_alerts_celery.task_cls)
     def test_task(delivery_info=None):
         pass
 
@@ -34,7 +34,7 @@ def async_task(celery_task):
 def request_id_task(celery_task):
     # Note that each header is a direct attribute of the
     # task context (aka "request").
-    celery_task.push_request(notify_request_id="1234")
+    celery_task.push_request(emergency_alerts_request_id="1234")
     yield celery_task
     celery_task.pop_request()
 
@@ -103,42 +103,47 @@ def test_call_copes_if_request_id_not_in_headers(mocker, celery_task):
 
 def test_send_task_injects_global_request_id_into_headers(
     mocker,
-    notify_celery,
+    emergency_alerts_celery,
 ):
     super_apply = mocker.patch("celery.Celery.send_task")
     g.request_id = "1234"
-    notify_celery.send_task("some-task")
+    emergency_alerts_celery.send_task("some-task")
 
     super_apply.assert_called_with(
-        "some-task", None, None, headers={"notify_request_id": "1234"}  # name  # args  # kwargs  # other kwargs
+        "some-task",
+        None,
+        None,
+        headers={"emergency_alerts_request_id": "1234"},  # name  # args  # kwargs  # other kwargs
     )
 
 
 def test_send_task_injects_request_id_with_existing_headers(
     mocker,
-    notify_celery,
+    emergency_alerts_celery,
 ):
     super_apply = mocker.patch("celery.Celery.send_task")
     g.request_id = "1234"
 
-    notify_celery.send_task("some-task", None, None, headers={"something": "else"})  # args  # kwargs  # other kwargs
+    emergency_alerts_celery.send_task(
+        "some-task", None, None, headers={"something": "else"}
+    )  # args  # kwargs  # other kwargs
 
     super_apply.assert_called_with(
         "some-task",  # name
         None,  # args
         None,  # kwargs
-        headers={"notify_request_id": "1234", "something": "else"},  # other kwargs
+        headers={"emergency_alerts_request_id": "1234", "something": "else"},  # other kwargs
     )
 
 
 def test_send_task_injects_request_id_with_none_headers(
     mocker,
-    notify_celery,
+    emergency_alerts_celery,
 ):
     super_apply = mocker.patch("celery.Celery.send_task")
     g.request_id = "1234"
 
-    notify_celery.send_task(
+    emergency_alerts_celery.send_task(
         "some-task",
         None,  # args
         None,  # kwargs
@@ -146,22 +151,28 @@ def test_send_task_injects_request_id_with_none_headers(
     )
 
     super_apply.assert_called_with(
-        "some-task", None, None, headers={"notify_request_id": "1234"}  # name  # args  # kwargs  # other kwargs
+        "some-task",
+        None,
+        None,
+        headers={"emergency_alerts_request_id": "1234"},  # name  # args  # kwargs  # other kwargs
     )
 
 
 def test_send_task_injects_id_from_request(
     mocker,
-    notify_celery,
+    emergency_alerts_celery,
     celery_app,
 ):
     super_apply = mocker.patch("celery.Celery.send_task")
-    request_id_header = celery_app.config["NOTIFY_TRACE_ID_HEADER"]
+    request_id_header = celery_app.config["EMERGENCY_ALERTS_TRACE_ID_HEADER"]
     request_headers = {request_id_header: "1234"}
 
     with celery_app.test_request_context(headers=request_headers):
-        notify_celery.send_task("some-task")
+        emergency_alerts_celery.send_task("some-task")
 
     super_apply.assert_called_with(
-        "some-task", None, None, headers={"notify_request_id": "1234"}  # name  # args  # kwargs  # other kwargs
+        "some-task",
+        None,
+        None,
+        headers={"emergency_alerts_request_id": "1234"},  # name  # args  # kwargs  # other kwargs
     )

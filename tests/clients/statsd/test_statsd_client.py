@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 from emergency_alerts_utils.clients.statsd.statsd_client import (
-    NotifyStatsClient,
+    EmergencyAlertsStatsClient,
     StatsdClient,
 )
 
@@ -24,7 +24,7 @@ def disabled_statsd_client(app, mocker):
 def build_statsd_client(app, mocker):
     client = StatsdClient()
     app.config["NOTIFY_ENVIRONMENT"] = "test"
-    app.config["NOTIFY_APP_NAME"] = "api"
+    app.config["EMERGENCY_ALERTS_APP_NAME"] = "api"
     app.config["STATSD_HOST"] = "localhost"
     app.config["STATSD_PORT"] = "8000"
     app.config["STATSD_PREFIX"] = "prefix"
@@ -100,7 +100,7 @@ def test_should_call_gauge_if_enabled(enabled_statsd_client):
 
 
 def test_should_log_but_not_throw_if_socket_errors(app, mocker):
-    stats_client = NotifyStatsClient("localhost", 8125, "")
+    stats_client = EmergencyAlertsStatsClient("localhost", 8125, "")
     mocker.patch.object(stats_client, "_sock")
     stats_client._sock.sendto = Mock(side_effect=Exception("Mock Exception"))
     mock_logger = mocker.patch("flask.Flask.logger")
@@ -110,7 +110,7 @@ def test_should_log_but_not_throw_if_socket_errors(app, mocker):
 
 
 def test_should_not_attempt_to_send_if_cache_contains_none(app, mocker):
-    stats_client = NotifyStatsClient("localhost", 8125, "")
+    stats_client = EmergencyAlertsStatsClient("localhost", 8125, "")
     mock_sock = mocker.patch.object(stats_client, "_sock")
     mock_cached_host = mocker.patch.object(stats_client, "_cached_host", return_value=None)
 
@@ -121,14 +121,14 @@ def test_should_not_attempt_to_send_if_cache_contains_none(app, mocker):
 
 
 def test_should_manage_dns(app, mocker):
-    stats_client = NotifyStatsClient("exporter.apps.internal", 8125, "")
+    stats_client = EmergencyAlertsStatsClient("exporter.apps.internal", 8125, "")
 
     with patch.object(stats_client, "_resolve", return_value="1.2.3.4"):
         assert stats_client._cached_host() == "1.2.3.4"
 
 
 def test_should_cache_dns(app, mocker):
-    stats_client = NotifyStatsClient("exporter.apps.internal", 8125, "")
+    stats_client = EmergencyAlertsStatsClient("exporter.apps.internal", 8125, "")
 
     with patch.object(stats_client, "_resolve", return_value="1.2.3.4") as mock_dns_lookup:
         assert stats_client._cached_host() == "1.2.3.4"
@@ -140,7 +140,7 @@ def test_should_cache_dns(app, mocker):
 
 
 def test_should_cache_none_if_dns_fails(app, mocker):
-    stats_client = NotifyStatsClient("exporter.apps.internal", 8125, "")
+    stats_client = EmergencyAlertsStatsClient("exporter.apps.internal", 8125, "")
 
     with patch.object(stats_client, "_resolve", side_effect=Exception("DNS No Worky")) as mock_dns_lookup:
         assert stats_client._cached_host() is None

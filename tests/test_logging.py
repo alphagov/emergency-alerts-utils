@@ -10,7 +10,11 @@ from emergency_alerts_utils import logging
 
 def test_get_handlers_sets_up_logging_appropriately_with_debug(tmpdir):
     class App:
-        config = {"NOTIFY_LOG_PATH": str(tmpdir / "foo"), "NOTIFY_APP_NAME": "bar", "NOTIFY_LOG_LEVEL": "ERROR"}
+        config = {
+            "EMERGENCY_ALERTS_LOG_PATH": str(tmpdir / "foo"),
+            "EMERGENCY_ALERTS_APP_NAME": "bar",
+            "EMERGENCY_ALERTS_LOG_LEVEL": "ERROR",
+        }
         debug = True
 
     app = App()
@@ -35,10 +39,10 @@ def test_get_handlers_sets_up_logging_appropriately_without_debug_when_not_on_ec
     class App:
         config = {
             # make a tempfile called foo
-            "NOTIFY_LOG_PATH": str(tmpdir / "foo"),
-            "NOTIFY_APP_NAME": "bar",
-            "NOTIFY_LOG_LEVEL": "ERROR",
-            "NOTIFY_RUNTIME_PLATFORM": platform,
+            "EMERGENCY_ALERTS_LOG_PATH": str(tmpdir / "foo"),
+            "EMERGENCY_ALERTS_APP_NAME": "bar",
+            "EMERGENCY_ALERTS_LOG_LEVEL": "ERROR",
+            "EMERGENCY_ALERTS_RUNTIME_PLATFORM": platform,
         }
         debug = False
 
@@ -62,10 +66,10 @@ def test_get_handlers_sets_up_logging_appropriately_without_debug_on_ecs(tmpdir)
     class App:
         config = {
             # make a tempfile called foo
-            "NOTIFY_LOG_PATH": str(tmpdir / "foo"),
-            "NOTIFY_APP_NAME": "bar",
-            "NOTIFY_LOG_LEVEL": "ERROR",
-            "NOTIFY_RUNTIME_PLATFORM": "ecs",
+            "EMERGENCY_ALERTS_LOG_PATH": str(tmpdir / "foo"),
+            "EMERGENCY_ALERTS_APP_NAME": "bar",
+            "EMERGENCY_ALERTS_LOG_LEVEL": "ERROR",
+            "EMERGENCY_ALERTS_RUNTIME_PLATFORM": "ecs",
         }
         debug = False
 

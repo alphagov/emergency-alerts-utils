@@ -31,7 +31,7 @@ class ZendeskClient:
         current_app.logger.info(f"Zendesk create ticket {ticket_id} succeeded")
 
 
-class NotifySupportTicket:
+class EmergencyAlertsSupportTicket:
     PRIORITY_URGENT = "urgent"
     PRIORITY_HIGH = "high"
     PRIORITY_NORMAL = "normal"
@@ -46,10 +46,10 @@ class NotifySupportTicket:
     TYPE_TASK = "task"
 
     # Group: 3rd Line--Emergency Alerts Support
-    NOTIFY_GROUP_ID = 21842358
+    EMERGENCY_ALERTS_GROUP_ID = 21842358
     # Organization: GDS
-    NOTIFY_ORG_ID = 21891972
-    NOTIFY_TICKET_FORM_ID = 9450316961820
+    EMERGENCY_ALERTS_ORG_ID = 21891972
+    EMERGENCY_ALERTS_TICKET_FORM_ID = 9450316961820
 
     def __init__(
         self,
@@ -92,9 +92,9 @@ class NotifySupportTicket:
                     ("html_body" if self.message_as_html else "body"): self.message,
                     "public": self.requester_sees_message_content,
                 },
-                "group_id": self.NOTIFY_GROUP_ID,
-                "organization_id": self.NOTIFY_ORG_ID,
-                "ticket_form_id": self.NOTIFY_TICKET_FORM_ID,
+                "group_id": self.EMERGENCY_ALERTS_GROUP_ID,
+                "organization_id": self.EMERGENCY_ALERTS_ORG_ID,
+                "ticket_form_id": self.EMERGENCY_ALERTS_TICKET_FORM_ID,
                 "priority": self.PRIORITY_URGENT if self.p1 else self.PRIORITY_NORMAL,
                 "tags": [self.TAGS_P1 if self.p1 else self.TAGS_P2],
                 "type": self.ticket_type,
@@ -105,7 +105,7 @@ class NotifySupportTicket:
         if self.email_ccs:
             data["ticket"]["email_ccs"] = [{"user_email": email, "action": "put"} for email in self.email_ccs]
 
-        # if no requester provided, then the call came from within Notify 👻
+        # if no requester provided, then the call came from within Emergency Alerts 👻
         if self.user_email:
             data["ticket"]["requester"] = {"email": self.user_email, "name": self.user_name or "(no name supplied)"}
 
@@ -116,9 +116,9 @@ class NotifySupportTicket:
         org_type_tag = f"emergency_alerts_org_type_{self.org_type}" if self.org_type else None
 
         return [
-            {"id": "9450265441308", "value": technical_ticket_tag},  # Notify Ticket type field
-            {"id": "9450275731228", "value": self.ticket_categories},  # Notify Ticket category field
-            {"id": "9450285728028", "value": self.org_id},  # Notify Organisation ID field
-            {"id": "9450288116380", "value": org_type_tag},  # Notify Organisation type field
-            {"id": "9450320852636", "value": self.service_id},  # Notify Service ID field
+            {"id": "9450265441308", "value": technical_ticket_tag},  # Emergency Alerts Ticket type field
+            {"id": "9450275731228", "value": self.ticket_categories},  # Emergency Alerts Ticket category field
+            {"id": "9450285728028", "value": self.org_id},  # Emergency Alerts Organisation ID field
+            {"id": "9450288116380", "value": org_type_tag},  # Emergency Alerts Organisation type field
+            {"id": "9450320852636", "value": self.service_id},  # Emergency Alerts Service ID field
         ]

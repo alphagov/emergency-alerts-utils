@@ -37,10 +37,10 @@ from emergency_alerts_utils.formatters import (
 )
 from emergency_alerts_utils.insensitive_dict import InsensitiveDict
 from emergency_alerts_utils.markdown import (
-    notify_email_markdown,
-    notify_email_preheader_markdown,
-    notify_letter_preview_markdown,
-    notify_plain_text_email_markdown,
+    emergency_alerts_email_markdown,
+    emergency_alerts_email_preheader_markdown,
+    emergency_alerts_letter_preview_markdown,
+    emergency_alerts_plain_text_email_markdown,
 )
 from emergency_alerts_utils.postal_address import (
     PostalAddress,
@@ -462,7 +462,7 @@ class BaseEmailTemplate(SubjectMixin, Template):
             .then(unlink_govuk_escaped)
             .then(strip_unsupported_characters)
             .then(add_trailing_newline)
-            .then(notify_email_markdown)
+            .then(emergency_alerts_email_markdown)
             .then(do_nice_typography)
         )
 
@@ -511,7 +511,7 @@ class PlainTextEmailTemplate(BaseEmailTemplate):
             .then(unlink_govuk_escaped)
             .then(strip_unsupported_characters)
             .then(add_trailing_newline)
-            .then(notify_plain_text_email_markdown)
+            .then(emergency_alerts_plain_text_email_markdown)
             .then(do_nice_typography)
             .then(unescape)
             .then(strip_leading_whitespace)
@@ -574,7 +574,7 @@ class HTMLEmailTemplate(BaseEmailTemplate):
             .then(unlink_govuk_escaped)
             .then(strip_unsupported_characters)
             .then(add_trailing_newline)
-            .then(notify_email_preheader_markdown)
+            .then(emergency_alerts_email_preheader_markdown)
             .then(do_nice_typography)
             .split()
         )[: self.PREHEADER_LENGTH_IN_CHARACTERS].strip()
@@ -737,7 +737,7 @@ class BaseLetterTemplate(SubjectMixin, Template):
                 )
             )
             .then(add_trailing_newline)
-            .then(notify_letter_preview_markdown)
+            .then(emergency_alerts_letter_preview_markdown)
             .then(do_nice_typography)
             .then(replace_hyphens_with_non_breaking_hyphens)
         )

@@ -57,7 +57,7 @@ mistune.InlineLexer.inline_html_rules = list(
 )
 
 
-class NotifyLetterMarkdownPreviewRenderer(mistune.Renderer):
+class EmergencyAlertsLetterMarkdownPreviewRenderer(mistune.Renderer):
     def block_code(self, code, language=None):
         return code
 
@@ -109,7 +109,7 @@ class NotifyLetterMarkdownPreviewRenderer(mistune.Renderer):
         return text
 
 
-class NotifyEmailMarkdownRenderer(NotifyLetterMarkdownPreviewRenderer):
+class EmergencyAlertsEmailMarkdownRenderer(EmergencyAlertsLetterMarkdownPreviewRenderer):
     def header(self, text, level, raw=None):
         if level == 1:
             return (
@@ -187,7 +187,7 @@ class NotifyEmailMarkdownRenderer(NotifyLetterMarkdownPreviewRenderer):
         return create_sanitised_html_for_url(link, style=LINK_STYLE)
 
 
-class NotifyPlainTextEmailMarkdownRenderer(NotifyEmailMarkdownRenderer):
+class EmergencyAlertsPlainTextEmailMarkdownRenderer(EmergencyAlertsEmailMarkdownRenderer):
     COLUMN_WIDTH = 65
 
     def header(self, text, level, raw=None):
@@ -261,7 +261,7 @@ class NotifyPlainTextEmailMarkdownRenderer(NotifyEmailMarkdownRenderer):
         return link
 
 
-class NotifyEmailPreheaderMarkdownRenderer(NotifyPlainTextEmailMarkdownRenderer):
+class EmergencyAlertsEmailPreheaderMarkdownRenderer(EmergencyAlertsPlainTextEmailMarkdownRenderer):
     def header(self, text, level, raw=None):
         return self.paragraph(text)
 
@@ -277,21 +277,21 @@ class NotifyEmailPreheaderMarkdownRenderer(NotifyPlainTextEmailMarkdownRenderer)
         )
 
 
-notify_email_markdown = mistune.Markdown(
-    renderer=NotifyEmailMarkdownRenderer(),
+emergency_alerts_email_markdown = mistune.Markdown(
+    renderer=EmergencyAlertsEmailMarkdownRenderer(),
     hard_wrap=True,
     use_xhtml=False,
 )
-notify_plain_text_email_markdown = mistune.Markdown(
-    renderer=NotifyPlainTextEmailMarkdownRenderer(),
+emergency_alerts_plain_text_email_markdown = mistune.Markdown(
+    renderer=EmergencyAlertsPlainTextEmailMarkdownRenderer(),
     hard_wrap=True,
 )
-notify_email_preheader_markdown = mistune.Markdown(
-    renderer=NotifyEmailPreheaderMarkdownRenderer(),
+emergency_alerts_email_preheader_markdown = mistune.Markdown(
+    renderer=EmergencyAlertsEmailPreheaderMarkdownRenderer(),
     hard_wrap=True,
 )
-notify_letter_preview_markdown = mistune.Markdown(
-    renderer=NotifyLetterMarkdownPreviewRenderer(),
+emergency_alerts_letter_preview_markdown = mistune.Markdown(
+    renderer=EmergencyAlertsLetterMarkdownPreviewRenderer(),
     hard_wrap=True,
     use_xhtml=False,
 )

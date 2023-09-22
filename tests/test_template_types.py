@@ -183,11 +183,11 @@ def test_alt_text_with_brand_text_and_govuk_banner_shown():
             brand_logo="http://example.com/image.png",
             brand_text="Example",
             brand_banner=True,
-            brand_alt_text="Notify Logo",
+            brand_alt_text="Emergency Alerts Logo",
         )
     )
     assert 'alt=""' in email
-    assert 'alt="Notify Logo"' not in email
+    assert 'alt="Emergency Alerts Logo"' not in email
 
 
 def test_alt_text_with_no_brand_text_and_govuk_banner_shown():
@@ -198,20 +198,20 @@ def test_alt_text_with_no_brand_text_and_govuk_banner_shown():
             brand_logo="http://example.com/image.png",
             brand_text=None,
             brand_banner=True,
-            brand_alt_text="Notify Logo",
+            brand_alt_text="Emergency Alerts Logo",
         )
     )
     assert 'alt=""' in email
-    assert 'alt="Notify Logo"' in email
+    assert 'alt="Emergency Alerts Logo"' in email
 
 
 @pytest.mark.parametrize(
     "brand_banner, brand_text, expected_alt_text",
     [
-        (True, None, 'alt="Notify Logo"'),
+        (True, None, 'alt="Emergency Alerts Logo"'),
         (True, "Example", 'alt=""'),
         (False, "Example", 'alt=""'),
-        (False, None, 'alt="Notify Logo"'),
+        (False, None, 'alt="Emergency Alerts Logo"'),
     ],
 )
 def test_alt_text_with_no_govuk_banner(brand_banner, brand_text, expected_alt_text):
@@ -222,7 +222,7 @@ def test_alt_text_with_no_govuk_banner(brand_banner, brand_text, expected_alt_te
             brand_logo="http://example.com/image.png",
             brand_text=brand_text,
             brand_banner=brand_banner,
-            brand_alt_text="Notify Logo",
+            brand_alt_text="Emergency Alerts Logo",
         )
     )
 
@@ -360,14 +360,14 @@ def test_content_of_preheader_in_html_emails(
             "email",
             {},
             ("the quick brown fox\n" "\n" "jumped over the lazy dog\n"),
-            "emergency_alerts_utils.template.notify_email_markdown",
+            "emergency_alerts_utils.template.emergency_alerts_email_markdown",
         ],
         [
             LetterPreviewTemplate,
             "letter",
             {},
             ("the quick brown fox\n" "\n" "jumped over the lazy dog\n"),
-            "emergency_alerts_utils.template.notify_letter_preview_markdown",
+            "emergency_alerts_utils.template.emergency_alerts_letter_preview_markdown",
         ],
     ],
 )
@@ -746,7 +746,7 @@ def test_phone_templates_normalise_whitespace(template_class):
 @freeze_time("2012-12-12 12:12:12")
 @mock.patch("emergency_alerts_utils.template.LetterPreviewTemplate.jinja_template.render")
 @mock.patch("emergency_alerts_utils.template.unlink_govuk_escaped")
-@mock.patch("emergency_alerts_utils.template.notify_letter_preview_markdown", return_value="Bar")
+@mock.patch("emergency_alerts_utils.template.emergency_alerts_letter_preview_markdown", return_value="Bar")
 @pytest.mark.parametrize(
     "values, expected_address",
     [

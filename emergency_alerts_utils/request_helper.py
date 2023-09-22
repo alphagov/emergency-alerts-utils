@@ -2,7 +2,7 @@ from flask import abort, current_app, request
 from flask.wrappers import Request
 
 
-class NotifyRequest(Request):
+class EmergencyAlertsRequest(Request):
     """
     A custom Request class, implementing extraction of zipkin headers used to trace request through cloudfoundry
     as described here: https://docs.cloudfoundry.org/concepts/http-routing.html#zipkin-headers
@@ -18,7 +18,7 @@ class NotifyRequest(Request):
         The "trace id" (in zipkin terms) assigned to this request, if present (None otherwise)
         """
         if not hasattr(self, "_trace_id"):
-            self._trace_id = self._get_header_value(current_app.config["NOTIFY_TRACE_ID_HEADER"])
+            self._trace_id = self._get_header_value(current_app.config["EMERGENCY_ALERTS_TRACE_ID_HEADER"])
         return self._trace_id
 
     @property
@@ -31,7 +31,7 @@ class NotifyRequest(Request):
             # an environment with no span-id-aware request router, and thus would have no intermediary to prevent the
             # propagation of our span id all the way through all our onwards requests much like trace id. and the point
             # of span id is to assign identifiers to each individual request.
-            self._span_id = self._get_header_value(current_app.config["NOTIFY_SPAN_ID_HEADER"])
+            self._span_id = self._get_header_value(current_app.config["EMERGENCY_ALERTS_SPAN_ID_HEADER"])
         return self._span_id
 
     @property
@@ -40,7 +40,7 @@ class NotifyRequest(Request):
         The "parent span id" (in zipkin terms) set in this request's header, if present (None otherwise)
         """
         if not hasattr(self, "_parent_span_id"):
-            self._parent_span_id = self._get_header_value(current_app.config["NOTIFY_PARENT_SPAN_ID_HEADER"])
+            self._parent_span_id = self._get_header_value(current_app.config["EMERGENCY_ALERTS_PARENT_SPAN_ID_HEADER"])
         return self._parent_span_id
 
     def _get_header_value(self, header_name):
@@ -75,15 +75,15 @@ class ResponseHeaderMiddleware(object):
 
 
 def init_app(app):
-    app.config.setdefault("NOTIFY_TRACE_ID_HEADER", "X-B3-TraceId")
-    app.config.setdefault("NOTIFY_SPAN_ID_HEADER", "X-B3-SpanId")
-    app.config.setdefault("NOTIFY_PARENT_SPAN_ID_HEADER", "X-B3-ParentSpanId")
+    app.config.setdefault("EMERGENCY_ALERTS_TRACE_ID_HEADER", "X-B3-TraceId")
+    app.config.setdefault("EMERGENCY_ALERTS_SPAN_ID_HEADER", "X-B3-SpanId")
+    app.config.setdefault("EMERGENCY_ALERTS_PARENT_SPAN_ID_HEADER", "X-B3-ParentSpanId")
 
-    app.request_class = NotifyRequest
+    app.request_class = EmergencyAlertsRequest
     app.wsgi_app = ResponseHeaderMiddleware(
         app.wsgi_app,
-        app.config["NOTIFY_TRACE_ID_HEADER"],
-        app.config["NOTIFY_SPAN_ID_HEADER"],
+        app.config["EMERGENCY_ALERTS_TRACE_ID_HEADER"],
+        app.config["EMERGENCY_ALERTS_SPAN_ID_HEADER"],
     )
 
 

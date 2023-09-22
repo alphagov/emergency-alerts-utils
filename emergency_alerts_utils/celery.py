@@ -7,7 +7,7 @@ from flask.ctx import has_app_context, has_request_context
 
 
 def make_task(app):
-    class NotifyTask(Task):
+    class EmergencyAlertsTask(Task):
         abstract = True
         start = None
 
@@ -20,7 +20,7 @@ def make_task(app):
         def request_id(self):
             # Note that each header is a direct attribute of the
             # task context (aka "request").
-            return self.request.get("notify_request_id")
+            return self.request.get("emergency_alerts_request_id")
 
         @contextmanager
         def app_context(self):
@@ -54,10 +54,10 @@ def make_task(app):
                 self.start = time.monotonic()
                 return super().__call__(*args, **kwargs)
 
-    return NotifyTask
+    return EmergencyAlertsTask
 
 
-class NotifyCelery(Celery):
+class EmergencyAlertsCelery(Celery):
     def init_app(self, app):
         super().__init__(
             task_cls=make_task(app),
@@ -73,9 +73,9 @@ class NotifyCelery(Celery):
         other_kwargs["headers"] = other_kwargs.get("headers") or {}
 
         if has_request_context() and hasattr(request, "request_id"):
-            other_kwargs["headers"]["notify_request_id"] = request.request_id
+            other_kwargs["headers"]["emergency_alerts_request_id"] = request.request_id
 
         elif has_app_context() and "request_id" in g:
-            other_kwargs["headers"]["notify_request_id"] = g.request_id
+            other_kwargs["headers"]["emergency_alerts_request_id"] = g.request_id
 
         return super().send_task(name, args, kwargs, **other_kwargs)

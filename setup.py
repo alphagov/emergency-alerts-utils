@@ -1,5 +1,5 @@
 """
-Python API client for GOV.UK Notify
+Python API client for GOV.UK Emergency Alerts
 """
 import ast
 import re

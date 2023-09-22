@@ -24,7 +24,7 @@ def app():
 def celery_app(mocker):
     app = Flask(__name__)
     app.config["CELERY"] = {"broker_url": "foo"}
-    app.config["NOTIFY_TRACE_ID_HEADER"] = "Ex-Notify-Request-Id"
+    app.config["EMERGENCY_ALERTS_TRACE_ID_HEADER"] = "Ex-Emergency-Alerts-Request-Id"
     app.statsd_client = mocker.Mock()
     request_helper.init_app(app)
 

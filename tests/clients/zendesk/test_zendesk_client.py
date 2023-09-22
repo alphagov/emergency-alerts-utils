@@ -1,7 +1,7 @@
 import pytest
 
 from emergency_alerts_utils.clients.zendesk.zendesk_client import (
-    NotifySupportTicket,
+    EmergencyAlertsSupportTicket,
     ZendeskClient,
     ZendeskError,
 )
@@ -32,7 +32,7 @@ def test_zendesk_client_send_ticket_to_zendesk(zendesk_client, app, mocker, rmoc
     )
     mock_logger = mocker.patch.object(app.logger, "info")
 
-    ticket = NotifySupportTicket("subject", "message", "incident")
+    ticket = EmergencyAlertsSupportTicket("subject", "message", "incident")
     zendesk_client.send_ticket_to_zendesk(ticket)
 
     assert rmock.last_request.headers["Authorization"][:6] == "Basic "
@@ -45,7 +45,7 @@ def test_zendesk_client_send_ticket_to_zendesk_error(zendesk_client, app, mocker
 
     mock_logger = mocker.patch.object(app.logger, "error")
 
-    ticket = NotifySupportTicket("subject", "message", "incident")
+    ticket = EmergencyAlertsSupportTicket("subject", "message", "incident")
 
     with pytest.raises(ZendeskError):
         zendesk_client.send_ticket_to_zendesk(ticket)
@@ -77,19 +77,19 @@ def test_zendesk_client_send_ticket_to_zendesk_error(zendesk_client, app, mocker
         ),
     ),
 )
-def test_notify_support_ticket_request_data(p1_arg, expected_tags, expected_priority):
-    notify_ticket_form = NotifySupportTicket("subject", "message", "question", **p1_arg)
+def test_emergency_alerts_support_ticket_request_data(p1_arg, expected_tags, expected_priority):
+    emergency_alerts_ticket_form = EmergencyAlertsSupportTicket("subject", "message", "question", **p1_arg)
 
-    assert notify_ticket_form.request_data == {
+    assert emergency_alerts_ticket_form.request_data == {
         "ticket": {
             "subject": "subject",
             "comment": {
                 "body": "message",
                 "public": True,
             },
-            "group_id": NotifySupportTicket.NOTIFY_GROUP_ID,
-            "organization_id": NotifySupportTicket.NOTIFY_ORG_ID,
-            "ticket_form_id": NotifySupportTicket.NOTIFY_TICKET_FORM_ID,
+            "group_id": EmergencyAlertsSupportTicket.EMERGENCY_ALERTS_GROUP_ID,
+            "organization_id": EmergencyAlertsSupportTicket.EMERGENCY_ALERTS_ORG_ID,
+            "ticket_form_id": EmergencyAlertsSupportTicket.EMERGENCY_ALERTS_TICKET_FORM_ID,
             "priority": expected_priority,
             "tags": expected_tags,
             "type": "question",
@@ -104,20 +104,22 @@ def test_notify_support_ticket_request_data(p1_arg, expected_tags, expected_prio
     }
 
 
-def test_notify_support_ticket_request_data_with_message_hidden_from_requester():
-    notify_ticket_form = NotifySupportTicket("subject", "message", "problem", requester_sees_message_content=False)
+def test_emergency_alerts_support_ticket_request_data_with_message_hidden_from_requester():
+    emergency_alerts_ticket_form = EmergencyAlertsSupportTicket(
+        "subject", "message", "problem", requester_sees_message_content=False
+    )
 
-    assert notify_ticket_form.request_data["ticket"]["comment"]["public"] is False
+    assert emergency_alerts_ticket_form.request_data["ticket"]["comment"]["public"] is False
 
 
 @pytest.mark.parametrize("name, zendesk_name", [("Name", "Name"), (None, "(no name supplied)")])
-def test_notify_support_ticket_request_data_with_user_name_and_email(name, zendesk_name):
-    notify_ticket_form = NotifySupportTicket(
+def test_emergency_alerts_support_ticket_request_data_with_user_name_and_email(name, zendesk_name):
+    emergency_alerts_ticket_form = EmergencyAlertsSupportTicket(
         "subject", "message", "question", user_name=name, user_email="user@example.com"
     )
 
-    assert notify_ticket_form.request_data["ticket"]["requester"]["email"] == "user@example.com"
-    assert notify_ticket_form.request_data["ticket"]["requester"]["name"] == zendesk_name
+    assert emergency_alerts_ticket_form.request_data["ticket"]["requester"]["email"] == "user@example.com"
+    assert emergency_alerts_ticket_form.request_data["ticket"]["requester"]["name"] == zendesk_name
 
 
 @pytest.mark.parametrize(
@@ -126,9 +128,9 @@ def test_notify_support_ticket_request_data_with_user_name_and_email(name, zende
         ({"technical_ticket": True}, "emergency_alerts_ticket_type_technical", [], None, None, None),
         ({"technical_ticket": False}, "emergency_alerts_ticket_type_non_technical", [], None, None, None),
         (
-            {"ticket_categories": ["notify_bug"]},
+            {"ticket_categories": ["emergency_alerts_bug"]},
             "emergency_alerts_ticket_type_non_technical",
-            ["notify_bug"],
+            ["emergency_alerts_bug"],
             None,
             None,
             None,
@@ -151,7 +153,7 @@ def test_notify_support_ticket_request_data_with_user_name_and_email(name, zende
         ),
     ],
 )
-def test_notify_support_ticket_request_data_custom_fields(
+def test_emergency_alerts_support_ticket_request_data_custom_fields(
     custom_fields,
     tech_ticket_tag,
     categories,
@@ -159,9 +161,9 @@ def test_notify_support_ticket_request_data_custom_fields(
     org_type,
     service_id,
 ):
-    notify_ticket_form = NotifySupportTicket("subject", "message", "question", **custom_fields)
+    emergency_alerts_ticket_form = EmergencyAlertsSupportTicket("subject", "message", "question", **custom_fields)
 
-    assert notify_ticket_form.request_data["ticket"]["custom_fields"] == [
+    assert emergency_alerts_ticket_form.request_data["ticket"]["custom_fields"] == [
         {"id": "9450265441308", "value": tech_ticket_tag},
         {"id": "9450275731228", "value": categories},
         {"id": "9450285728028", "value": org_id},
@@ -170,27 +172,29 @@ def test_notify_support_ticket_request_data_custom_fields(
     ]
 
 
-def test_notify_support_ticket_request_data_email_ccs():
-    notify_ticket_form = NotifySupportTicket("subject", "message", "question", email_ccs=["someone@example.com"])
+def test_emergency_alerts_support_ticket_request_data_email_ccs():
+    emergency_alerts_ticket_form = EmergencyAlertsSupportTicket(
+        "subject", "message", "question", email_ccs=["someone@example.com"]
+    )
 
-    assert notify_ticket_form.request_data["ticket"]["email_ccs"] == [
+    assert emergency_alerts_ticket_form.request_data["ticket"]["email_ccs"] == [
         {"user_email": "someone@example.com", "action": "put"},
     ]
 
 
-def test_notify_support_ticket_with_html_body():
-    notify_ticket_form = NotifySupportTicket("subject", "message", "task", message_as_html=True)
+def test_emergency_alerts_support_ticket_with_html_body():
+    emergency_alerts_ticket_form = EmergencyAlertsSupportTicket("subject", "message", "task", message_as_html=True)
 
-    assert notify_ticket_form.request_data == {
+    assert emergency_alerts_ticket_form.request_data == {
         "ticket": {
             "subject": "subject",
             "comment": {
                 "html_body": "message",
                 "public": True,
             },
-            "group_id": NotifySupportTicket.NOTIFY_GROUP_ID,
-            "organization_id": NotifySupportTicket.NOTIFY_ORG_ID,
-            "ticket_form_id": NotifySupportTicket.NOTIFY_TICKET_FORM_ID,
+            "group_id": EmergencyAlertsSupportTicket.EMERGENCY_ALERTS_GROUP_ID,
+            "organization_id": EmergencyAlertsSupportTicket.EMERGENCY_ALERTS_ORG_ID,
+            "ticket_form_id": EmergencyAlertsSupportTicket.EMERGENCY_ALERTS_TICKET_FORM_ID,
             "priority": "normal",
             "tags": ["emergency_alerts_support"],
             "type": "task",
