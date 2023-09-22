@@ -12,7 +12,7 @@ def time_monotonic_with_jitter():
     return time.monotonic() + jitter
 
 
-class NotifyStatsClient(StatsClientBase):
+class EmergencyAlertsStatsClient(StatsClientBase):
     def __init__(self, host, port, prefix):
         self._host = host
         self._port = port
@@ -51,10 +51,12 @@ class StatsdClient:
     def init_app(self, app, *args, **kwargs):
         app.statsd_client = self
         self.active = app.config.get("STATSD_ENABLED")
-        self.namespace = f"{app.config.get('NOTIFY_ENVIRONMENT')}.notifications.{app.config.get('NOTIFY_APP_NAME')}."
+        self.namespace = (
+            f"{app.config.get('NOTIFY_ENVIRONMENT')}.notifications.{app.config.get('EMERGENCY_ALERTS_APP_NAME')}."
+        )
 
         if self.active:
-            self.statsd_client = NotifyStatsClient(
+            self.statsd_client = EmergencyAlertsStatsClient(
                 app.config.get("STATSD_HOST"), app.config.get("STATSD_PORT"), prefix=app.config.get("STATSD_PREFIX")
             )
 
