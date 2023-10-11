@@ -1,90 +1,70 @@
 import json
 import logging as builtin_logging
-import logging.handlers as builtin_logging_handlers
-
-import pytest
-import pythonjsonlogger.jsonlogger
 
 from emergency_alerts_utils import logging
 
 
-def test_get_handlers_sets_up_logging_appropriately_with_debug(tmpdir):
-    class App:
-        config = {"NOTIFY_LOG_PATH": str(tmpdir / "foo"), "NOTIFY_APP_NAME": "bar", "NOTIFY_LOG_LEVEL": "ERROR"}
-        debug = True
-
-    app = App()
-
-    handlers = logging.get_handlers(app)
-
-    assert len(handlers) == 1
-    assert type(handlers[0]) == builtin_logging.StreamHandler
-    assert type(handlers[0].formatter) == logging.CustomLogFormatter
-    assert not (tmpdir / "foo").exists()
+def test_logging_module_sets_up_root_logger():
+    # Correctly instantiated loggers will have at least one handler
+    assert builtin_logging.getLogger().hasHandlers()
 
 
-@pytest.mark.parametrize(
-    "platform",
-    [
-        "local",
-        "paas",
-        "something-else",
-    ],
-)
-def test_get_handlers_sets_up_logging_appropriately_without_debug_when_not_on_ecs(tmpdir, platform):
+def test_root_handler_is_correctly_configured():
     class App:
         config = {
-            # make a tempfile called foo
-            "NOTIFY_LOG_PATH": str(tmpdir / "foo"),
             "NOTIFY_APP_NAME": "bar",
             "NOTIFY_LOG_LEVEL": "ERROR",
-            "NOTIFY_RUNTIME_PLATFORM": platform,
         }
-        debug = False
 
     app = App()
 
-    handlers = logging.get_handlers(app)
-
-    assert len(handlers) == 2
-    assert type(handlers[0]) == builtin_logging.StreamHandler
-    assert type(handlers[0].formatter) == pythonjsonlogger.jsonlogger.JsonFormatter
-
-    assert type(handlers[1]) == builtin_logging_handlers.WatchedFileHandler
-    assert type(handlers[1].formatter) == pythonjsonlogger.jsonlogger.JsonFormatter
-
-    dir_contents = tmpdir.listdir()
-    assert len(dir_contents) == 1
-    assert dir_contents[0].basename == "foo.json"
+    handler = logging._configure_root_handler(app)
+    assert handler is not None
+    assert type(handler) == builtin_logging.StreamHandler
+    assert type(handler.formatter) == logging.JsonFormatterForCloudWatch
 
 
-def test_get_handlers_sets_up_logging_appropriately_without_debug_on_ecs(tmpdir):
+def test_root_handler_has_appropriate_filters():
     class App:
         config = {
-            # make a tempfile called foo
-            "NOTIFY_LOG_PATH": str(tmpdir / "foo"),
             "NOTIFY_APP_NAME": "bar",
             "NOTIFY_LOG_LEVEL": "ERROR",
-            "NOTIFY_RUNTIME_PLATFORM": "ecs",
         }
-        debug = False
 
     app = App()
 
-    handlers = logging.get_handlers(app)
-
-    assert len(handlers) == 1
-    assert type(handlers[0]) == builtin_logging.StreamHandler
-    assert type(handlers[0].formatter) == pythonjsonlogger.jsonlogger.JsonFormatter
-
-    assert not (tmpdir / "foo.json").exists()
+    handler = logging._configure_root_handler(app)
+    filters = list(map(lambda filter: type(filter), handler.filters))
+    assert logging.AppNameFilter in filters
+    assert logging.RequestIdFilter in filters
+    assert logging.ServiceIdFilter in filters
 
 
-def test_base_json_formatter_contains_service_id(tmpdir):
+def test_filter_adds_service_id_to_log_record():
     record = builtin_logging.LogRecord(
         name="log thing", level="info", pathname="path", lineno=123, msg="message to log", exc_info=None, args=None
     )
 
     service_id_filter = logging.ServiceIdFilter()
-    assert json.loads(logging.JsonFormatter().format(record))["message"] == "message to log"
+    assert json.loads(logging.JsonFormatterForCloudWatch().format(record))["message"] == "message to log"
     assert service_id_filter.filter(record).service_id == "no-service-id"
+
+
+def test_filter_adds_request_id_to_log_record():
+    record = builtin_logging.LogRecord(
+        name="log thing", level="info", pathname="path", lineno=123, msg="message to log", exc_info=None, args=None
+    )
+
+    service_id_filter = logging.RequestIdFilter()
+    assert json.loads(logging.JsonFormatterForCloudWatch().format(record))["message"] == "message to log"
+    assert service_id_filter.filter(record).request_id == "no-request-id"
+
+
+def test_filter_adds_app_name_to_log_record():
+    record = builtin_logging.LogRecord(
+        name="log thing", level="info", pathname="path", lineno=123, msg="message to log", exc_info=None, args=None
+    )
+
+    service_id_filter = logging.AppNameFilter(app_name="test_name")
+    assert json.loads(logging.JsonFormatterForCloudWatch().format(record))["message"] == "message to log"
+    assert service_id_filter.filter(record).app_name == "test_name"
