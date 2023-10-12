@@ -31,6 +31,7 @@ RUN mv $SHELL_CONF $SHELL_CONF.bak; cat $SHELL_CONF.bak | sed 's/\[ -z "$PS1" \]
 
 # Update OS to latest.
 RUN apt-get update -y
+RUN apt-get upgrade -y
 
 # Install commonly used tools, python related pre-reqs, ca-certs and OS tools
 RUN apt-get install -y build-essential
@@ -55,7 +56,7 @@ RUN apt-get install -y make
 RUN apt-get install -y vim
 RUN apt-get install -y unzip
 RUN apt-get install -y git
-RUN apt-get install -y curl
+RUN apt-get install -y curl -security
 RUN apt-get install -y wget
 RUN apt-get install -y ca-certificates
 RUN apt-get install -y build-essential
