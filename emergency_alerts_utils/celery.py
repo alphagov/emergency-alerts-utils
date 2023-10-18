@@ -2,8 +2,20 @@ import time
 from contextlib import contextmanager
 
 from celery import Celery, Task
-from flask import g, request
+from celery.signals import setup_logging
+from flask import current_app, g, request
 from flask.ctx import has_app_context, has_request_context
+
+
+@setup_logging.connect
+def setup_logger(*args, **kwargs):
+    """
+    Using '"worker_hijack_root_logger": False' in the Celery config
+    should block celery from overriding the logger configuration.
+    In practice, this doesn't seem to work, so we intercept this
+    celery signal and just do a NOP
+    """
+    pass
 
 
 def make_task(app):
@@ -34,19 +46,17 @@ def make_task(app):
             with self.app_context():
                 elapsed_time = time.monotonic() - self.start
 
-                app.logger.info(f"Celery task {self.name} (queue: {self.queue_name}) took {elapsed_time:.4f}")
-
-                app.statsd_client.timing(
-                    f"celery.{self.queue_name}.{self.name}.success",
-                    elapsed_time,
+                current_app.logger.info(
+                    f"Celery task {self.name} took {elapsed_time:.4f}",
+                    extra={"python_module": __name__, "queue_name": self.queue_name},
                 )
 
         def on_failure(self, exc, task_id, args, kwargs, einfo):
             # enables request id tracing for these logs
             with self.app_context():
-                app.logger.exception(f"Celery task {self.name} (queue: {self.queue_name}) failed")
-
-                app.statsd_client.incr(f"celery.{self.queue_name}.{self.name}.failure")
+                current_app.logger.error(
+                    f"Celery task {self.name} failed", extra={"python_module": __name__, "queue_name": self.queue_name}
+                )
 
         def __call__(self, *args, **kwargs):
             # ensure task has flask context to access config, logger, etc
