@@ -23,7 +23,7 @@ def disabled_statsd_client(app, mocker):
 
 def build_statsd_client(app, mocker):
     client = StatsdClient()
-    app.config["NOTIFY_ENVIRONMENT"] = "test"
+    app.config["HOST"] = "test"
     app.config["NOTIFY_APP_NAME"] = "api"
     app.config["STATSD_HOST"] = "localhost"
     app.config["STATSD_PORT"] = "8000"
