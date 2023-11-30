@@ -9,7 +9,7 @@ class AnyStringWith(str):
 
 
 def test_should_call_statsd(app, mocker):
-    app.config["NOTIFY_ENVIRONMENT"] = "test"
+    app.config["HOST"] = "test"
     app.config["NOTIFY_APP_NAME"] = "api"
     app.config["STATSD_HOST"] = "localhost"
     app.config["STATSD_PORT"] = "8000"

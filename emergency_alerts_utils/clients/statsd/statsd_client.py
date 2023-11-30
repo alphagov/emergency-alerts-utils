@@ -51,7 +51,7 @@ class StatsdClient:
     def init_app(self, app, *args, **kwargs):
         app.statsd_client = self
         self.active = app.config.get("STATSD_ENABLED")
-        self.namespace = f"{app.config.get('NOTIFY_ENVIRONMENT')}.notifications.{app.config.get('NOTIFY_APP_NAME')}."
+        self.namespace = f"{app.config.get('HOST')}.notifications.{app.config.get('NOTIFY_APP_NAME')}."
 
         if self.active:
             self.statsd_client = NotifyStatsClient(
