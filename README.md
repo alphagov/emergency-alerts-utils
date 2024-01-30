@@ -5,7 +5,7 @@ Shared Python code for GOV.UK Emergency Alerts applications. Standardises how to
 ## Setting up
 
 ### Local Development Environment Setup
-Ensure that you have first followed all of the steps, that can be found [here](https://gds-ea.atlassian.net/wiki/spaces/EA/pages/221216772/Local+Development+Environment+Setup+-+Updated+instructions).
+Ensure that you have first followed all of the steps, that can be found [here](https://gds-ea.atlassian.net/wiki/spaces/EA/pages/3211265/Mac+Setup).
 
 ### Python version
 You can find instructions on specifying the correct Python version [here](https://gds-ea.atlassian.net/wiki/spaces/EA/pages/192217089/Setting+up+Local+Development+Environment#Setting-Python-Version).
