@@ -7,8 +7,8 @@ from emergency_alerts_utils.clients.encryption.encryption_client import Encrypti
 def encryption_client(app):
     client = Encryption()
 
-    app.config["SECRET_KEY"] = "test-notify-secret-key"
-    app.config["DANGEROUS_SALT"] = "test-notify-salt"
+    app.config["ENCRYPTION_SECRET_KEY"] = "test-notify-secret-key"
+    app.config["ENCRYPTION_DANGEROUS_SALT"] = "test-notify-salt"
 
     client.init_app(app)
 
