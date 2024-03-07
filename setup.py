@@ -31,7 +31,7 @@ setup(
         "Jinja2>=2.11.3",
         "statsd>=3.3.0",
         "Flask-Redis>=0.4.0",
-        "pyyaml>=5.3.1",
+        "pyyaml>=6.0.1",
         "phonenumbers>=8.13.20",
         "pyproj>=3.2.1,<=3.4.0",
         "pytz>=2020.4",
