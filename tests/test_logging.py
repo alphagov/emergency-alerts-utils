@@ -20,8 +20,8 @@ def test_root_handler_is_correctly_configured():
 
     handler = logging._configure_root_handler(app)
     assert handler is not None
-    assert type(handler) == builtin_logging.StreamHandler
-    assert type(handler.formatter) == logging.JsonFormatterForCloudWatch
+    assert type(handler) is builtin_logging.StreamHandler
+    assert type(handler.formatter) is logging.JsonFormatterForCloudWatch
 
 
 def test_root_handler_has_appropriate_filters():
