@@ -23,7 +23,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "cachetools>=4.1.1",
-        "mistune<2.0.0",  # v2 is totally incompatible with unclear benefit
+        "mistune<4.0.0",  # v2 is totally incompatible with unclear benefit
         "requests>=2.25.0",
         "python-json-logger>=2.0.1",
         "Flask>=1.1.1",
