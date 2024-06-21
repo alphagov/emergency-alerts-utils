@@ -13,8 +13,8 @@ transformers = {
         # defines the size and shape of the earth. Coordinates in the
         # data we get from ONS, and that we output as CAP XML are
         # expressed relative to the constants in WGS84.
-        "from_wgs84": Transformer.from_crs("EPSG:4326", utm_code, always_xy=True),
-        "to_wgs84": Transformer.from_crs(utm_code, "EPSG:4326", always_xy=True),
+        "from_wgs84": Transformer.from_crs(CRS("EPSG:4326"), CRS(utm_code), always_xy=True),
+        "to_wgs84": Transformer.from_crs(CRS(utm_code), CRS("EPSG:4326"), always_xy=True),
     }
     for utm_code in {
         # These are the names of coordinate reference systems, which
@@ -24,11 +24,11 @@ transformers = {
         # earth because the earth is not a perfect sphere.
         # —
         # The UK, west to east
-        "epsg:32629",  # Zone 29N: Between 12°W and 6°W, equator and 84°N
-        "epsg:32630",  # Zone 30N: Between 6°W and 0°W, equator and 84°N
-        "epsg:32631",  # Zone 31N: Between 0°E and 6°E, equator and 84°N
+        "EPSG:32629",  # Zone 29N: Between 12°W and 6°W, equator and 84°N
+        "EPSG:32630",  # Zone 30N: Between 6°W and 0°W, equator and 84°N
+        "EPSG:32631",  # Zone 31N: Between 0°E and 6°E, equator and 84°N
         # Santa Claus village (Finland)
-        "epsg:32635",  # Zone 35N: Between 24°E and 30°E, equator and 84°N
+        "EPSG:32635",  # Zone 35N: Between 24°E and 30°E, equator and 84°N
     }
 }
 
