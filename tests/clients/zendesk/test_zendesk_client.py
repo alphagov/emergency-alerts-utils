@@ -115,9 +115,9 @@ def test_eas_support_ticket_request_data(p1_arg, expected_tags, expected_priorit
                 {"id": "9450285728028", "value": None},
                 {"id": "9450288116380", "value": None},
                 {"id": "9450320852636", "value": None},
-                {"id": "12554478022300", "value": "alarm" if is_alarm_tag_expected else "info"},
-                {"id": "12712486813340", "value": "*Content*: message"},
-                {"id": "12553900421276", "value": "*Requester*: None"},
+                {"id": "12811397846172", "value": "alarm" if is_alarm_tag_expected else "info"},
+                {"id": "12811367206428", "value": "*Content*: message"},
+                {"id": "12811389347356", "value": "*Requester*: (no name supplied)"},
             ],
         }
     }
@@ -184,9 +184,9 @@ def test_eas_support_ticket_request_data_custom_fields(
         {"id": "9450285728028", "value": org_id},
         {"id": "9450288116380", "value": org_type},
         {"id": "9450320852636", "value": service_id},
-        {"id": "12554478022300", "value": "info"},
-        {"id": "12712486813340", "value": "*Content*: message"},
-        {"id": "12553900421276", "value": "*Requester*: None"},
+        {"id": "12811397846172", "value": "info"},
+        {"id": "12811367206428", "value": "*Content*: message"},
+        {"id": "12811389347356", "value": "*Requester*: (no name supplied)"},
     ]
 
 
@@ -224,9 +224,9 @@ def test_eas_support_ticket_with_html_body():
                 {"id": "9450285728028", "value": None},
                 {"id": "9450288116380", "value": None},
                 {"id": "9450320852636", "value": None},
-                {"id": "12554478022300", "value": "info"},
-                {"id": "12712486813340", "value": "*Content*: message"},
-                {"id": "12553900421276", "value": "*Requester*: None"},
+                {"id": "12811397846172", "value": "info"},
+                {"id": "12811367206428", "value": "*Content*: message"},
+                {"id": "12811389347356", "value": "*Requester*: (no name supplied)"},
             ],
         }
     }

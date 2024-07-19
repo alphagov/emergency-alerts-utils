@@ -128,13 +128,15 @@ class EASSupportTicket:
         org_type_tag = f"emergency_alerts_org_type_{self.org_type}" if self.org_type else None
         ticket_status_tag = "alarm" if self.p1 else "info"
 
+        requester = self.user_name or "(no name supplied)"
+
         return [
             {"id": "9450265441308", "value": technical_ticket_tag},  # Ticket type field
             {"id": "9450275731228", "value": self.ticket_categories},  # Ticket category field
             {"id": "9450285728028", "value": self.org_id},  # Organisation ID field
             {"id": "9450288116380", "value": org_type_tag},  # Organisation type field
             {"id": "9450320852636", "value": self.service_id},  # Service ID field
-            {"id": "12554478022300", "value": ticket_status_tag},  # Ticket colour/status field
-            {"id": "12712486813340", "value": f"*Content*: {self.message}"},  # Ticket content visual display
-            {"id": "12553900421276", "value": f"*Requester*: {self.user_name}"},  # Ticket requester visual display
+            {"id": "12811397846172", "value": ticket_status_tag},  # Ticket colour/status field
+            {"id": "12811367206428", "value": f"*Content*: {self.message}"},  # Ticket content visual display
+            {"id": "12811389347356", "value": f"*Requester*: {requester}"},  # Ticket requester visual display
         ]
