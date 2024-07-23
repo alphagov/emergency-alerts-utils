@@ -31,14 +31,27 @@ class ZendeskClient:
         current_app.logger.info(f"Zendesk create ticket {ticket_id} succeeded")
 
 
-class NotifySupportTicket:
+class EASSupportTicket:
     PRIORITY_URGENT = "urgent"
     PRIORITY_HIGH = "high"
     PRIORITY_NORMAL = "normal"
     PRIORITY_LOW = "low"
 
-    TAGS_P2 = "emergency_alerts_support"
-    TAGS_P1 = "emergency_alerts_emergency"
+    TARGET_TAGS = {
+        "SLACK_DEV": "emergency_alerts_send_slack_dev",
+        "SLACK_TEST": "emergency_alerts_send_slack_test",
+        "SLACK_SUPPORT": "emergency_alerts_send_slack_support",
+        "SLACK_PIPELINES": "emergency_alerts_send_slack_pipelines",
+        "EMAIL_TEST": "emergency_alerts_send_email_test",
+        "EMAIL_GROUP_MAILBOX": "emergency_alerts_send_email_project",
+        "EMAIL_SITCEN": "emergency_alerts_send_email_sitcen",
+        "PAGERDUTY": "emergency_alerts_send_pagerduty",
+    }
+
+    # All tickets using visual formatting to Slack/Email recipients must have this tag
+    BASE_TAGS = ["emergency_alerts_new_alarm"]
+    TAGS_P2 = BASE_TAGS + [TARGET_TAGS["SLACK_DEV"], TARGET_TAGS["EMAIL_GROUP_MAILBOX"]]
+    TAGS_P1 = TAGS_P2 + [TARGET_TAGS["PAGERDUTY"]]
 
     TYPE_PROBLEM = "problem"
     TYPE_INCIDENT = "incident"
@@ -46,10 +59,10 @@ class NotifySupportTicket:
     TYPE_TASK = "task"
 
     # Group: 3rd Line--Emergency Alerts Support
-    NOTIFY_GROUP_ID = 21842358
+    EAS_GROUP_ID = 21842358
     # Organization: GDS
-    NOTIFY_ORG_ID = 21891972
-    NOTIFY_TICKET_FORM_ID = 9450316961820
+    EAS_ORG_ID = 21891972
+    EAS_TICKET_FORM_ID = 9450316961820
 
     def __init__(
         self,
@@ -92,11 +105,11 @@ class NotifySupportTicket:
                     ("html_body" if self.message_as_html else "body"): self.message,
                     "public": self.requester_sees_message_content,
                 },
-                "group_id": self.NOTIFY_GROUP_ID,
-                "organization_id": self.NOTIFY_ORG_ID,
-                "ticket_form_id": self.NOTIFY_TICKET_FORM_ID,
+                "group_id": self.EAS_GROUP_ID,
+                "organization_id": self.EAS_ORG_ID,
+                "ticket_form_id": self.EAS_TICKET_FORM_ID,
                 "priority": self.PRIORITY_URGENT if self.p1 else self.PRIORITY_NORMAL,
-                "tags": [self.TAGS_P1 if self.p1 else self.TAGS_P2],
+                "tags": self.TAGS_P1 if self.p1 else self.TAGS_P2,
                 "type": self.ticket_type,
                 "custom_fields": self._get_custom_fields(),
             }
@@ -105,7 +118,6 @@ class NotifySupportTicket:
         if self.email_ccs:
             data["ticket"]["email_ccs"] = [{"user_email": email, "action": "put"} for email in self.email_ccs]
 
-        # if no requester provided, then the call came from within Notify 👻
         if self.user_email:
             data["ticket"]["requester"] = {"email": self.user_email, "name": self.user_name or "(no name supplied)"}
 
@@ -114,11 +126,17 @@ class NotifySupportTicket:
     def _get_custom_fields(self):
         technical_ticket_tag = f'emergency_alerts_ticket_type_{"" if self.technical_ticket else "non_"}technical'
         org_type_tag = f"emergency_alerts_org_type_{self.org_type}" if self.org_type else None
+        ticket_status_tag = "alarm" if self.p1 else "info"
+
+        requester = self.user_name or "(no name supplied)"
 
         return [
-            {"id": "9450265441308", "value": technical_ticket_tag},  # Notify Ticket type field
-            {"id": "9450275731228", "value": self.ticket_categories},  # Notify Ticket category field
-            {"id": "9450285728028", "value": self.org_id},  # Notify Organisation ID field
-            {"id": "9450288116380", "value": org_type_tag},  # Notify Organisation type field
-            {"id": "9450320852636", "value": self.service_id},  # Notify Service ID field
+            {"id": "9450265441308", "value": technical_ticket_tag},  # Ticket type field
+            {"id": "9450275731228", "value": self.ticket_categories},  # Ticket category field
+            {"id": "9450285728028", "value": self.org_id},  # Organisation ID field
+            {"id": "9450288116380", "value": org_type_tag},  # Organisation type field
+            {"id": "9450320852636", "value": self.service_id},  # Service ID field
+            {"id": "12811397846172", "value": ticket_status_tag},  # Ticket colour/status field
+            {"id": "12811367206428", "value": f"*Content*: {self.message}"},  # Ticket content visual display
+            {"id": "12811389347356", "value": f"*Requester*: {requester}"},  # Ticket requester visual display
         ]
