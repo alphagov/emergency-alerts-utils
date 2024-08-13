@@ -10,7 +10,7 @@ bootstrap: ## Build project
 	pip3 install -r requirements.txt
 
 .PHONY: test
-test: ## Run tests
+test: ## Run tests # Test
 	flake8 .
 	isort --check-only ./emergency_alerts_utils ./tests
 	black --check .
