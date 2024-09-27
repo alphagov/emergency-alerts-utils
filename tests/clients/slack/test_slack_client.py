@@ -13,7 +13,7 @@ def slack_client(app):
 
 
 def test_slack_client_send_message_to_slack(slack_client, app, mocker, rmock):
-    webhook_url = "fake-url"
+    webhook_url = "https://fake-url"
     subject = "Something has gone wrong"
     message_type = "info"
     markdown_sections = ["Description of what has gone wrong"]
@@ -48,7 +48,7 @@ def test_slack_client_send_message_to_slack(slack_client, app, mocker, rmock):
 
 
 def test_slack_client_send_message_to_slack_error(slack_client, app, mocker, rmock):
-    webhook_url = "fake-url"
+    webhook_url = "https://fake-url"
     subject = "Something has gone wrong"
     message_type = "info"
     markdown_sections = ["Description of what has gone wrong"]
