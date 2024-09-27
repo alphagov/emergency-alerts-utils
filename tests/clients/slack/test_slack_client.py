@@ -53,7 +53,7 @@ def test_slack_client_send_message_to_slack_error(slack_client, app, mocker, rmo
     message_type = "info"
     markdown_sections = ["Description of what has gone wrong"]
 
-    rmock.request("POST", "fake-url", status_code=401, json={"foo": "bar"})
+    rmock.request("POST", webhook_url, status_code=401, json={"foo": "bar"})
 
     mock_logger = mocker.patch.object(app.logger, "error")
 
