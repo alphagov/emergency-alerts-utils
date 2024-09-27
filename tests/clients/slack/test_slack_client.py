@@ -8,7 +8,7 @@ from emergency_alerts_utils.clients.slack.slack_client import (
 
 
 @pytest.fixture(scope="function")
-def zendesk_client(app):
+def slack_client(app):
     return SlackClient()
 
 
