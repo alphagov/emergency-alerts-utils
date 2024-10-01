@@ -44,7 +44,7 @@ def test_slack_client_send_message_to_slack(slack_client, app, mocker, rmock):
     slack_client.send_message_to_slack(message)
 
     assert rmock.last_request.json() == message.request_data
-    mock_logger.assert_called_once_with("Slack message sent successfully.")
+    mock_logger.assert_called_once_with("Slack message sent to the provided webhook URL.")
 
 
 def test_slack_client_send_message_to_slack_error(slack_client, app, mocker, rmock):
