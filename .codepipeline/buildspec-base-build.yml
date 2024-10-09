@@ -3,18 +3,25 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - echo Checking out to utils_${ENVIRONMENT}_latest tag...
-      - git checkout tags/utils_${ENVIRONMENT}_latest
+      - |
+        if [ -n "$COMMIT_ID" ]; then
+          echo Checking out to utils_${ENVIRONMENT}_latest tag...
+          git checkout tags/utils_${ENVIRONMENT}_latest
+        fi
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS
         --password-stdin $ACCOUNT_NUMBER.dkr.ecr.$AWS_REGION.amazonaws.com
   build:
     commands:
-      - COMMIT_ID=$(echo $COMMIT_ID | cut -c 1-7)
+      - |
+        TAGS="-t $REPOSITORY_URI:latest -t $REPOSITORY_URI:pipeline_$EXECUTION_ID"
+        if [ -n "$COMMIT_ID" ]; then
+          COMMIT_ID=$(echo $COMMIT_ID | cut -c 1-7)
+          TAGS="$TAGS -t $REPOSITORY_URI:commit_$COMMIT_ID"
+        fi
       - echo Build started on `date`
       - echo Building Docker image...
-      - docker build -t $REPOSITORY_URI:latest -t $REPOSITORY_URI:pipeline_$EXECUTION_ID -t $REPOSITORY_URI:commit_$COMMIT_ID
-        -f Dockerfile.eas-base --no-cache
+      - docker build $TAGS -f Dockerfile.eas-base --no-cache
         .
   post_build:
     commands:
