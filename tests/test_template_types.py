@@ -11,6 +11,7 @@ from freezegun import freeze_time
 from markupsafe import Markup
 from orderedset import OrderedSet
 
+from emergency_alerts_utils import MAX_BROADCAST_CHAR_COUNT
 from emergency_alerts_utils.formatters import unlink_govuk_escaped
 from emergency_alerts_utils.template import (
     BaseBroadcastTemplate,
@@ -2809,15 +2810,15 @@ def test_broadcast_message_from_event():
     "content, expected_non_gsm, expected_max, expected_too_long",
     (
         (
-            "a" * 1395,
+            "a" * MAX_BROADCAST_CHAR_COUNT,
             set(),
-            1395,
+            MAX_BROADCAST_CHAR_COUNT,
             False,
         ),
         (
-            "a" * 1396,
+            "a" * (MAX_BROADCAST_CHAR_COUNT + 1),
             set(),
-            1395,
+            MAX_BROADCAST_CHAR_COUNT,
             True,
         ),
         (
@@ -2834,15 +2835,15 @@ def test_broadcast_message_from_event():
             True,
         ),
         (
-            "[" * 697,  # Half of 1395, rounded down
+            "[" * 697,  # Half of 1395 (MAX_BROADCAST_CHAR_COUNT), rounded down
             set(),
-            1395,
+            MAX_BROADCAST_CHAR_COUNT,
             False,
         ),
         (
-            "[" * 698,  # Half of 1395, rounded up
+            "[" * 698,  # Half of 1395 (MAX_BROADCAST_CHAR_COUNT), rounded up
             set(),
-            1395,
+            MAX_BROADCAST_CHAR_COUNT,
             True,
         ),
         (

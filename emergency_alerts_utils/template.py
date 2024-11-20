@@ -8,11 +8,7 @@ from os import path
 from jinja2 import Environment, FileSystemLoader
 from markupsafe import Markup
 
-from emergency_alerts_utils import (
-    LETTER_MAX_PAGE_COUNT,
-    MAGIC_SEQUENCE,
-    SMS_CHAR_COUNT_LIMIT,
-)
+from emergency_alerts_utils import MAGIC_SEQUENCE, MAX_BROADCAST_CHAR_COUNT
 from emergency_alerts_utils.countries.data import Postage
 from emergency_alerts_utils.field import Field, PlainTextField
 from emergency_alerts_utils.formatters import (
@@ -248,7 +244,7 @@ class BaseSMSTemplate(Template):
         send messages well over our limit. There were some inconsistencies with how we were validating the
         length of a message. This should be the method used anytime we want to reject a message for being too long.
         """
-        return self.content_count_without_prefix > SMS_CHAR_COUNT_LIMIT
+        return self.content_count_without_prefix > MAX_BROADCAST_CHAR_COUNT
 
     def is_message_empty(self):
         return self.content_count_without_prefix == 0
@@ -815,7 +811,7 @@ class LetterImageTemplate(BaseLetterTemplate):
 
     @property
     def last_page_number(self):
-        return min(self.page_count, LETTER_MAX_PAGE_COUNT) + self.first_page_number
+        return min(self.page_count, MAX_BROADCAST_CHAR_COUNT) + self.first_page_number
 
     @property
     def page_numbers(self):
