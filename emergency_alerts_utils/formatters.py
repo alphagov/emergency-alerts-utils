@@ -78,6 +78,7 @@ def make_link_from_url(linked_part, *, classes=""):
     CORRESPONDING_OPENING_CHARACTER_MAP = {
         ")": "(",
         "]": "[",
+        "'": None,
         ".": None,
         ",": None,
         ":": None,
