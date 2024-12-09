@@ -33,7 +33,7 @@ from emergency_alerts_utils.template import (
         ),
         (
             """https://example.com/"style='text-decoration:blink'""",
-            """<a class="govuk-link govuk-link--no-visited-state" href="https://example.com/%22style=%27text-decoration:blink%27">https://example.com/"style='text-decoration:blink'</a>""",  # noqa
+            """<a class="govuk-link govuk-link--no-visited-state" href="https://example.com/%22style=%27text-decoration:blink">https://example.com/"style='text-decoration:blink</a>'""",  # noqa
         ),
     ],
 )
