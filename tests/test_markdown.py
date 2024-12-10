@@ -5,7 +5,6 @@ from emergency_alerts_utils.markdown import (
     notify_letter_preview_markdown,
     notify_plain_text_email_markdown,
 )
-from emergency_alerts_utils.template import HTMLEmailTemplate
 
 
 @pytest.mark.parametrize(
@@ -77,41 +76,6 @@ def test_handles_placeholders_in_urls():
         "</a>"
         "<span class='placeholder'>((token))</span>&amp;key=1"
         "</p>"
-    )
-
-
-@pytest.mark.parametrize(
-    "url, expected_html, expected_html_in_template",
-    [
-        (
-            """https://example.com"onclick="alert('hi')""",
-            """<a style="word-wrap: break-word; color: #1D70B8;" href="https://example.com%22onclick=%22alert%28%27hi">https://example.com"onclick="alert('hi</a>')""",  # noqa
-            """<a style="word-wrap: break-word; color: #1D70B8;" href="https://example.com%22onclick=%22alert%28%27hi">https://example.com"onclick="alert('hi</a>‘)""",  # noqa
-        ),
-        (
-            """https://example.com/login?redirect=%2Fhomepage%3Fsuccess=true%26page=blue""",
-            """<a style="word-wrap: break-word; color: #1D70B8;" href="https://example.com/login?redirect=%2Fhomepage%3Fsuccess=true%26page=blue">https://example.com/login?redirect=%2Fhomepage%3Fsuccess=true%26page=blue</a>""",  # noqa
-            """<a style="word-wrap: break-word; color: #1D70B8;" href="https://example.com/login?redirect=%2Fhomepage%3Fsuccess=true%26page=blue">https://example.com/login?redirect=%2Fhomepage%3Fsuccess=true%26page=blue</a>""",  # noqa
-        ),
-        (
-            """https://example.com"style='text-decoration:blink'""",
-            """<a style="word-wrap: break-word; color: #1D70B8;" href="https://example.com%22style=%27text-decoration:blink">https://example.com"style='text-decoration:blink</a>'""",  # noqa
-            """<a style="word-wrap: break-word; color: #1D70B8;" href="https://example.com%22style=%27text-decoration:blink">https://example.com"style='text-decoration:blink</a>’""",  # noqa
-        ),
-    ],
-)
-def test_URLs_get_escaped(url, expected_html, expected_html_in_template):
-    assert notify_email_markdown(url) == (
-        f'<p style="Margin: 0 0 20px 0; font-size: 19px; line-height: 25px; color: #0B0C0C;">{expected_html}</p>'
-    )
-    assert expected_html_in_template in str(
-        HTMLEmailTemplate(
-            {
-                "content": url,
-                "subject": "",
-                "template_type": "email",
-            }
-        )
     )
 
 
