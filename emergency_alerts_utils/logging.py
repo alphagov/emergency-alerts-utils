@@ -7,7 +7,7 @@ from flask.ctx import has_app_context, has_request_context
 from pythonjsonlogger.jsonlogger import JsonFormatter
 
 
-def init_app(app, statsd_client=None):
+def init_app(app):
     app.config.setdefault("NOTIFY_LOG_LEVEL", "INFO")
     app.config.setdefault("EAS_APP_NAME", "none")
 

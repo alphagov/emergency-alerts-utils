@@ -35,8 +35,6 @@ template_env = Environment(
     )
 )
 
-MAX_BROADCAST_CHAR_COUNT = 1395
-
 
 class Template(ABC):
     def __init__(
