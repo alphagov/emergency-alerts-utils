@@ -4,7 +4,7 @@ import sys
 
 from flask import g, request
 from flask.ctx import has_app_context, has_request_context
-from pythonjsonlogger.jsonlogger import JsonFormatter
+from pythonjsonlogger.json import JsonFormatter
 
 
 def init_app(app, statsd_client=None):
