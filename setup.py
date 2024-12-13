@@ -25,7 +25,7 @@ setup(
     install_requires=[
         "cachetools>=5.2.0",
         "requests>=2.25.0",
-        "python-json-logger>=2.0.1",
+        "python-json-logger>=3.2.0",
         "Flask>=3.0.2",
         "orderedset>=2.0.3",
         "Jinja2>=2.11.3",
