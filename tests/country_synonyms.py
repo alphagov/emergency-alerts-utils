@@ -14,7 +14,7 @@ ALL = (
 
 
 CROWDSOURCED_MISTAKES = (
-    ("NI", "United Kingdom", "united-kingdom"),
-    ("Sark", "United Kingdom", "united-kingdom"),
-    ("Yr Alban", "United Kingdom", "united-kingdom"),
+    ("NI", "United Kingdom"),
+    ("Sark", "United Kingdom"),
+    ("Yr Alban", "United Kingdom"),
 )

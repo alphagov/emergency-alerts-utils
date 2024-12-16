@@ -55,8 +55,8 @@ def test_all_synonyms():
 
 
 def test_crowdsourced_test_data():
-    for search, expected_country, expected_postage in CROWDSOURCED_MISTAKES:
-        if expected_country or expected_postage:
+    for search, expected_country in CROWDSOURCED_MISTAKES:
+        if expected_country:
             assert Country(search).canonical_name == expected_country
 
 
