@@ -69,24 +69,17 @@ class Row(InsensitiveDict):
         *,
         index,
         error_fn,
-        # recipient_column_headers,
-        # placeholders,
         template,
-        # allow_international_letters,
         validate_row=True,
     ):
         # If we don't need to validate, then:
         # by not setting template we avoid the template level validation (used to check message length)
-        # by not setting error_fn, we avoid the Cell.__init__ validation (used to check phone nums are valid,
-        # placeholders are present, etc)
+        # by not setting error_fn, we avoid the Cell.__init__ validation (used to check phone nums are valid, etc)
         if not validate_row:
             template = None
             error_fn = None
 
         self.index = index
-        # self.recipient_column_headers = recipient_column_headers
-        # self.placeholders = placeholders
-        # self.allow_international_letters = allow_international_letters
 
         if template:
             template.values = row_dict
@@ -112,16 +105,6 @@ class Row(InsensitiveDict):
     def has_error(self):
         return self.has_error_spanning_multiple_cells or any(cell.error for cell in self.values())
 
-    # @property
-    # def has_bad_recipient(self):
-    #     if self.template_type == "letter":
-    #         return self.has_bad_postal_address
-    #     return self.get(self.recipient_column_headers[0]).recipient_error
-
-    # @property
-    # def has_bad_postal_address(self):
-    #     return self.template_type == "letter" and not self.as_postal_address.valid
-
     @property
     def has_error_spanning_multiple_cells(self):
         return self.message_too_long or self.message_empty
@@ -129,20 +112,6 @@ class Row(InsensitiveDict):
     @property
     def has_missing_data(self):
         return any(cell.error == Cell.missing_field_error for cell in self.values())
-
-    # @property
-    # def recipient(self):
-    #     columns = [self.get(column).data for column in self.recipient_column_headers]
-    #     return columns[0] if len(columns) == 1 else columns
-
-    # @property
-    # def as_postal_address(self):
-    #     from emergency_alerts_utils.postal_address import PostalAddress
-
-    #     return PostalAddress.from_personalisation(
-    #         self.recipient_and_personalisation,
-    #         allow_international_letters=self.allow_international_letters,
-    #     )
 
     @property
     def personalisation(self):
