@@ -24,10 +24,7 @@ def test_missing_data():
         row_dict={},
         index=1,
         error_fn=None,
-        # recipient_column_headers=[],
-        # placeholders=[],
         template=None,
-        # allow_international_letters=False,
     )
     with pytest.raises(KeyError):
         InsensitiveDict({})["foo"]
