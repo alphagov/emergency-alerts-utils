@@ -56,7 +56,6 @@ def test_success_should_log_info(mocker, celery_app, async_task):
 
 def test_success_queue_when_applied_synchronously(mocker, celery_app, celery_task):
     logger_mock = mocker.patch.object(celery_app.logger, "info")
-    # statsd_mock = celery_app.statsd_client.timing
 
     with freeze_time() as frozen:
         celery_task()
@@ -64,7 +63,6 @@ def test_success_queue_when_applied_synchronously(mocker, celery_app, celery_tas
 
         celery_task.on_success(retval=None, task_id=1234, args=[], kwargs={})
 
-    # statsd_mock.assert_called_once_with(f"celery.none.{celery_task.name}.success", 5.0)
     logger_mock.assert_called_once_with(
         f"Celery task {celery_task.name} took 5.0000",
         extra={"python_module": "emergency_alerts_utils.celery", "queue_name": "none"},

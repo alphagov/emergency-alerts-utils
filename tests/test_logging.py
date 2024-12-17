@@ -12,7 +12,7 @@ def test_logging_module_sets_up_root_logger():
 def test_root_handler_is_correctly_configured():
     class App:
         config = {
-            "NOTIFY_APP_NAME": "bar",
+            "EAS_APP_NAME": "bar",
             "NOTIFY_LOG_LEVEL": "ERROR",
         }
 
@@ -27,7 +27,7 @@ def test_root_handler_is_correctly_configured():
 def test_root_handler_has_appropriate_filters():
     class App:
         config = {
-            "NOTIFY_APP_NAME": "bar",
+            "EAS_APP_NAME": "bar",
             "NOTIFY_LOG_LEVEL": "ERROR",
         }
 
