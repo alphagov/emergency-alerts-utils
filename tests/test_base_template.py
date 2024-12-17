@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from emergency_alerts_utils.template import Template
+from emergency_alerts_utils.template import SubjectMixin, Template
 
 
 class ConcreteImplementation:
@@ -17,6 +17,10 @@ class ConcreteTemplate(ConcreteImplementation, Template):
     pass
 
 
+class ConcreteTemplateWithSubject(SubjectMixin, ConcreteTemplate):
+    pass
+
+
 def test_class():
     assert repr(ConcreteTemplate({"content": "hello ((name))"})) == 'ConcreteTemplate("hello ((name))", {})'
 
@@ -27,6 +31,10 @@ def test_passes_through_template_attributes():
     assert ConcreteTemplate({"content": ""}).id is None
     assert ConcreteTemplate({"content": "", "id": "1234"}).id == "1234"
     assert ConcreteTemplate({"content": ""}).template_type is None
+
+
+def test_passes_through_subject():
+    assert ConcreteTemplateWithSubject({"content": "", "subject": "Your tax is due"}).subject == "Your tax is due"
 
 
 def test_errors_for_missing_template_content():
@@ -58,6 +66,26 @@ def test_matches_keys_to_placeholder_names():
 
     template.values = None
     assert template.missing_data == ["name"]
+
+
+@pytest.mark.parametrize(
+    "template_content, template_subject, expected",
+    [
+        ("the quick brown fox", "jumps", []),
+        ("the quick ((colour)) fox", "jumps", ["colour"]),
+        ("the quick ((colour)) ((animal))", "jumps", ["colour", "animal"]),
+        ("((colour)) ((animal)) ((colour)) ((animal))", "jumps", ["colour", "animal"]),
+        ("the quick brown fox", "((colour))", ["colour"]),
+        ("the quick ((colour)) ", "((animal))", ["animal", "colour"]),
+        ("((colour)) ((animal)) ", "((colour)) ((animal))", ["colour", "animal"]),
+        ("Dear ((name)), ((warning?? This is a warning))", "", ["name", "warning"]),
+        ("((warning? one question mark))", "", ["warning? one question mark"]),
+    ],
+)
+def test_extracting_placeholders(template_content, template_subject, expected):
+    assert (
+        ConcreteTemplateWithSubject({"content": template_content, "subject": template_subject}).placeholders == expected
+    )
 
 
 def test_random_variable_retrieve():

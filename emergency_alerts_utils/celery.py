@@ -73,6 +73,9 @@ class NotifyCelery(Celery):
             task_cls=make_task(app),
         )
 
+        # Make sure this is present upfront to avoid errors later on.
+        assert app.statsd_client
+
         # Configure Celery app with options from the main app config.
         self.conf.update(app.config["CELERY"])
 

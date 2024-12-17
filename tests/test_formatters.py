@@ -16,7 +16,12 @@ from emergency_alerts_utils.formatters import (
     strip_unsupported_characters,
     unlink_govuk_escaped,
 )
-from emergency_alerts_utils.template import SMSMessageTemplate, SMSPreviewTemplate
+from emergency_alerts_utils.template import (
+    HTMLEmailTemplate,
+    PlainTextEmailTemplate,
+    SMSMessageTemplate,
+    SMSPreviewTemplate,
+)
 
 
 @pytest.mark.parametrize(
@@ -34,6 +39,36 @@ from emergency_alerts_utils.template import SMSMessageTemplate, SMSPreviewTempla
 )
 def test_URLs_get_escaped_in_sms(url, expected_html):
     assert expected_html in str(SMSPreviewTemplate({"content": url, "template_type": "sms"}))
+
+
+def test_HTML_template_has_URLs_replaced_with_links():
+    assert (
+        '<a style="word-wrap: break-word; color: #1D70B8;" href="https://service.example.com/accept_invite/a1b2c3d4">'
+        "https://service.example.com/accept_invite/a1b2c3d4"
+        "</a>"
+    ) in str(
+        HTMLEmailTemplate(
+            {
+                "content": (
+                    "You’ve been invited to a service. Click this link:\n"
+                    "https://service.example.com/accept_invite/a1b2c3d4\n"
+                    "\n"
+                    "Thanks\n"
+                ),
+                "subject": "",
+                "template_type": "email",
+            }
+        )
+    )
+
+
+def test_escaping_govuk_in_email_templates():
+    template_content = "GOV.UK"
+    expected = "GOV.\u200BUK"
+    assert unlink_govuk_escaped(template_content) == expected
+    template_json = {"content": template_content, "subject": "", "template_type": "email"}
+    assert expected in str(PlainTextEmailTemplate(template_json))
+    assert expected in str(HTMLEmailTemplate(template_json))
 
 
 @pytest.mark.parametrize(

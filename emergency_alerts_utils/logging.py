@@ -7,9 +7,9 @@ from flask.ctx import has_app_context, has_request_context
 from pythonjsonlogger.json import JsonFormatter
 
 
-def init_app(app):
+def init_app(app, statsd_client=None):
     app.config.setdefault("NOTIFY_LOG_LEVEL", "INFO")
-    app.config.setdefault("EAS_APP_NAME", "none")
+    app.config.setdefault("NOTIFY_APP_NAME", "none")
 
     configure_application_logger(app)
 
@@ -31,7 +31,7 @@ def _configure_root_handler(app):
     handler.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
     handler.setFormatter(JsonFormatterForCloudWatch())
 
-    handler.addFilter(AppNameFilter(app.config["EAS_APP_NAME"]))
+    handler.addFilter(AppNameFilter(app.config["NOTIFY_APP_NAME"]))
     handler.addFilter(RequestIdFilter())
     handler.addFilter(ServiceIdFilter())
 
