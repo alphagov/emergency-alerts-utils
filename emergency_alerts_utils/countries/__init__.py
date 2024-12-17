@@ -6,8 +6,12 @@ from emergency_alerts_utils.sanitise_text import SanitiseASCII
 from .data import (
     ADDITIONAL_SYNONYMS,
     COUNTRIES_AND_TERRITORIES,
+    EUROPEAN_ISLANDS,
+    ROYAL_MAIL_EUROPEAN,
+    UK,
     UK_ISLANDS,
     WELSH_NAMES,
+    Postage,
 )
 
 
@@ -42,7 +46,9 @@ class CountryMapping(InsensitiveDict):
         raise CountryNotFoundError(f"Not a known country or territory ({key})")
 
 
-countries = CountryMapping(dict(COUNTRIES_AND_TERRITORIES + UK_ISLANDS + WELSH_NAMES + ADDITIONAL_SYNONYMS))
+countries = CountryMapping(
+    dict(COUNTRIES_AND_TERRITORIES + UK_ISLANDS + EUROPEAN_ISLANDS + WELSH_NAMES + ADDITIONAL_SYNONYMS)
+)
 
 
 class Country:
@@ -51,6 +57,14 @@ class Country:
 
     def __eq__(self, other):
         return self.canonical_name == other.canonical_name
+
+    @property
+    def postage_zone(self):
+        if self.canonical_name == UK:
+            return Postage.UK
+        if self.canonical_name in ROYAL_MAIL_EUROPEAN:
+            return Postage.EUROPE
+        return Postage.REST_OF_WORLD
 
 
 class CountryNotFoundError(KeyError):
