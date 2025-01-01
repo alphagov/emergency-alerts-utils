@@ -34,7 +34,7 @@ transformers = {
 
 
 class Polygons:
-    # Estimated amount of bleed into neigbouring areas based on typical
+    # Estimated amount of bleed into neighbouring areas based on typical
     # range/separation of cell towers.
     approx_bleed_in_m = 1_500
 
@@ -209,13 +209,13 @@ class Polygons:
                 # simplification tolerance in all places, so the
                 # simplification never moves a point inside the original
                 # shape. In practice half of the tolerance is enough to
-                # acheive this.
+                # achieve this.
                 self.simplification_tolerance_in_m
                 / 2
             )
             - (
                 # This reduces the inward buffer by an additional fixed
-                # ammount. This helps ensure we bound very small polygons
+                # amount. This helps ensure we bound very small polygons
                 # entirely, while not making a significant difference to
                 # large polygons.
                 15

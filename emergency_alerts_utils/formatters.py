@@ -299,7 +299,7 @@ def strip_and_remove_obscure_whitespace(value):
 
 
 def remove_whitespace(value):
-    # Removes ALL whitespace, not just the obscure characters we normaly remove
+    # Removes ALL whitespace, not just the obscure characters we normally remove
     for character in ALL_WHITESPACE:
         value = value.replace(character, "")
 
