@@ -1,13 +1,11 @@
 import pytest
 
-from emergency_alerts_utils.recipients import (
+from emergency_alerts_utils.validation import (
     InvalidEmailError,
     InvalidPhoneError,
     allowed_to_send_to,
     format_phone_number_human_readable,
     format_recipient,
-    get_international_phone_info,
-    international_phone_info,
     is_uk_phone_number,
     normalise_phone_number,
     try_validate_and_format_phone_number,
@@ -179,96 +177,6 @@ def test_detect_uk_phone_numbers(phone_number):
 
 
 @pytest.mark.parametrize(
-    "phone_number, expected_info",
-    [
-        (
-            "07900900123",
-            international_phone_info(
-                international=False,
-                crown_dependency=False,
-                country_prefix="44",  # UK
-                billable_units=1,
-            ),
-        ),
-        (
-            "07700900123",
-            international_phone_info(
-                international=False,
-                crown_dependency=False,
-                country_prefix="44",  # Number in TV range
-                billable_units=1,
-            ),
-        ),
-        (
-            "07700800123",
-            international_phone_info(
-                international=True,
-                crown_dependency=True,
-                country_prefix="44",  # UK Crown dependency, so prefix same as UK
-                billable_units=1,
-            ),
-        ),
-        (
-            "20-12-1234-1234",
-            international_phone_info(
-                international=True,
-                crown_dependency=False,
-                country_prefix="20",  # Egypt
-                billable_units=3,
-            ),
-        ),
-        (
-            "00201212341234",
-            international_phone_info(
-                international=True,
-                crown_dependency=False,
-                country_prefix="20",  # Egypt
-                billable_units=3,
-            ),
-        ),
-        (
-            "1664000000000",
-            international_phone_info(
-                international=True,
-                crown_dependency=False,
-                country_prefix="1664",  # Montserrat
-                billable_units=1,
-            ),
-        ),
-        (
-            "71234567890",
-            international_phone_info(
-                international=True,
-                crown_dependency=False,
-                country_prefix="7",  # Russia
-                billable_units=1,
-            ),
-        ),
-        (
-            "1-202-555-0104",
-            international_phone_info(
-                international=True,
-                crown_dependency=False,
-                country_prefix="1",  # USA
-                billable_units=1,
-            ),
-        ),
-        (
-            "+23051234567",
-            international_phone_info(
-                international=True,
-                crown_dependency=False,
-                country_prefix="230",  # Mauritius
-                billable_units=2,
-            ),
-        ),
-    ],
-)
-def test_get_international_info(phone_number, expected_info):
-    assert get_international_phone_info(phone_number) == expected_info
-
-
-@pytest.mark.parametrize(
     "phone_number",
     [
         "abcd",
@@ -286,21 +194,6 @@ def test_normalise_phone_number_raises_if_unparseable_characters(phone_number):
         normalise_phone_number(phone_number)
 
 
-@pytest.mark.parametrize(
-    "phone_number",
-    [
-        "+21 4321 0987",
-        "00997 1234 7890",
-        "801234-7890",
-        "(8-0)-1234-7890",
-    ],
-)
-def test_get_international_info_raises(phone_number):
-    with pytest.raises(InvalidPhoneError) as error:
-        get_international_phone_info(phone_number)
-    assert str(error.value) == "Not a valid country prefix"
-
-
 @pytest.mark.parametrize("phone_number", valid_uk_phone_numbers)
 @pytest.mark.parametrize(
     "extra_args",
@@ -316,32 +209,9 @@ def test_phone_number_accepts_valid_values(extra_args, phone_number):
         pytest.fail("Unexpected InvalidPhoneError")
 
 
-@pytest.mark.parametrize("phone_number", valid_phone_numbers)
-def test_phone_number_accepts_valid_international_values(phone_number):
-    try:
-        validate_phone_number(phone_number, international=True)
-    except InvalidPhoneError:
-        pytest.fail("Unexpected InvalidPhoneError")
-
-
 @pytest.mark.parametrize("phone_number", valid_uk_phone_numbers)
 def test_valid_uk_phone_number_can_be_formatted_consistently(phone_number):
     assert validate_and_format_phone_number(phone_number) == "447123456789"
-
-
-@pytest.mark.parametrize(
-    "phone_number, expected_formatted",
-    [
-        ("71234567890", "71234567890"),
-        ("1-202-555-0104", "12025550104"),
-        ("+12025550104", "12025550104"),
-        ("0012025550104", "12025550104"),
-        ("+0012025550104", "12025550104"),
-        ("23051234567", "23051234567"),
-    ],
-)
-def test_valid_international_phone_number_can_be_formatted_consistently(phone_number, expected_formatted):
-    assert validate_and_format_phone_number(phone_number, international=True) == expected_formatted
 
 
 @pytest.mark.parametrize("phone_number, error_message", invalid_uk_phone_numbers)
@@ -355,13 +225,6 @@ def test_valid_international_phone_number_can_be_formatted_consistently(phone_nu
 def test_phone_number_rejects_invalid_values(extra_args, phone_number, error_message):
     with pytest.raises(InvalidPhoneError) as e:
         validate_phone_number(phone_number, **extra_args)
-    assert error_message == str(e.value)
-
-
-@pytest.mark.parametrize("phone_number, error_message", invalid_phone_numbers)
-def test_phone_number_rejects_invalid_international_values(phone_number, error_message):
-    with pytest.raises(InvalidPhoneError) as e:
-        validate_phone_number(phone_number, international=True)
     assert error_message == str(e.value)
 
 
@@ -399,17 +262,6 @@ def test_validates_against_guestlist_of_phone_numbers(phone_number):
     assert not allowed_to_send_to(phone_number, ["07700900460", "07700900461", "test@example.com"])
 
 
-@pytest.mark.parametrize(
-    "recipient_number, allowlist_number",
-    [
-        ["1-202-555-0104", "0012025550104"],
-        ["0012025550104", "1-202-555-0104"],
-    ],
-)
-def test_validates_against_guestlist_of_international_phone_numbers(recipient_number, allowlist_number):
-    assert allowed_to_send_to(recipient_number, [allowlist_number])
-
-
 @pytest.mark.parametrize("email_address", valid_email_addresses)
 def test_validates_against_guestlist_of_email_addresses(email_address):
     assert not allowed_to_send_to(email_address, ["very_special_and_unique@example.com"])
@@ -421,13 +273,6 @@ def test_validates_against_guestlist_of_email_addresses(email_address):
         ("07900900123", "07900 900123"),  # UK
         ("+44(0)7900900123", "07900 900123"),  # UK
         ("447900900123", "07900 900123"),  # UK
-        ("20-12-1234-1234", "+20 12 12341234"),  # Egypt
-        ("00201212341234", "+20 12 12341234"),  # Egypt
-        ("1664 0000000", "+1 664-000-0000"),  # Montserrat
-        ("7 499 1231212", "+7 499 123-12-12"),  # Moscow (Russia)
-        ("1-202-555-0104", "+1 202-555-0104"),  # Washington DC (USA)
-        ("+23051234567", "+230 5123 4567"),  # Mauritius
-        ("33(0)1 12345678", "+33 1 12 34 56 78"),  # Paris (France)
     ],
 )
 def test_format_uk_and_international_phone_numbers(phone_number, expected_formatted):
@@ -445,7 +290,6 @@ def test_format_uk_and_international_phone_numbers(phone_number, expected_format
         ("foo", "foo"),
         ("TeSt@ExAmPl3.com", "test@exampl3.com"),
         ("+4407900 900 123", "447900900123"),
-        ("+1 800 555 5555", "18005555555"),
     ],
 )
 def test_format_recipient(recipient, expected_formatted):
