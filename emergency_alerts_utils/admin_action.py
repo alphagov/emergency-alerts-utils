@@ -12,11 +12,13 @@ ADMIN_ACTION_LIST = [
 ADMIN_STATUS_PENDING = "pending"
 ADMIN_STATUS_APPROVED = "approved"
 ADMIN_STATUS_REJECTED = "rejected"
+ADMIN_STATUS_INVALIDATED = "invalidated"
 
 ADMIN_STATUS_LIST = [
     ADMIN_STATUS_PENDING,
     ADMIN_STATUS_APPROVED,
     ADMIN_STATUS_REJECTED,
+    ADMIN_STATUS_INVALIDATED,
 ]
 
 # Permissions which require approval from an additional admin before being added
