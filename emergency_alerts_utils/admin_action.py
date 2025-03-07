@@ -2,11 +2,13 @@
 ADMIN_INVITE_USER = "invite_user"
 ADMIN_EDIT_PERMISSIONS = "edit_permissions"  # Only if adding permissions, removal does not need approval
 ADMIN_CREATE_API_KEY = "create_api_key"
+ADMIN_ELEVATE_USER = "elevate_platform_admin"  # To elevate the creator temporarily
 
 ADMIN_ACTION_LIST = [
     ADMIN_INVITE_USER,
     ADMIN_EDIT_PERMISSIONS,
     ADMIN_CREATE_API_KEY,
+    ADMIN_ELEVATE_USER,
 ]
 
 ADMIN_STATUS_PENDING = "pending"
