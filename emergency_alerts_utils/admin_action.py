@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 # Tasks which require another platform admin to approve before being actioned
 ADMIN_INVITE_USER = "invite_user"
 ADMIN_EDIT_PERMISSIONS = "edit_permissions"  # Only if adding permissions, removal does not need approval
@@ -25,3 +27,8 @@ ADMIN_STATUS_LIST = [
 
 # Permissions which require approval from an additional admin before being added
 ADMIN_SENSITIVE_PERMISSIONS = ["create_broadcasts", "approve_broadcasts"]
+
+# How long elevation requests (AdminAction) can exist before automatically invalidating
+ADMIN_ELEVATION_ACTION_TIMEOUT = timedelta(hours=2)
+# How long an approved elevation can remain unredeemed for before the next login doesn't grant platform admin
+ADMIN_ELEVATION_REDEMPTION_TIMEOUT = timedelta(hours=24)
