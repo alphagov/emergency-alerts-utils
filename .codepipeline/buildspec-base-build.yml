@@ -3,11 +3,6 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - |
-        if [ -n "$COMMIT_ID" ]; then
-          echo Checking out to utils_${ENVIRONMENT}_latest tag...
-          git checkout tags/utils_${ENVIRONMENT}_latest
-        fi
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS
         --password-stdin $ACCOUNT_NUMBER.dkr.ecr.$AWS_REGION.amazonaws.com
