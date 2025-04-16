@@ -13,6 +13,8 @@ on:
     branches:
       - main
 
+# Sneaky PR test - temporary; remove when we know that the PR checks actually run
+
 jobs:
   run-pr-checks:
     runs-on: ubuntu-24.04
