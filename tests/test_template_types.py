@@ -1,9 +1,8 @@
-import sys
 from unittest import mock
 
 import pytest
 from markupsafe import Markup
-from orderedset import OrderedSet
+from ordered_set import OrderedSet
 
 from emergency_alerts_utils.template import (
     BaseBroadcastTemplate,
@@ -20,23 +19,14 @@ from emergency_alerts_utils.template import (
     (
         pytest.param(
             Template,
-            ("Can't instantiate abstract class Template with abstract methods __str__"),
-            marks=pytest.mark.skipif(sys.version_info >= (3, 9), reason="‘methods’ will be singular"),
-        ),
-        pytest.param(
-            Template,
-            ("Can't instantiate abstract class Template with abstract method __str__"),
-            marks=pytest.mark.skipif(sys.version_info < (3, 9), reason="‘method’ will be pluralised"),
+            ("Can't instantiate abstract class Template without an implementation for abstract method '__str__'"),
         ),
         pytest.param(
             BaseBroadcastTemplate,
-            ("Can't instantiate abstract class BaseBroadcastTemplate with abstract methods __str__"),
-            marks=pytest.mark.skipif(sys.version_info >= (3, 9), reason="‘methods’ will be singular"),
-        ),
-        pytest.param(
-            BaseBroadcastTemplate,
-            ("Can't instantiate abstract class BaseBroadcastTemplate with abstract method __str__"),
-            marks=pytest.mark.skipif(sys.version_info < (3, 9), reason="‘method’ will be pluralised"),
+            (
+                "Can't instantiate abstract class BaseBroadcastTemplate without "
+                "an implementation for abstract method '__str__'"
+            ),
         ),
     ),
 )

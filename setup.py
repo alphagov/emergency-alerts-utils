@@ -27,7 +27,7 @@ setup(
         "requests>=2.25.0",
         "python-json-logger>=3.2.0",
         "Flask>=3.0.2",
-        "orderedset>=2.0.3",
+        "ordered-set>=4.1.0",
         "Jinja2>=2.11.3",
         "pyyaml>=6.0.1",
         "phonenumbers>=8.13.20",
@@ -37,6 +37,6 @@ setup(
         "itsdangerous>=1.1.0",
         "geojson>=2.5.0",
         "Shapely>=1.8.0",
-        "boto3>=1.19.4",
+        "setuptools>=78.1.0",
     ],
 )
