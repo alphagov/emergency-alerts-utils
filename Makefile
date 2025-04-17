@@ -4,6 +4,9 @@ SHELL := /bin/bash
 NVM_VERSION := 0.39.7
 NODE_VERSION := 16.14.0
 
+VIRTUALENV_ROOT := $(shell [ -z $$VIRTUAL_ENV ] && echo $$(pwd)/venv || echo $$VIRTUAL_ENV)
+PYTHON_EXECUTABLE_PREFIX := $(shell test -d "$${VIRTUALENV_ROOT}" && echo "$${VIRTUALENV_ROOT}/bin/" || echo "")
+
 write-source-file:
 	@if [ -f ~/.zshrc ]; then \
 		if [[ $$(cat ~/.zshrc | grep "export NVM") ]]; then \
@@ -106,6 +109,11 @@ clean:
 .PHONY: fix-imports
 fix-imports:
 	isort ./emergency_alerts_utils ./tests
+
+.PHONY: freeze-requirements
+freeze-requirements: ## create static requirements.txt
+	${PYTHON_EXECUTABLE_PREFIX}pip3 install --upgrade setuptools pip-tools
+	${PYTHON_EXECUTABLE_PREFIX}pip-compile --strip-extras requirements.in	
 
 .PHONY: reset-version
 reset-version:
