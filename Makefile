@@ -105,7 +105,7 @@ clean:
 
 .PHONY: fix-imports
 fix-imports:
-	isort ./emergency_alerts_utils ./tests	
+	isort ./emergency_alerts_utils ./tests
 
 .PHONY: reset-version
 reset-version:
