@@ -4,7 +4,6 @@ SHELL := /bin/bash
 NVM_VERSION := 0.39.7
 NODE_VERSION := 16.14.0
 
-
 write-source-file:
 	@if [ -f ~/.zshrc ]; then \
 		if [[ $$(cat ~/.zshrc | grep "export NVM") ]]; then \
