@@ -1,6 +1,6 @@
 -e .
 
-celery==5.3.6
+celery==5.5.1
 beautifulsoup4==4.12.3
 pytest==8.1.1
 pytest-mock==3.9.0

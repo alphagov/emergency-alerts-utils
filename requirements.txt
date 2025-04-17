@@ -26,7 +26,7 @@ botocore==1.37.35
     #   s3transfer
 cachetools==5.5.2
     # via emergency-alerts-utils
-celery==5.3.6
+celery==5.5.1
     # via -r requirements.in
 certifi==2025.1.31
     # via
@@ -164,9 +164,7 @@ smartypants==2.0.1
 soupsieve==2.6
     # via beautifulsoup4
 tzdata==2025.2
-    # via
-    #   celery
-    #   kombu
+    # via kombu
 urllib3==2.4.0
     # via
     #   botocore
