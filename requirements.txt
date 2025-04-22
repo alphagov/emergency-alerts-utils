@@ -2,7 +2,6 @@
 
 celery==5.3.6
 beautifulsoup4==4.12.3
-lxml==5.2.2
 pytest==8.1.1
 pytest-mock==3.9.0
 pytest-xdist==3.5.0
@@ -14,4 +13,3 @@ flake8-print==5.0.0
 pytest-profiling==1.7.0
 isort==5.13.2
 black==24.3.0
-signxml==3.2.2
