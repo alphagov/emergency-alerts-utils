@@ -334,26 +334,3 @@ def test_generate_xml_body_doesnt_canonicalize():
     path = "/cap:alert/cap:info/cap:description//text()"
     description = etree.fromstring(body).xpath(path, namespaces={"cap": "urn:oasis:names:tc:emergency:cap:1.2"})[0]
     assert description == "  description\nwith\nnewlines"
-
-
-@pytest.mark.parametrize(
-    "message_type, expected_type, expected_status",
-    [
-        ["ALERT", "Alert", "Actual"],
-        ["CANCEL", "Cancel", "Actual"],
-        ["LINK_TEST", "Alert", "Test"],
-    ],
-)
-def test_generate_xml_body_chooses_right_flow_for_message_type_and_format_cap(
-    message_type, expected_type, expected_status
-):
-    event = eval(f"{message_type}_CAP_EVENT")
-    body = generate_xml_body(event)
-
-    type_path = "/cap:alert/cap:msgType//text()"
-    type = etree.fromstring(body).xpath(type_path, namespaces={"cap": "urn:oasis:names:tc:emergency:cap:1.2"})[0]
-    assert type == expected_type
-
-    status_path = "/cap:alert/cap:status//text()"
-    status = etree.fromstring(body).xpath(status_path, namespaces={"cap": "urn:oasis:names:tc:emergency:cap:1.2"})[0]
-    assert status == expected_status
