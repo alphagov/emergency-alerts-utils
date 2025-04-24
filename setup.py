@@ -38,5 +38,8 @@ setup(
         "geojson>=2.5.0",
         "Shapely>=1.8.0",
         "boto3>=1.19.4",
+        "lxml>=5.2.2",
+        "signxml>=3.2.2",
+        "pyOpenSSL<=24.2.1",  # v24.3 removes OpenSSL.crypto.verify, but signxml needs it
     ],
 )
