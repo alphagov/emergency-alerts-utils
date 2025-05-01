@@ -25,6 +25,8 @@ ALLOWED_CHANNELS = [TEST_CHANNEL, OPERATOR_CHANNEL, SEVERE_CHANNEL, GOVERNMENT_C
 
 SENDER = "broadcasts@notifications.service.gov.uk"
 
+HEADLINE = "GOV.UK Emergency Alert"
+
 
 def digitally_sign(xml, key, cert):
     """
