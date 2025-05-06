@@ -111,3 +111,15 @@ def generate_cap_cancel_message(identifier, sent, references):
     xml_subelement(alert, "references", text=references_string)
 
     return alert
+
+
+def convert_utc_datetime_to_cap_standard_string(dt):
+    """
+    As defined in section 3.3.2 of
+    http://docs.oasis-open.org/emergency/cap/v1.2/CAP-v1.2-os.html
+    They define the standard "YYYY-MM-DDThh:mm:ssXzh:zm", where X is
+    `+` if the timezone is > UTC, otherwise `-`
+
+    No validation of the provided datetime is performed. It must be in UTC.
+    """
+    return f"{dt.strftime('%Y-%m-%dT%H:%M:%S')}-00:00"
