@@ -126,5 +126,5 @@ version-patch: reset-version ## Update the patch version number
 
 .PHONY: uninstall-packages
 uninstall-packages:
-	python -m pip uninstall emergency-alerts-utils
+	python -m pip uninstall emergency-alerts-utils -y
 	python -m pip freeze | xargs python -m pip uninstall -y
