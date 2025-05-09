@@ -39,7 +39,7 @@ setup(
         "Shapely>=1.8.0",
         "setuptools>=78.1.0",
         "boto3>=1.38.10",
-        "lxml==5.4.0",
+        "lxml>=5.4.0",
         "signxml>=4.0.3",
     ],
 )
