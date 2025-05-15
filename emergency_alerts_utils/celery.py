@@ -61,7 +61,7 @@ def make_task(app):
         def __call__(self, *args, **kwargs):
             # ensure task has flask context to access config, logger, etc
             with self.app_context():
-                # self.start = time.monotonic()
+                self.start = time.monotonic()
                 # return super().__call__(*args, **kwargs)
                 return self.run(*args, **kwargs)
 
