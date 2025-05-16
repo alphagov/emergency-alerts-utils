@@ -55,7 +55,7 @@ def make_task(app):
                         "task_id": task_id,
                         "args": args,
                         "kwargs": kwargs,
-                    }
+                    },
                 )
 
         def on_failure(self, exc, task_id, args, kwargs, einfo):
@@ -71,7 +71,7 @@ def make_task(app):
                         "task_id": task_id,
                         "args": args,
                         "kwargs": kwargs,
-                    }
+                    },
                 )
 
         def __call__(self, *args, **kwargs):
