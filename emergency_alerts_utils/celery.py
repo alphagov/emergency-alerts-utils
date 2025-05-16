@@ -66,7 +66,6 @@ def make_task(app):
                     extra={
                         "python_module": __name__,
                         "queue_name": self.queue_name,
-                        "exception": str(exc),
                         "exception_info": einfo,
                         "task_id": task_id,
                         "args": args,
