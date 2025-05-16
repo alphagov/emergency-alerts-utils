@@ -48,14 +48,30 @@ def make_task(app):
 
                 current_app.logger.info(
                     f"Celery task {self.name} took {elapsed_time:.4f}",
-                    extra={"python_module": __name__, "queue_name": self.queue_name},
+                    extra={
+                        "python_module": __name__,
+                        "queue_name": self.queue_name,
+                        "return_value": retval,
+                        "task_id": task_id,
+                        "args": args,
+                        "kwargs": kwargs,
+                    }
                 )
 
         def on_failure(self, exc, task_id, args, kwargs, einfo):
             # enables request id tracing for these logs
             with self.app_context():
                 current_app.logger.error(
-                    f"Celery task {self.name} failed", extra={"python_module": __name__, "queue_name": self.queue_name}
+                    f"Celery task {self.name} failed",
+                    extra={
+                        "python_module": __name__,
+                        "queue_name": self.queue_name,
+                        "exception": str(exc),
+                        "exception_info": einfo,
+                        "task_id": task_id,
+                        "args": args,
+                        "kwargs": kwargs,
+                    }
                 )
 
         def __call__(self, *args, **kwargs):
