@@ -50,7 +50,14 @@ def test_success_should_log_info(mocker, celery_app, async_task):
 
     logger_mock.assert_called_once_with(
         f"Celery task {async_task.name} took 5.0000",
-        extra={"python_module": "emergency_alerts_utils.celery", "queue_name": "test-queue"},
+        extra={
+            "python_module": "emergency_alerts_utils.celery",
+            "queue_name": "test-queue",
+            "return_value": None,
+            "task_id": 1234,
+            "args": [],
+            "kwargs": {},
+        },
     )
 
 
@@ -65,7 +72,14 @@ def test_success_queue_when_applied_synchronously(mocker, celery_app, celery_tas
 
     logger_mock.assert_called_once_with(
         f"Celery task {celery_task.name} took 5.0000",
-        extra={"python_module": "emergency_alerts_utils.celery", "queue_name": "none"},
+        extra={
+            'python_module': 'emergency_alerts_utils.celery',
+            'queue_name': 'none',
+            'return_value': None,
+            'task_id': 1234,
+            'args': [],
+            'kwargs': {},
+        },
     )
 
 
@@ -76,7 +90,14 @@ def test_failure_should_log_error(mocker, celery_app, async_task):
 
     logger_mock.assert_called_once_with(
         f"Celery task {async_task.name} failed",
-        extra={"python_module": "emergency_alerts_utils.celery", "queue_name": "test-queue"},
+        extra={
+            "python_module": "emergency_alerts_utils.celery",
+            "queue_name": "test-queue",
+            "exception_info": None,
+            "task_id": 1234,
+            "args": [],
+            "kwargs": {},
+        },
     )
 
 
@@ -87,7 +108,14 @@ def test_failure_queue_when_applied_synchronously(mocker, celery_app, celery_tas
 
     logger_mock.assert_called_once_with(
         f"Celery task {celery_task.name} failed",
-        extra={"python_module": "emergency_alerts_utils.celery", "queue_name": "none"},
+        extra={
+            "python_module": "emergency_alerts_utils.celery",
+            "queue_name": "none",
+            "exception_info": None,
+            "task_id": 1234,
+            "args": [],
+            "kwargs": {}
+        },
     )
 
 
