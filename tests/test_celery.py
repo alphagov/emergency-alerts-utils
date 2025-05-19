@@ -73,12 +73,12 @@ def test_success_queue_when_applied_synchronously(mocker, celery_app, celery_tas
     logger_mock.assert_called_once_with(
         f"Celery task {celery_task.name} took 5.0000",
         extra={
-            'python_module': 'emergency_alerts_utils.celery',
-            'queue_name': 'none',
-            'return_value': None,
-            'task_id': 1234,
-            'args': [],
-            'kwargs': {},
+            "python_module": "emergency_alerts_utils.celery",
+            "queue_name": "none",
+            "return_value": None,
+            "task_id": 1234,
+            "args": [],
+            "kwargs": {},
         },
     )
 
@@ -114,7 +114,7 @@ def test_failure_queue_when_applied_synchronously(mocker, celery_app, celery_tas
             "exception_info": None,
             "task_id": 1234,
             "args": [],
-            "kwargs": {}
+            "kwargs": {},
         },
     )
 
