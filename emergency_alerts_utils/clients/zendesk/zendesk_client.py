@@ -52,7 +52,7 @@ class ZendeskClient:
 
         return json["results"][0]["id"]
 
-    def update_ticket_priority(self, ticket_id: int, priority: str):
+    def update_ticket_priority_with_comment(self, ticket_id: int, priority: str, comment: str):
         if priority not in [
             EASSupportTicket.PRIORITY_LOW,
             EASSupportTicket.PRIORITY_NORMAL,
@@ -62,7 +62,9 @@ class ZendeskClient:
             raise ZendeskError(f"Priority {priority} is unknown")
 
         response = requests.put(
-            self.ZENDESK_TICKET_ID_URL_PREFIX + str(ticket_id), json={"priority": priority}, headers=self.headers()
+            self.ZENDESK_TICKET_ID_URL_PREFIX + str(ticket_id),
+            json={"priority": priority, "comment": {"body": comment}},
+            headers=self.headers(),
         )
         return response
 

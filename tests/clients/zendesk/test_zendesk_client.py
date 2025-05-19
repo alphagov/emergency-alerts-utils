@@ -261,11 +261,13 @@ def test_zendesk_client_returns_none_for_no_admin_activity_ticket(zendesk_client
 
 
 def test_zendesk_client_puts_update_to_ticket_priority(zendesk_client, rmock):
-    rmock.request(
+    adapter = rmock.request(
         "PUT",
         ZendeskClient.ZENDESK_TICKET_ID_URL_PREFIX + "1234",
         status_code=200,
         json={"ticket": {"id": 1234}},
     )
+    zendesk_client.update_ticket_priority_with_comment(1234, "urgent", "comment")
 
-    zendesk_client.update_ticket_priority(1234, "urgent")
+    last_request = adapter.last_request.json()
+    assert last_request == {"priority": "urgent", "comment": {"body": "comment"}}
