@@ -230,3 +230,42 @@ def test_eas_support_ticket_with_html_body():
             ],
         }
     }
+
+
+def test_zendesk_client_queries_admin_ticket_id(zendesk_client, rmock):
+    rmock.request(
+        "GET",
+        ZendeskClient.ZENDESK_SEARCH_TICKETS_URL
+        + "?query=type%3Aticket+status%3Aopen+Admin+Activity+Out+of+Hours+"
+        + "requester%3Atest.user%40digital.cabinet-office.gov.uk",
+        status_code=200,
+        json={"count": 1, "results": [{"id": 1234}]},
+    )
+
+    ticket_id = zendesk_client.get_open_admin_zendesk_ticket_id_for_email("test.user@digital.cabinet-office.gov.uk")
+    assert ticket_id == 1234
+
+
+def test_zendesk_client_returns_none_for_no_admin_activity_ticket(zendesk_client, rmock):
+    rmock.request(
+        "GET",
+        ZendeskClient.ZENDESK_SEARCH_TICKETS_URL
+        + "?query=type%3Aticket+status%3Aopen+Admin+Activity+Out+of+Hours+"
+        + "requester%3Atest.user%40digital.cabinet-office.gov.uk",
+        status_code=200,
+        json={"count": 0, "results": []},
+    )
+
+    ticket_id = zendesk_client.get_open_admin_zendesk_ticket_id_for_email("test.user@digital.cabinet-office.gov.uk")
+    assert ticket_id is None
+
+
+def test_zendesk_client_puts_update_to_ticket_priority(zendesk_client, rmock):
+    rmock.request(
+        "PUT",
+        ZendeskClient.ZENDESK_TICKET_ID_URL_PREFIX + "1234",
+        status_code=200,
+        json={"ticket": {"id": 1234}},
+    )
+
+    zendesk_client.update_ticket_priority(1234, "urgent")

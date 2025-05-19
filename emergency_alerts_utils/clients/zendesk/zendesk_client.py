@@ -1,5 +1,9 @@
+from typing import Optional
+
 import requests
 from flask import current_app
+
+from emergency_alerts_utils.admin_action import ADMIN_ZENDESK_TICKET_TITLE_PREFIX
 
 
 class ZendeskError(Exception):
@@ -9,6 +13,8 @@ class ZendeskError(Exception):
 
 class ZendeskClient:
     ZENDESK_TICKET_URL = "https://govuk.zendesk.com/api/v2/tickets.json"
+    ZENDESK_SEARCH_TICKETS_URL = "https://govuk.zendesk.com/api/v2/search.json"
+    ZENDESK_TICKET_ID_URL_PREFIX = "https://govuk.zendesk.com/api/v2/tickets/"  # + <id>
 
     def __init__(self):
         self.api_key = None
@@ -16,9 +22,11 @@ class ZendeskClient:
     def init_app(self, app, *args, **kwargs):
         self.api_key = app.config.get("ZENDESK_API_KEY")
 
+    def headers(self):
+        return {"Accept": "application/json", "Authorization": f"Basic {self.api_key}"}
+
     def send_ticket_to_zendesk(self, ticket):
-        headers = {"Accept": "application/json", "Authorization": f"Basic {self.api_key}"}
-        response = requests.post(self.ZENDESK_TICKET_URL, json=ticket.request_data, headers=headers)
+        response = requests.post(self.ZENDESK_TICKET_URL, json=ticket.request_data, headers=self.headers())
 
         if response.status_code != 201:
             current_app.logger.error(
@@ -29,6 +37,34 @@ class ZendeskClient:
         ticket_id = response.json()["ticket"]["id"]
 
         current_app.logger.info(f"Zendesk create ticket {ticket_id} succeeded")
+
+    def get_open_admin_zendesk_ticket_id_for_email(self, email) -> Optional[int]:
+        """
+        Get a ticket ID if there's an open ticket referring to admin activity out of hours.
+        Note that the email is expected to always be concerning the invidivual *becoming* an admin, not any approver.
+        """
+        params = {"query": f"type:ticket status:open {ADMIN_ZENDESK_TICKET_TITLE_PREFIX} requester:{email}"}
+        response = requests.get(self.ZENDESK_SEARCH_TICKETS_URL, params=params, headers=self.headers())
+        json = response.json()
+
+        if json["count"] == 0:
+            return None
+
+        return json["results"][0]["id"]
+
+    def update_ticket_priority(self, ticket_id: int, priority: str):
+        if priority not in [
+            EASSupportTicket.PRIORITY_LOW,
+            EASSupportTicket.PRIORITY_NORMAL,
+            EASSupportTicket.PRIORITY_HIGH,
+            EASSupportTicket.PRIORITY_URGENT,
+        ]:
+            raise ZendeskError(f"Priority {priority} is unknown")
+
+        response = requests.put(
+            self.ZENDESK_TICKET_ID_URL_PREFIX + str(ticket_id), json={"priority": priority}, headers=self.headers()
+        )
+        return response
 
 
 class EASSupportTicket:
