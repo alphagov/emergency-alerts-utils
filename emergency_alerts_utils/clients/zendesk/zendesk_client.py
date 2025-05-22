@@ -118,6 +118,7 @@ class EASSupportTicket:
         service_id=None,
         email_ccs=None,
         message_as_html=False,
+        custom_priority=None,
     ):
         self.subject = subject
         self.message = message
@@ -133,6 +134,7 @@ class EASSupportTicket:
         self.service_id = service_id
         self.email_ccs = email_ccs
         self.message_as_html = message_as_html
+        self.custom_priority = custom_priority
 
     @property
     def request_data(self):
@@ -146,7 +148,7 @@ class EASSupportTicket:
                 "group_id": self.EAS_GROUP_ID,
                 "organization_id": self.EAS_ORG_ID,
                 "ticket_form_id": self.EAS_TICKET_FORM_ID,
-                "priority": self.PRIORITY_URGENT if self.p1 else self.PRIORITY_NORMAL,
+                "priority": self.custom_priority or (self.PRIORITY_URGENT if self.p1 else self.PRIORITY_NORMAL),
                 "tags": self.TAGS_P1 if self.p1 else self.TAGS_P2,
                 "type": self.ticket_type,
                 "custom_fields": self._get_custom_fields(),

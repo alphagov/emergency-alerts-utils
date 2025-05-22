@@ -91,6 +91,20 @@ def test_zendesk_client_send_ticket_to_zendesk_error(zendesk_client, app, mocker
             "urgent",
             True,
         ),
+        (
+            {
+                "p1": True,
+                "custom_priority": "low",
+            },
+            [
+                "emergency_alerts_new_alarm",
+                "emergency_alerts_send_slack_dev",
+                "emergency_alerts_send_email_project",
+                "emergency_alerts_send_pagerduty",
+            ],
+            "low",  # Even though P1 is true, we should use the custom_priority
+            True,
+        ),
     ),
 )
 def test_eas_support_ticket_request_data(p1_arg, expected_tags, expected_priority, is_alarm_tag_expected):
