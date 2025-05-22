@@ -1,4 +1,5 @@
 from datetime import timedelta
+from zoneinfo import ZoneInfo
 
 # Tasks which require another platform admin to approve before being actioned
 ADMIN_INVITE_USER = "invite_user"
@@ -35,8 +36,9 @@ ADMIN_ELEVATION_REDEMPTION_TIMEOUT = timedelta(hours=24)
 
 ADMIN_ZENDESK_TICKET_TITLE_PREFIX = "Admin Activity Out of Hours"
 # Treat outside of 8am - 6pm as outside office hours:
-ADMIN_ZENDESK_OFFICE_HOURS_START = "8"
-ADMIN_ZENDESK_OFFICE_HOURS_END = "6"
+ADMIN_ZENDESK_OFFICE_HOURS_START = 8
+ADMIN_ZENDESK_OFFICE_HOURS_END = 18
+ADMIN_ZENDESK_OFFICE_HOURS_TIMEZONE = ZoneInfo("Europe/London")
 
 # What each event should be as a priority in ZenDesk when it occurs out of hours:
 ADMIN_ZENDESK_PRIORITY_REQUEST = "low"
