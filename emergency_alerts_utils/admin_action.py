@@ -34,7 +34,7 @@ ADMIN_ELEVATION_ACTION_TIMEOUT = timedelta(hours=2)
 # How long an approved elevation can remain unredeemed for before the next login doesn't grant platform admin
 ADMIN_ELEVATION_REDEMPTION_TIMEOUT = timedelta(hours=24)
 
-ADMIN_ZENDESK_TICKET_TITLE_PREFIX = "Admin Activity Out of Hours"
+ADMIN_ZENDESK_TICKET_TITLE_PREFIX = "Out of Hours Admin Activity"
 # Treat outside of 8am - 6pm as outside office hours:
 ADMIN_ZENDESK_OFFICE_HOURS_START = 8
 ADMIN_ZENDESK_OFFICE_HOURS_END = 18
