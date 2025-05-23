@@ -77,8 +77,8 @@ def make_task(app):
             # ensure task has flask context to access config, logger, etc
             with self.app_context():
                 self.start = time.monotonic()
-                # return super().__call__(*args, **kwargs)
-                return self.run(*args, **kwargs)
+                return super().__call__(*args, **kwargs)
+                # # return self.run(*args, **kwargs)
 
     return NotifyTask
 
@@ -91,8 +91,8 @@ class NotifyCelery(Celery):
 
         # Configure Celery app with options from the main app config.
         self.conf.update(app.config["CELERY"])
-        self.set_default()
-        app.extensions["celery"] = self
+        # # self.set_default()
+        # # app.extensions["celery"] = self
 
     def send_task(self, name, args=None, kwargs=None, **other_kwargs):
         other_kwargs["headers"] = other_kwargs.get("headers") or {}
