@@ -47,10 +47,14 @@ class ZendeskClient:
         response = requests.get(self.ZENDESK_SEARCH_TICKETS_URL, params=params, headers=self.headers())
         json = response.json()
 
-        if json["count"] == 0:
-            return None
+        for result in json["results"]:
+            # The ZenDesk API seems to cache search results for a while.
+            # If a ticket is recently closed our query will still return it, even containing the updated status
+            # property. As a workaround we just return the first one which is open/new in case there's a closed one.
+            if result["status"] == "new" or result["status"] == "open":
+                return result["id"]
 
-        return json["results"][0]["id"]
+        return None
 
     def update_ticket_priority_with_comment(self, ticket_id: int, priority: str, comment: str):
         if priority not in [

@@ -253,11 +253,11 @@ def test_zendesk_client_queries_admin_ticket_id(zendesk_client, rmock):
         + "?query=type%3Aticket+status%3Anew+status%3Aopen+Out+of+Hours+Admin+Activity+"
         + "requester%3Atest.user%40digital.cabinet-office.gov.uk",
         status_code=200,
-        json={"count": 1, "results": [{"id": 1234}]},
+        json={"count": 2, "results": [{"id": 1234, "status": "closed"}, {"id": 5678, "status": "new"}]},
     )
 
     ticket_id = zendesk_client.get_open_admin_zendesk_ticket_id_for_email("test.user@digital.cabinet-office.gov.uk")
-    assert ticket_id == 1234
+    assert ticket_id == 5678
 
 
 def test_zendesk_client_returns_none_for_no_admin_activity_ticket(zendesk_client, rmock):
