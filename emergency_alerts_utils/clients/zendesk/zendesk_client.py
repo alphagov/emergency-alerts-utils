@@ -43,7 +43,7 @@ class ZendeskClient:
         Get a ticket ID if there's an open ticket referring to admin activity out of hours.
         Note that the email is expected to always be concerning the invidivual *becoming* an admin, not any approver.
         """
-        params = {"query": f"type:ticket status:open {ADMIN_ZENDESK_TICKET_TITLE_PREFIX} requester:{email}"}
+        params = {"query": f"type:ticket status:new status:open {ADMIN_ZENDESK_TICKET_TITLE_PREFIX} requester:{email}"}
         response = requests.get(self.ZENDESK_SEARCH_TICKETS_URL, params=params, headers=self.headers())
         json = response.json()
 
@@ -63,7 +63,7 @@ class ZendeskClient:
 
         response = requests.put(
             self.ZENDESK_TICKET_ID_URL_PREFIX + str(ticket_id),
-            json={"priority": priority, "comment": {"body": comment}},
+            json={"ticket": {"priority": priority, "comment": {"body": comment}}},
             headers=self.headers(),
         )
         return response
