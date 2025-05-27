@@ -93,7 +93,7 @@ class EASSupportTicket:
     # All tickets using visual formatting to Slack/Email recipients must have this tag
     BASE_TAGS = ["emergency_alerts_new_alarm"]
     TAGS_P2 = BASE_TAGS + [TARGET_TAGS["SLACK_DEV"], TARGET_TAGS["EMAIL_GROUP_MAILBOX"]]
-    TAGS_P1 = TAGS_P2 + [TARGET_TAGS["PAGERDUTY"]]
+    TAGS_P1 = TAGS_P2 + [TARGET_TAGS["PAGERDUTY"], TARGET_TAGS["SLACK_SUPPORT"]]
 
     TYPE_PROBLEM = "problem"
     TYPE_INCIDENT = "incident"

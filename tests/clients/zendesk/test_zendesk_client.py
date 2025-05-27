@@ -87,6 +87,7 @@ def test_zendesk_client_send_ticket_to_zendesk_error(zendesk_client, app, mocker
                 "emergency_alerts_send_slack_dev",
                 "emergency_alerts_send_email_project",
                 "emergency_alerts_send_pagerduty",
+                "emergency_alerts_send_slack_support",
             ],
             "urgent",
             True,
@@ -101,6 +102,7 @@ def test_zendesk_client_send_ticket_to_zendesk_error(zendesk_client, app, mocker
                 "emergency_alerts_send_slack_dev",
                 "emergency_alerts_send_email_project",
                 "emergency_alerts_send_pagerduty",
+                "emergency_alerts_send_slack_support",
             ],
             "low",  # Even though P1 is true, we should use the custom_priority
             True,
