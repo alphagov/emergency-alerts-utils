@@ -141,7 +141,7 @@ class NotifyCelery(Celery):
             task_cls=make_task(app),
         )
 
-        self.app_ctx = app.app_context()
+        self.this_app = app
 
         # Configure Celery app with options from the main app config.
         # # self.conf.update(app.config["CELERY"])
