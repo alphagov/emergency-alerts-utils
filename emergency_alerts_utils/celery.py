@@ -1,27 +1,23 @@
+import logging
 import time
 from contextlib import contextmanager
+from os import getpid
 
 from celery import Celery, Task
-from celery.signals import setup_logging
-from flask import current_app, g, request
+from flask import g, request
 from flask.ctx import has_app_context, has_request_context
-
-
-@setup_logging.connect
-def setup_logger(*args, **kwargs):
-    """
-    Using '"worker_hijack_root_logger": False' in the Celery config
-    should block celery from overriding the logger configuration.
-    In practice, this doesn't seem to work, so we intercept this
-    celery signal and just do a NOP
-    """
-    pass
 
 
 def make_task(app):
     class NotifyTask(Task):
         abstract = True
         start = None
+
+        def __init__(self, *args, **kwargs):
+            # custom task-decorator arguments get applied as class attributes (!),
+            # provide a default if this is missing
+            self.early_log_level = getattr(self, "early_log_level", logging.INFO)
+            super().__init__(*args, **kwargs)
 
         @property
         def queue_name(self):
@@ -32,7 +28,7 @@ def make_task(app):
         def request_id(self):
             # Note that each header is a direct attribute of the
             # task context (aka "request").
-            return self.request.get("notify_request_id")
+            return self.request.get("notify_request_id") or self.request.id
 
         @contextmanager
         def app_context(self):
@@ -46,30 +42,57 @@ def make_task(app):
             with self.app_context():
                 elapsed_time = time.monotonic() - self.start
 
-                current_app.logger.info(
+                app.logger.info(
                     f"Celery task {self.name} took {elapsed_time:.4f}",
                     extra={
                         "python_module": __name__,
+                        "celery_task": self.name,
+                        "celery_task_id": self.request.id,
                         "queue_name": self.queue_name,
-                        "return_value": retval,
-                        "task_id": task_id,
-                        "args": args,
-                        "kwargs": kwargs,
+                        "time_taken": elapsed_time,
+                        # avoid name collision with LogRecord's own `process` attribute
+                        "process_": getpid(),
+                    },
+                )
+
+        def on_retry(self, exc, task_id, args, kwargs, einfo):
+            # enables request id tracing for these logs
+            with self.app_context():
+                elapsed_time = time.monotonic() - self.start
+
+                app.logger.warning(
+                    "Celery task %s (queue: %s) failed for retry after %.4f",
+                    self.name,
+                    self.queue_name,
+                    elapsed_time,
+                    extra={
+                        "python_module": __name__,
+                        "celery_task": self.name,
+                        "celery_task_id": self.request.id,
+                        "queue_name": self.queue_name,
+                        "time_taken": elapsed_time,
+                        # avoid name collision with LogRecord's own `process` attribute
+                        "process_": getpid(),
                     },
                 )
 
         def on_failure(self, exc, task_id, args, kwargs, einfo):
             # enables request id tracing for these logs
             with self.app_context():
-                current_app.logger.error(
-                    f"Celery task {self.name} failed",
+                elapsed_time = time.monotonic() - self.start
+                
+                app.logger.exception(
+                    "Celery task %s (queue: %s) failed after %.4f",
+                    self.name,
+                    self.queue_name,
+                    elapsed_time,
                     extra={
-                        "python_module": __name__,
+                        "celery_task": self.name,
+                        "celery_task_id": self.request.id,
                         "queue_name": self.queue_name,
-                        "exception_info": einfo,
-                        "task_id": task_id,
-                        "args": args,
-                        "kwargs": kwargs,
+                        "time_taken": elapsed_time,
+                        # avoid name collision with LogRecord's own `process` attribute
+                        "process_": getpid(),
                     },
                 )
 
@@ -77,6 +100,23 @@ def make_task(app):
             # ensure task has flask context to access config, logger, etc
             with self.app_context():
                 self.start = time.monotonic()
+
+                if self.request.id is not None:
+                    # we're not being called synchronously
+                    app.logger.log(
+                        self.early_log_level,
+                        "Celery task %s (queue: %s) started",
+                        self.name,
+                        self.queue_name,
+                        extra={
+                            "celery_task": self.name,
+                            "celery_task_id": self.request.id,
+                            "queue_name": self.queue_name,
+                            # avoid name collision with LogRecord's own `process` attribute
+                            "process_": getpid(),
+                        },
+                    )
+
                 return super().__call__(*args, **kwargs)
                 # # return self.run(*args, **kwargs)
 
@@ -91,8 +131,6 @@ class NotifyCelery(Celery):
 
         # Configure Celery app with options from the main app config.
         self.conf.update(app.config["CELERY"])
-        # # self.set_default()
-        # # app.extensions["celery"] = self
 
     def send_task(self, name, args=None, kwargs=None, **other_kwargs):
         other_kwargs["headers"] = other_kwargs.get("headers") or {}
