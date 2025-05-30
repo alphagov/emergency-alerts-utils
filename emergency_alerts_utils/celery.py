@@ -4,8 +4,20 @@ from contextlib import contextmanager
 from os import getpid
 
 from celery import Celery, Task
+from celery.signals import setup_logging
 from flask import g, request
 from flask.ctx import has_app_context, has_request_context
+
+
+@setup_logging.connect
+def setup_logger(*args, **kwargs):
+    """
+    Using '"worker_hijack_root_logger": False' in the Celery config
+    should block celery from overriding the logger configuration.
+    In practice, this doesn't seem to work, so we intercept this
+    celery signal and just do a NOP
+    """
+    pass
 
 
 def make_task(app):
