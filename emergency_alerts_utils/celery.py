@@ -129,8 +129,8 @@ def make_task(app):
                         },
                     )
 
-                return super().__call__(*args, **kwargs)
-                # # return self.run(*args, **kwargs)
+                # # return super().__call__(*args, **kwargs)
+                return self.run(*args, **kwargs)  # EXP-1
 
     return NotifyTask
 
@@ -142,7 +142,9 @@ class NotifyCelery(Celery):
         )
 
         # Configure Celery app with options from the main app config.
-        self.conf.update(app.config["CELERY"])
+        # # self.conf.update(app.config["CELERY"])
+        self.config_from_object(app.config["CELERY"])  # EXP-1
+        self.set_default()  # EXP-1
 
     def send_task(self, name, args=None, kwargs=None, **other_kwargs):
         other_kwargs["headers"] = other_kwargs.get("headers") or {}
