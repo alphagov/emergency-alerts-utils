@@ -20,7 +20,7 @@ def setup_logger(*args, **kwargs):
     pass
 
 
-def make_task(app):
+def make_task(app):  # noqa: C901
     class NotifyTask(Task):
         abstract = True
         start = None
@@ -92,7 +92,7 @@ def make_task(app):
             # enables request id tracing for these logs
             with self.app_context():
                 elapsed_time = time.monotonic() - self.start
-                
+
                 app.logger.exception(
                     "Celery task %s (queue: %s) failed after %.4f",
                     self.name,
