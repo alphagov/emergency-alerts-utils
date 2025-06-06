@@ -1,4 +1,5 @@
 import logging
+import os
 import time
 from contextlib import contextmanager
 from os import getpid
@@ -145,6 +146,17 @@ class NotifyCelery(Celery):
 
         # Configure Celery app with options from the main app config.
         # # self.conf.update(app.config["CELERY"])
+
+        service_name = os.environ.get("SERVICE", "unknown")
+
+        app.logger.info(
+            f"Service: {service_name.upper()}, Configuring Celery with options from the main app config",
+            extra={
+                "python_module": __name__,
+                "celery_config": app.config["CELERY"],
+            },
+        )
+
         self.config_from_object(app.config["CELERY"])  # EXP-1
         self.set_default()  # EXP-1
 
