@@ -142,11 +142,6 @@ class NotifyCelery(Celery):
             task_cls=make_task(app),
         )
 
-        self.this_app = app
-
-        # Configure Celery app with options from the main app config.
-        # # self.conf.update(app.config["CELERY"])
-
         service_name = os.environ.get("SERVICE", "unknown")
         app.logger.info(
             f"{service_name.upper()} service Celery configuration",
@@ -156,8 +151,7 @@ class NotifyCelery(Celery):
             },
         )
 
-        self.config_from_object(app.config["CELERY"])  # EXP-1
-        self.set_default()  # EXP-1
+        self.config_from_object(app.config["CELERY"])
 
     def send_task(self, name, args=None, kwargs=None, **other_kwargs):
         other_kwargs["headers"] = other_kwargs.get("headers") or {}
