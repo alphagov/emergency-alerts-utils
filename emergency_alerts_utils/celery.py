@@ -148,9 +148,8 @@ class NotifyCelery(Celery):
         # # self.conf.update(app.config["CELERY"])
 
         service_name = os.environ.get("SERVICE", "unknown")
-
         app.logger.info(
-            f"Service: {service_name.upper()}, Configuring Celery with options from the main app config",
+            f"{service_name.upper()} service Celery configuration",
             extra={
                 "python_module": __name__,
                 "celery_config": app.config["CELERY"],
