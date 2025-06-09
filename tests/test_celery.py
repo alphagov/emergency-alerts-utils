@@ -34,7 +34,7 @@ def async_task(celery_task):
 def request_id_task(celery_task):
     # Note that each header is a direct attribute of the
     # task context (aka "request").
-    celery_task.push_request(notify_request_id="1234")
+    celery_task.push_request(request_id="1234")
     yield celery_task
     celery_task.pop_request()
 
@@ -140,7 +140,7 @@ def test_send_task_injects_global_request_id_into_headers(
     notify_celery.send_task("some-task")
 
     super_apply.assert_called_with(
-        "some-task", None, None, headers={"notify_request_id": "1234"}  # name  # args  # kwargs  # other kwargs
+        "some-task", None, None, headers={"request_id": "1234"}  # name  # args  # kwargs  # other kwargs
     )
 
 
@@ -157,7 +157,7 @@ def test_send_task_injects_request_id_with_existing_headers(
         "some-task",  # name
         None,  # args
         None,  # kwargs
-        headers={"notify_request_id": "1234", "something": "else"},  # other kwargs
+        headers={"request_id": "1234", "something": "else"},  # other kwargs
     )
 
 
@@ -176,7 +176,7 @@ def test_send_task_injects_request_id_with_none_headers(
     )
 
     super_apply.assert_called_with(
-        "some-task", None, None, headers={"notify_request_id": "1234"}  # name  # args  # kwargs  # other kwargs
+        "some-task", None, None, headers={"request_id": "1234"}  # name  # args  # kwargs  # other kwargs
     )
 
 
@@ -193,5 +193,5 @@ def test_send_task_injects_id_from_request(
         notify_celery.send_task("some-task")
 
     super_apply.assert_called_with(
-        "some-task", None, None, headers={"notify_request_id": "1234"}  # name  # args  # kwargs  # other kwargs
+        "some-task", None, None, headers={"request_id": "1234"}  # name  # args  # kwargs  # other kwargs
     )

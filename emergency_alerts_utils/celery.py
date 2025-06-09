@@ -6,7 +6,7 @@ from os import getpid
 
 from celery import Celery, Task
 from celery.signals import setup_logging
-from flask import g, request
+from flask import current_app, g, request
 from flask.ctx import has_app_context, has_request_context
 
 
@@ -41,7 +41,7 @@ def make_task(app):  # noqa: C901
         def request_id(self):
             # Note that each header is a direct attribute of the
             # task context (aka "request").
-            return self.request.get("notify_request_id") or self.request.id
+            return self.request.get("request_id") or self.request.id
 
         @contextmanager
         def app_context(self):
@@ -55,7 +55,7 @@ def make_task(app):  # noqa: C901
             with self.app_context():
                 elapsed_time = time.monotonic() - self.start
 
-                app.logger.info(
+                current_app.logger.info(
                     f"Celery task {self.name} took {elapsed_time:.4f}",
                     extra={
                         "python_module": __name__,
@@ -73,7 +73,7 @@ def make_task(app):  # noqa: C901
             with self.app_context():
                 elapsed_time = time.monotonic() - self.start
 
-                app.logger.warning(
+                current_app.logger.warning(
                     "Celery task %s (queue: %s) failed for retry after %.4f",
                     self.name,
                     self.queue_name,
@@ -94,7 +94,7 @@ def make_task(app):  # noqa: C901
             with self.app_context():
                 elapsed_time = time.monotonic() - self.start
 
-                app.logger.exception(
+                current_app.logger.exception(
                     "Celery task %s (queue: %s) failed after %.4f",
                     self.name,
                     self.queue_name,
@@ -116,7 +116,7 @@ def make_task(app):  # noqa: C901
 
                 if self.request.id is not None:
                     # we're not being called synchronously
-                    app.logger.log(
+                    current_app.logger.log(
                         self.early_log_level,
                         "Celery task %s (queue: %s) started",
                         self.name,
@@ -129,8 +129,6 @@ def make_task(app):  # noqa: C901
                             "process_": getpid(),
                         },
                     )
-
-                # # return super().__call__(*args, **kwargs)
                 return self.run(*args, **kwargs)  # EXP-1
 
     return NotifyTask
@@ -142,14 +140,15 @@ class NotifyCelery(Celery):
             task_cls=make_task(app),
         )
 
-        service_name = os.environ.get("SERVICE", "unknown")
-        app.logger.info(
-            f"{service_name.upper()} service Celery configuration",
-            extra={
-                "python_module": __name__,
-                "celery_config": app.config["CELERY"],
-            },
-        )
+        with app.app_context():
+            service_name = os.environ.get("SERVICE", "unknown")
+            current_app.logger.info(
+                f"{service_name.upper()} service Celery configuration",
+                extra={
+                    "python_module": __name__,
+                    "celery_config": app.config["CELERY"],
+                },
+            )
 
         self.config_from_object(app.config["CELERY"])
 
@@ -157,9 +156,9 @@ class NotifyCelery(Celery):
         other_kwargs["headers"] = other_kwargs.get("headers") or {}
 
         if has_request_context() and hasattr(request, "request_id"):
-            other_kwargs["headers"]["notify_request_id"] = request.request_id
+            other_kwargs["headers"]["request_id"] = request.request_id
 
         elif has_app_context() and "request_id" in g:
-            other_kwargs["headers"]["notify_request_id"] = g.request_id
+            other_kwargs["headers"]["request_id"] = g.request_id
 
         return super().send_task(name, args, kwargs, **other_kwargs)
