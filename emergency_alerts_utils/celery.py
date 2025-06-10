@@ -139,17 +139,6 @@ class NotifyCelery(Celery):
         super().__init__(
             task_cls=make_task(app),
         )
-
-        with app.app_context():
-            service_name = os.environ.get("SERVICE", "unknown")
-            current_app.logger.info(
-                f"{service_name.upper()} service Celery configuration",
-                extra={
-                    "python_module": __name__,
-                    "celery_config": app.config["CELERY"],
-                },
-            )
-
         self.config_from_object(app.config["CELERY"])
 
     def send_task(self, name, args=None, kwargs=None, **other_kwargs):
