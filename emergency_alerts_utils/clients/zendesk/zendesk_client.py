@@ -1,5 +1,9 @@
+from typing import Optional
+
 import requests
 from flask import current_app
+
+from emergency_alerts_utils.admin_action import ADMIN_ZENDESK_TICKET_TITLE_PREFIX
 
 
 class ZendeskError(Exception):
@@ -9,6 +13,8 @@ class ZendeskError(Exception):
 
 class ZendeskClient:
     ZENDESK_TICKET_URL = "https://govuk.zendesk.com/api/v2/tickets.json"
+    ZENDESK_SEARCH_TICKETS_URL = "https://govuk.zendesk.com/api/v2/search.json"
+    ZENDESK_TICKET_ID_URL_PREFIX = "https://govuk.zendesk.com/api/v2/tickets/"  # + <id>
 
     def __init__(self):
         self.api_key = None
@@ -16,9 +22,11 @@ class ZendeskClient:
     def init_app(self, app, *args, **kwargs):
         self.api_key = app.config.get("ZENDESK_API_KEY")
 
+    def headers(self):
+        return {"Accept": "application/json", "Authorization": f"Basic {self.api_key}"}
+
     def send_ticket_to_zendesk(self, ticket):
-        headers = {"Accept": "application/json", "Authorization": f"Basic {self.api_key}"}
-        response = requests.post(self.ZENDESK_TICKET_URL, json=ticket.request_data, headers=headers)
+        response = requests.post(self.ZENDESK_TICKET_URL, json=ticket.request_data, headers=self.headers())
 
         if response.status_code != 201:
             current_app.logger.error(
@@ -29,6 +37,40 @@ class ZendeskClient:
         ticket_id = response.json()["ticket"]["id"]
 
         current_app.logger.info(f"Zendesk create ticket {ticket_id} succeeded")
+
+    def get_open_admin_zendesk_ticket_id_for_email(self, email) -> Optional[int]:
+        """
+        Get a ticket ID if there's an open ticket referring to admin activity out of hours.
+        Note that the email is expected to always be concerning the invidivual *becoming* an admin, not any approver.
+        """
+        params = {"query": f"type:ticket status:new status:open {ADMIN_ZENDESK_TICKET_TITLE_PREFIX} requester:{email}"}
+        response = requests.get(self.ZENDESK_SEARCH_TICKETS_URL, params=params, headers=self.headers())
+        json = response.json()
+
+        for result in json["results"]:
+            # The ZenDesk API seems to cache search results for a while.
+            # If a ticket is recently closed our query will still return it, even containing the updated status
+            # property. As a workaround we just return the first one which is open/new in case there's a closed one.
+            if result["status"] == "new" or result["status"] == "open":
+                return result["id"]
+
+        return None
+
+    def update_ticket_priority_with_comment(self, ticket_id: int, priority: str, comment: str):
+        if priority not in [
+            EASSupportTicket.PRIORITY_LOW,
+            EASSupportTicket.PRIORITY_NORMAL,
+            EASSupportTicket.PRIORITY_HIGH,
+            EASSupportTicket.PRIORITY_URGENT,
+        ]:
+            raise ZendeskError(f"Priority {priority} is unknown")
+
+        response = requests.put(
+            self.ZENDESK_TICKET_ID_URL_PREFIX + str(ticket_id),
+            json={"ticket": {"priority": priority, "comment": {"body": comment}}},
+            headers=self.headers(),
+        )
+        return response
 
 
 class EASSupportTicket:
@@ -51,7 +93,7 @@ class EASSupportTicket:
     # All tickets using visual formatting to Slack/Email recipients must have this tag
     BASE_TAGS = ["emergency_alerts_new_alarm"]
     TAGS_P2 = BASE_TAGS + [TARGET_TAGS["SLACK_DEV"], TARGET_TAGS["EMAIL_GROUP_MAILBOX"]]
-    TAGS_P1 = TAGS_P2 + [TARGET_TAGS["PAGERDUTY"]]
+    TAGS_P1 = TAGS_P2 + [TARGET_TAGS["PAGERDUTY"], TARGET_TAGS["SLACK_SUPPORT"]]
 
     TYPE_PROBLEM = "problem"
     TYPE_INCIDENT = "incident"
@@ -80,6 +122,7 @@ class EASSupportTicket:
         service_id=None,
         email_ccs=None,
         message_as_html=False,
+        custom_priority=None,
     ):
         self.subject = subject
         self.message = message
@@ -95,6 +138,7 @@ class EASSupportTicket:
         self.service_id = service_id
         self.email_ccs = email_ccs
         self.message_as_html = message_as_html
+        self.custom_priority = custom_priority
 
     @property
     def request_data(self):
@@ -108,7 +152,7 @@ class EASSupportTicket:
                 "group_id": self.EAS_GROUP_ID,
                 "organization_id": self.EAS_ORG_ID,
                 "ticket_form_id": self.EAS_TICKET_FORM_ID,
-                "priority": self.PRIORITY_URGENT if self.p1 else self.PRIORITY_NORMAL,
+                "priority": self.custom_priority or (self.PRIORITY_URGENT if self.p1 else self.PRIORITY_NORMAL),
                 "tags": self.TAGS_P1 if self.p1 else self.TAGS_P2,
                 "type": self.ticket_type,
                 "custom_fields": self._get_custom_fields(),
