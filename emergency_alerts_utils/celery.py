@@ -1,5 +1,4 @@
 import logging
-import os
 import time
 from contextlib import contextmanager
 from os import getpid
@@ -24,7 +23,7 @@ def setup_logger(*args, **kwargs):
 def make_task(app):  # noqa: C901
     class NotifyTask(Task):
         abstract = True
-        start = None
+        start = time.monotonic()
 
         def __init__(self, *args, **kwargs):
             # custom task-decorator arguments get applied as class attributes (!),
