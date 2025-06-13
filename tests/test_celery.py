@@ -1,4 +1,5 @@
 import uuid
+from unittest.mock import ANY
 
 import pytest
 from flask import g
@@ -16,7 +17,7 @@ def notify_celery(celery_app):
 
 @pytest.fixture
 def celery_task(notify_celery):
-    @notify_celery.task(name=uuid.uuid4(), base=notify_celery.task_cls)
+    @notify_celery.task(name=uuid.UUID("f14444da-0676-4dc2-afe7-aca55f18463b"), base=notify_celery.task_cls)
     def test_task(delivery_info=None):
         pass
 
@@ -34,7 +35,7 @@ def async_task(celery_task):
 def request_id_task(celery_task):
     # Note that each header is a direct attribute of the
     # task context (aka "request").
-    celery_task.push_request(notify_request_id="1234")
+    celery_task.push_request(request_id="1234")
     yield celery_task
     celery_task.pop_request()
 
@@ -49,8 +50,15 @@ def test_success_should_log_info(mocker, celery_app, async_task):
         async_task.on_success(retval=None, task_id=1234, args=[], kwargs={})
 
     logger_mock.assert_called_once_with(
-        f"Celery task {async_task.name} took 5.0000",
-        extra={"python_module": "emergency_alerts_utils.celery", "queue_name": "test-queue"},
+        "Celery task f14444da-0676-4dc2-afe7-aca55f18463b took 5.0000",
+        extra={
+            "python_module": "emergency_alerts_utils.celery",
+            "celery_task": uuid.UUID("f14444da-0676-4dc2-afe7-aca55f18463b"),
+            "celery_task_id": None,
+            "queue_name": "test-queue",
+            "time_taken": 5.0,
+            "process_": ANY,
+        },
     )
 
 
@@ -64,8 +72,15 @@ def test_success_queue_when_applied_synchronously(mocker, celery_app, celery_tas
         celery_task.on_success(retval=None, task_id=1234, args=[], kwargs={})
 
     logger_mock.assert_called_once_with(
-        f"Celery task {celery_task.name} took 5.0000",
-        extra={"python_module": "emergency_alerts_utils.celery", "queue_name": "none"},
+        "Celery task f14444da-0676-4dc2-afe7-aca55f18463b took 5.0000",
+        extra={
+            "python_module": "emergency_alerts_utils.celery",
+            "celery_task": uuid.UUID("f14444da-0676-4dc2-afe7-aca55f18463b"),
+            "celery_task_id": None,
+            "queue_name": "none",
+            "time_taken": 5.0,
+            "process_": ANY,
+        },
     )
 
 
@@ -75,8 +90,18 @@ def test_failure_should_log_error(mocker, celery_app, async_task):
     async_task.on_failure(exc=Exception, task_id=1234, args=[], kwargs={}, einfo=None)
 
     logger_mock.assert_called_once_with(
-        f"Celery task {async_task.name} failed",
-        extra={"python_module": "emergency_alerts_utils.celery", "queue_name": "test-queue"},
+        "Celery task %s (queue: %s) failed after %.4f",
+        uuid.UUID("f14444da-0676-4dc2-afe7-aca55f18463b"),
+        "test-queue",
+        ANY,
+        exc_info=True,
+        extra={
+            "celery_task": uuid.UUID("f14444da-0676-4dc2-afe7-aca55f18463b"),
+            "celery_task_id": None,
+            "queue_name": "test-queue",
+            "time_taken": ANY,
+            "process_": ANY,
+        },
     )
 
 
@@ -86,8 +111,18 @@ def test_failure_queue_when_applied_synchronously(mocker, celery_app, celery_tas
     celery_task.on_failure(exc=Exception, task_id=1234, args=[], kwargs={}, einfo=None)
 
     logger_mock.assert_called_once_with(
-        f"Celery task {celery_task.name} failed",
-        extra={"python_module": "emergency_alerts_utils.celery", "queue_name": "none"},
+        "Celery task %s (queue: %s) failed after %.4f",
+        uuid.UUID("f14444da-0676-4dc2-afe7-aca55f18463b"),
+        "none",
+        ANY,
+        exc_info=True,
+        extra={
+            "celery_task": uuid.UUID("f14444da-0676-4dc2-afe7-aca55f18463b"),
+            "celery_task_id": None,
+            "queue_name": "none",
+            "time_taken": ANY,
+            "process_": ANY,
+        },
     )
 
 
@@ -112,7 +147,7 @@ def test_send_task_injects_global_request_id_into_headers(
     notify_celery.send_task("some-task")
 
     super_apply.assert_called_with(
-        "some-task", None, None, headers={"notify_request_id": "1234"}  # name  # args  # kwargs  # other kwargs
+        "some-task", None, None, headers={"request_id": "1234"}  # name  # args  # kwargs  # other kwargs
     )
 
 
@@ -129,7 +164,7 @@ def test_send_task_injects_request_id_with_existing_headers(
         "some-task",  # name
         None,  # args
         None,  # kwargs
-        headers={"notify_request_id": "1234", "something": "else"},  # other kwargs
+        headers={"request_id": "1234", "something": "else"},  # other kwargs
     )
 
 
@@ -148,7 +183,7 @@ def test_send_task_injects_request_id_with_none_headers(
     )
 
     super_apply.assert_called_with(
-        "some-task", None, None, headers={"notify_request_id": "1234"}  # name  # args  # kwargs  # other kwargs
+        "some-task", None, None, headers={"request_id": "1234"}  # name  # args  # kwargs  # other kwargs
     )
 
 
@@ -165,5 +200,5 @@ def test_send_task_injects_id_from_request(
         notify_celery.send_task("some-task")
 
     super_apply.assert_called_with(
-        "some-task", None, None, headers={"notify_request_id": "1234"}  # name  # args  # kwargs  # other kwargs
+        "some-task", None, None, headers={"request_id": "1234"}  # name  # args  # kwargs  # other kwargs
     )
