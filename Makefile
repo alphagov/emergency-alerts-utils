@@ -123,3 +123,8 @@ version-minor: reset-version ## Update the minor version number
 .PHONY: version-patch
 version-patch: reset-version ## Update the patch version number
 	./scripts/bump_version.py patch
+
+.PHONY: uninstall-packages
+uninstall-packages:
+	python -m pip uninstall emergency-alerts-utils -y
+	python -m pip freeze | xargs python -m pip uninstall -y
