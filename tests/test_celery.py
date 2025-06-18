@@ -57,7 +57,7 @@ def test_success_should_log_info(mocker, celery_app, async_task):
             "celery_task_id": None,
             "queue_name": "test-queue",
             "time_taken": 5.0,
-            "process_": ANY,
+            "process_id": ANY,
         },
     )
 
@@ -79,7 +79,7 @@ def test_success_queue_when_applied_synchronously(mocker, celery_app, celery_tas
             "celery_task_id": None,
             "queue_name": "none",
             "time_taken": 5.0,
-            "process_": ANY,
+            "process_id": ANY,
         },
     )
 
@@ -100,7 +100,7 @@ def test_failure_should_log_error(mocker, celery_app, async_task):
             "celery_task_id": None,
             "queue_name": "test-queue",
             "time_taken": ANY,
-            "process_": ANY,
+            "process_id": ANY,
         },
     )
 
@@ -121,7 +121,7 @@ def test_failure_queue_when_applied_synchronously(mocker, celery_app, celery_tas
             "celery_task_id": None,
             "queue_name": "none",
             "time_taken": ANY,
-            "process_": ANY,
+            "process_id": ANY,
         },
     )
 
@@ -147,7 +147,7 @@ def test_send_task_injects_global_request_id_into_headers(
     notify_celery.send_task("some-task")
 
     super_apply.assert_called_with(
-        "some-task", None, None, headers={"request_id": "1234"}  # name  # args  # kwargs  # other kwargs
+        "some-task", None, None, headers={"notify_request_id": "1234"}  # name  # args  # kwargs  # other kwargs
     )
 
 
@@ -164,7 +164,7 @@ def test_send_task_injects_request_id_with_existing_headers(
         "some-task",  # name
         None,  # args
         None,  # kwargs
-        headers={"request_id": "1234", "something": "else"},  # other kwargs
+        headers={"notify_request_id": "1234", "something": "else"},  # other kwargs
     )
 
 
@@ -183,7 +183,7 @@ def test_send_task_injects_request_id_with_none_headers(
     )
 
     super_apply.assert_called_with(
-        "some-task", None, None, headers={"request_id": "1234"}  # name  # args  # kwargs  # other kwargs
+        "some-task", None, None, headers={"notify_request_id": "1234"}  # name  # args  # kwargs  # other kwargs
     )
 
 
@@ -200,5 +200,5 @@ def test_send_task_injects_id_from_request(
         notify_celery.send_task("some-task")
 
     super_apply.assert_called_with(
-        "some-task", None, None, headers={"request_id": "1234"}  # name  # args  # kwargs  # other kwargs
+        "some-task", None, None, headers={"notify_request_id": "1234"}  # name  # args  # kwargs  # other kwargs
     )
