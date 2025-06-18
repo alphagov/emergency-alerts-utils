@@ -35,7 +35,7 @@ def async_task(celery_task):
 def request_id_task(celery_task):
     # Note that each header is a direct attribute of the
     # task context (aka "request").
-    celery_task.push_request(request_id="1234")
+    celery_task.push_request(notify_request_id="1234")
     yield celery_task
     celery_task.pop_request()
 
