@@ -40,7 +40,7 @@ def make_task(app):  # noqa: C901
         def request_id(self):
             # Note that each header is a direct attribute of the
             # task context (aka "request").
-            return self.request.get("request_id") or self.request.id
+            return self.request.get("notify_request_id")
 
         @contextmanager
         def app_context(self):
@@ -63,7 +63,7 @@ def make_task(app):  # noqa: C901
                         "queue_name": self.queue_name,
                         "time_taken": elapsed_time,
                         # avoid name collision with LogRecord's own `process` attribute
-                        "process_": getpid(),
+                        "process_id": getpid(),
                     },
                 )
 
@@ -84,7 +84,7 @@ def make_task(app):  # noqa: C901
                         "queue_name": self.queue_name,
                         "time_taken": elapsed_time,
                         # avoid name collision with LogRecord's own `process` attribute
-                        "process_": getpid(),
+                        "process_id": getpid(),
                     },
                 )
 
@@ -104,7 +104,7 @@ def make_task(app):  # noqa: C901
                         "queue_name": self.queue_name,
                         "time_taken": elapsed_time,
                         # avoid name collision with LogRecord's own `process` attribute
-                        "process_": getpid(),
+                        "process_id": getpid(),
                     },
                 )
 
@@ -125,7 +125,7 @@ def make_task(app):  # noqa: C901
                             "celery_task_id": self.request.id,
                             "queue_name": self.queue_name,
                             # avoid name collision with LogRecord's own `process` attribute
-                            "process_": getpid(),
+                            "process_id": getpid(),
                         },
                     )
                 return self.run(*args, **kwargs)  # EXP-1
@@ -144,9 +144,9 @@ class NotifyCelery(Celery):
         other_kwargs["headers"] = other_kwargs.get("headers") or {}
 
         if has_request_context() and hasattr(request, "request_id"):
-            other_kwargs["headers"]["request_id"] = request.request_id
+            other_kwargs["headers"]["notify_request_id"] = request.request_id
 
         elif has_app_context() and "request_id" in g:
-            other_kwargs["headers"]["request_id"] = g.request_id
+            other_kwargs["headers"]["notify_request_id"] = g.request_id
 
         return super().send_task(name, args, kwargs, **other_kwargs)
