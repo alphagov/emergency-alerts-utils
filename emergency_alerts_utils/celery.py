@@ -59,7 +59,7 @@ def make_task(app):  # noqa: C901
                     extra={
                         "python_module": __name__,
                         "celery_task": self.name,
-                        "celery_task_id": self.request.id,
+                        "celery_task_id": task_id,
                         "queue_name": self.queue_name,
                         "time_taken": elapsed_time,
                         "celery_pid": getpid(),
@@ -79,10 +79,12 @@ def make_task(app):  # noqa: C901
                     extra={
                         "python_module": __name__,
                         "celery_task": self.name,
-                        "celery_task_id": self.request.id,
+                        "celery_task_id": task_id,
                         "queue_name": self.queue_name,
                         "time_taken": elapsed_time,
                         "celery_pid": getpid(),
+                        "error": exc,
+                        "error_info": einfo.traceback_str(),
                     },
                 )
 
@@ -98,10 +100,12 @@ def make_task(app):  # noqa: C901
                     elapsed_time,
                     extra={
                         "celery_task": self.name,
-                        "celery_task_id": self.request.id,
+                        "celery_task_id": task_id,
                         "queue_name": self.queue_name,
                         "time_taken": elapsed_time,
                         "celery_pid": getpid(),
+                        "error": exc,
+                        "error_info": einfo.traceback_str(),
                     },
                 )
 
@@ -124,7 +128,7 @@ def make_task(app):  # noqa: C901
                             "celery_pid": getpid(),
                         },
                     )
-                return self.run(*args, **kwargs)  # EXP-1
+                return self.run(*args, **kwargs)
 
     return NotifyTask
 
