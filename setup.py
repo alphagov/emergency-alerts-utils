@@ -36,7 +36,7 @@ setup(
         "smartypants>=2.0.1",
         "itsdangerous>=1.1.0",
         "geojson>=2.5.0",
-        "Shapely>=1.8.0",
+        "Shapely>=2.1.1",
         "setuptools>=78.1.0",
         "boto3>=1.38.10",
         "lxml>=5.4.0",

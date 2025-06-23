@@ -109,26 +109,27 @@ def make_task(app):  # noqa: C901
                     },
                 )
 
+        def before_start(self, task_id, args, kwargs):
+            # enables request id tracing for these logs
+            with self.app_context():
+                current_app.logger.info(
+                    "Celery task %s (queue: %s) started",
+                    self.name,
+                    self.queue_name,
+                    extra={
+                        "python_module": __name__,
+                        "celery_task": self.name,
+                        "celery_task_id": task_id,
+                        "queue_name": self.queue_name,
+                        "celery_pid": getpid(),
+                    },
+                )
+
         def __call__(self, *args, **kwargs):
             # ensure task has flask context to access config, logger, etc
             with self.app_context():
                 self.start = time.monotonic()
-
-                if self.request.id is not None:
-                    # we're not being called synchronously
-                    current_app.logger.log(
-                        self.early_log_level,
-                        "Celery task %s (queue: %s) started",
-                        self.name,
-                        self.queue_name,
-                        extra={
-                            "celery_task": self.name,
-                            "celery_task_id": self.request.id,
-                            "queue_name": self.queue_name,
-                            "celery_pid": getpid(),
-                        },
-                    )
-                return self.run(*args, **kwargs)
+                return super().__call__(*args, **kwargs)
 
     return NotifyTask
 
