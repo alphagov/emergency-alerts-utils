@@ -84,7 +84,7 @@ def make_task(app):  # noqa: C901
                         "time_taken": elapsed_time,
                         "celery_pid": getpid(),
                         "error": exc,
-                        "error_info": einfo.traceback_str(),
+                        "error_info": str(einfo),
                     },
                 )
 
@@ -105,7 +105,7 @@ def make_task(app):  # noqa: C901
                         "time_taken": elapsed_time,
                         "celery_pid": getpid(),
                         "error": exc,
-                        "error_info": einfo.traceback_str(),
+                        "error_info": str(einfo),
                     },
                 )
 

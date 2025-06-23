@@ -54,10 +54,10 @@ def test_success_should_log_info(mocker, celery_app, async_task):
         extra={
             "python_module": "emergency_alerts_utils.celery",
             "celery_task": uuid.UUID("f14444da-0676-4dc2-afe7-aca55f18463b"),
-            "celery_task_id": None,
+            "celery_task_id": 1234,
             "queue_name": "test-queue",
             "time_taken": 5.0,
-            "process_id": ANY,
+            "celery_pid": ANY,
         },
     )
 
@@ -76,10 +76,10 @@ def test_success_queue_when_applied_synchronously(mocker, celery_app, celery_tas
         extra={
             "python_module": "emergency_alerts_utils.celery",
             "celery_task": uuid.UUID("f14444da-0676-4dc2-afe7-aca55f18463b"),
-            "celery_task_id": None,
+            "celery_task_id": 1234,
             "queue_name": "none",
             "time_taken": 5.0,
-            "process_id": ANY,
+            "celery_pid": ANY,
         },
     )
 
@@ -97,10 +97,12 @@ def test_failure_should_log_error(mocker, celery_app, async_task):
         exc_info=True,
         extra={
             "celery_task": uuid.UUID("f14444da-0676-4dc2-afe7-aca55f18463b"),
-            "celery_task_id": None,
+            "celery_task_id": 1234,
             "queue_name": "test-queue",
             "time_taken": ANY,
-            "process_id": ANY,
+            "celery_pid": ANY,
+            "error": Exception,
+            "error_info": str(None),
         },
     )
 
@@ -118,10 +120,12 @@ def test_failure_queue_when_applied_synchronously(mocker, celery_app, celery_tas
         exc_info=True,
         extra={
             "celery_task": uuid.UUID("f14444da-0676-4dc2-afe7-aca55f18463b"),
-            "celery_task_id": None,
+            "celery_task_id": 1234,
             "queue_name": "none",
             "time_taken": ANY,
-            "process_id": ANY,
+            "celery_pid": ANY,
+            "error": Exception,
+            "error_info": str(None),
         },
     )
 
