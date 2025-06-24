@@ -1,5 +1,4 @@
 import logging
-import logging.handlers
 import sys
 
 from flask import g, request
@@ -11,27 +10,33 @@ def init_app(app):
     app.config.setdefault("NOTIFY_LOG_LEVEL", "INFO")
     app.config.setdefault("EAS_APP_NAME", "none")
 
-    configure_application_logger(app)
+    override_root_logger(app)
 
     app.logger.info("Logging configured")
 
 
-def configure_application_logger(app):
-    del app.logger.handlers[:]
+def override_root_logger(app):
+    root = logging.getLogger()
+    root.setLevel(logging.INFO)
 
-    handler = _configure_root_handler(app)
+    handler = _create_console_handler(app)
 
-    app.logger.addHandler(handler)
+    root.addHandler(handler)
+    root.setLevel(logging.INFO)
+
+    logging.info("Root logger configured")
+
     app.logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
 
 
-def _configure_root_handler(app):
+def _create_console_handler(app):
     handler = logging.StreamHandler(sys.stdout)
 
-    handler.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
+    # Allow the handler to log anything - we filter by setting logger levels
+    handler.setLevel(logging.DEBUG)
     handler.setFormatter(JsonFormatterForCloudWatch())
 
-    handler.addFilter(AppNameFilter(app.config["EAS_APP_NAME"]))
+    handler.addFilter(CodeContextFilter())
     handler.addFilter(RequestIdFilter())
     handler.addFilter(ServiceIdFilter())
 
@@ -48,12 +53,9 @@ class JsonFormatterForCloudWatch(JsonFormatter):
         return result.replace("\n", "\r")
 
 
-class AppNameFilter(logging.Filter):
-    def __init__(self, app_name):
-        self.app_name = app_name
-
+class CodeContextFilter(logging.Filter):
     def filter(self, record):
-        record.app_name = self.app_name
+        record.line = f"{record.filename}:{record.lineno}"
 
         return record
 
