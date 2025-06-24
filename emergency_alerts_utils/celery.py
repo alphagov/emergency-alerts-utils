@@ -86,3 +86,14 @@ class NotifyCelery(Celery):
             other_kwargs["headers"]["notify_request_id"] = g.request_id
 
         return super().send_task(name, args, kwargs, **other_kwargs)
+
+
+class QueueNames(object):
+    PERIODIC = "periodic-tasks"
+    BROADCASTS = "broadcast-tasks"
+    GOVUK_ALERTS = "govuk-alerts"
+
+
+class TaskNames(object):
+    PUBLISH_GOVUK_ALERTS = "publish-govuk-alerts"
+    TRIGGER_GOVUK_HEALTHCHECK = "trigger-govuk-alerts-healthcheck"
