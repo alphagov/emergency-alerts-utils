@@ -1,4 +1,3 @@
 recursive-include emergency_alerts_utils *.jinja2
 recursive-include emergency_alerts_utils *.json
 recursive-include emergency_alerts_utils *.txt
-include emergency_alerts_utils/international_billing_rates.yml

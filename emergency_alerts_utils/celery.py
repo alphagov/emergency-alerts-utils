@@ -1,5 +1,7 @@
+import logging
 import time
 from contextlib import contextmanager
+from os import getpid
 
 from celery import Celery, Task
 from celery.signals import setup_logging
@@ -18,10 +20,16 @@ def setup_logger(*args, **kwargs):
     pass
 
 
-def make_task(app):
+def make_task(app):  # noqa: C901
     class NotifyTask(Task):
         abstract = True
-        start = None
+        start = time.monotonic()
+
+        def __init__(self, *args, **kwargs):
+            # custom task-decorator arguments get applied as class attributes (!),
+            # provide a default if this is missing
+            self.early_log_level = getattr(self, "early_log_level", logging.INFO)
+            super().__init__(*args, **kwargs)
 
         @property
         def queue_name(self):
@@ -48,14 +56,73 @@ def make_task(app):
 
                 current_app.logger.info(
                     f"Celery task {self.name} took {elapsed_time:.4f}",
-                    extra={"python_module": __name__, "queue_name": self.queue_name},
+                    extra={
+                        "python_module": __name__,
+                        "celery_task": self.name,
+                        "celery_task_id": task_id,
+                        "queue_name": self.queue_name,
+                        "time_taken": elapsed_time,
+                        "celery_pid": getpid(),
+                    },
+                )
+
+        def on_retry(self, exc, task_id, args, kwargs, einfo):
+            # enables request id tracing for these logs
+            with self.app_context():
+                elapsed_time = time.monotonic() - self.start
+
+                current_app.logger.warning(
+                    "Celery task %s (queue: %s) failed for retry after %.4f",
+                    self.name,
+                    self.queue_name,
+                    elapsed_time,
+                    extra={
+                        "python_module": __name__,
+                        "celery_task": self.name,
+                        "celery_task_id": task_id,
+                        "queue_name": self.queue_name,
+                        "time_taken": elapsed_time,
+                        "celery_pid": getpid(),
+                        "error": exc,
+                        "error_info": str(einfo),
+                    },
                 )
 
         def on_failure(self, exc, task_id, args, kwargs, einfo):
             # enables request id tracing for these logs
             with self.app_context():
-                current_app.logger.error(
-                    f"Celery task {self.name} failed", extra={"python_module": __name__, "queue_name": self.queue_name}
+                elapsed_time = time.monotonic() - self.start
+
+                current_app.logger.exception(
+                    "Celery task %s (queue: %s) failed after %.4f",
+                    self.name,
+                    self.queue_name,
+                    elapsed_time,
+                    extra={
+                        "celery_task": self.name,
+                        "celery_task_id": task_id,
+                        "queue_name": self.queue_name,
+                        "time_taken": elapsed_time,
+                        "celery_pid": getpid(),
+                        "error": exc,
+                        "error_info": str(einfo),
+                    },
+                )
+
+        def before_start(self, task_id, args, kwargs):
+            # enables request id tracing for these logs
+            with self.app_context():
+                current_app.logger.info(
+                    "Celery task %s (queue: %s) started",
+                    self.name,
+                    self.queue_name,
+                    extra={
+                        "python_module": __name__,
+                        "celery_task": self.name,
+                        "celery_task_id": task_id,
+                        "queue_name": self.queue_name,
+                        "celery_pid": getpid(),
+                    },
                 )
 
         def __call__(self, *args, **kwargs):
@@ -72,9 +139,7 @@ class NotifyCelery(Celery):
         super().__init__(
             task_cls=make_task(app),
         )
-
-        # Configure Celery app with options from the main app config.
-        self.conf.update(app.config["CELERY"])
+        self.config_from_object(app.config["CELERY"])
 
     def send_task(self, name, args=None, kwargs=None, **other_kwargs):
         other_kwargs["headers"] = other_kwargs.get("headers") or {}

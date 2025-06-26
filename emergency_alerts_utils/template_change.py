@@ -1,4 +1,4 @@
-from orderedset import OrderedSet
+from ordered_set import OrderedSet
 
 from emergency_alerts_utils.insensitive_dict import InsensitiveDict
 
