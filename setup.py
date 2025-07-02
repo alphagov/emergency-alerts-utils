@@ -27,7 +27,6 @@ setup(
         "requests>=2.25.0",
         "python-json-logger>=3.2.0",
         "Flask>=3.0.2",
-        "Werkzeug>=3.1.3",
         "ordered-set>=4.1.0",
         "Jinja2>=2.11.3",
         "pyyaml>=6.0.1",
