@@ -151,3 +151,28 @@ class NotifyCelery(Celery):
             other_kwargs["headers"]["notify_request_id"] = g.request_id
 
         return super().send_task(name, args, kwargs, **other_kwargs)
+
+
+class QueueNames:
+    PERIODIC = "periodic-tasks"
+    BROADCASTS = "broadcast-tasks"
+    GOVUK_ALERTS = "govuk-alerts"
+
+
+class TaskNames:
+    PUBLISH_GOVUK_ALERTS = "publish-govuk-alerts"
+    SEND_BROADCAST_EVENT = "send-broadcast-event"
+    SEND_BROADCAST_PROVIDER_MESSAGE = "send-broadcast-provider-message"
+    TRIGGER_LINK_TEST = "trigger-link-test"
+
+    # Scheduled
+    TRIGGER_GOVUK_HEALTHCHECK = "trigger-govuk-alerts-healthcheck"
+    RUN_HEALTH_CHECK = "run-health-check"
+    DELETE_VERIFY_CODES = "delete-verify-codes"
+    DELETE_INVITATIONS = "delete-invitations"
+    TRIGGER_LINK_TESTS = "trigger-link-tests"
+    AUTO_EXPIRE_BROADCAST_MESSAGES = "auto-expire-broadcast-messages"
+    REMOVE_YESTERDAYS_PLANNED_TESTS_ON_GOVUK_ALERTS = "remove-yesterdays-planned-tests-on-govuk-alerts"
+    DELETE_OLD_RECORDS_FROM_EVENTS_TABLE = "delete-old-records-from-events-table"
+    VALIDATE_FUNCTIONAL_TEST_ACCOUNT_EMAILS = "validate-functional-test-account-emails"
+    QUEUE_AFTER_ALERT_ACTIVITIES = "queue-after-alert-activities"
