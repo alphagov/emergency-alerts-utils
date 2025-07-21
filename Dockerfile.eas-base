@@ -43,7 +43,8 @@ RUN apt-get install -y  \
     llvm \
     tk-dev \
     xz-utils \
-    zlib1g-dev
+    zlib1g-dev \
+    gettext
 
 RUN apt-get install -y apt-utils python-openssl libcurl4-openssl-dev python3-dev
 RUN apt-get install -y libssl-dev build-essential ca-certificates systemd-sysv
