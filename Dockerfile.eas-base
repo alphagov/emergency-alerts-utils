@@ -1,15 +1,21 @@
-FROM ubuntu:20.04
+FROM node:16-alpine AS node-build
+FROM python:3.12-alpine3.22
+ENV PYTHON_VERSION='3.12'
 
-ARG DEBIAN_FRONTEND='noninteractive'
+# Migrate over our desired NodeJS version from the official Docker image
+# (NodeJS doesn't provide muslc binaries directly, and Alpine's packages only contain one version)
+COPY --from=node-build /usr/local/bin/node /usr/local/bin/
+COPY --from=node-build /usr/local/lib/node_modules /usr/local/lib/node_modules/
+RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm && \
+    ln -s ../lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
+
 ARG ENVIRONMENT='development'
 ARG PIP_DEFAULT_TIMEOUT=1000
 # App root required to be ENV due to start.sh script
 ENV VENV_ROOT='/venv'
-ENV SHELL_CONF='/root/.bashrc'
-ENV PYTHON_VERSION='3.12'
-ENV PYTHON_FULL_VERSION=$PYTHON_VERSION'.11'
-ENV NODE_VERSION='v16.14.0'
-ENV NVM_VERSION='v0.39.1'
+# ENV PYTHON_FULL_VERSION=$PYTHON_VERSION'.11'
+# ENV DESIRED_NODE_VERSION='v22.18.0'
+# ENV NVM_VERSION='v0.40.3'
 ENV FLASK_APP='application.py'
 ENV HOST='hosted'
 
@@ -25,55 +31,52 @@ ENV DIR_API='/eas/emergency-alerts-api'
 ENV DIR_GOVUK='/eas/emergency-alerts-govuk'
 ENV DIR_ADMIN='/eas/emergency-alerts-admin'
 
-# Copy the bashrc file and remove command that exits bashrc file if not running interactively.
-RUN mv $SHELL_CONF $SHELL_CONF.bak; cat $SHELL_CONF.bak | sed 's/\[ -z "$PS1" \] && return//' > $SHELL_CONF;
-
-# Update OS to latest.
-RUN apt-get update -y
-
 # Install commonly used tools, python related pre-reqs, ca-certs and OS tools
-RUN apt-get install -y  \
-    libbz2-dev \
-    libreadline-dev \
-    libsqlite3-dev \
-    libffi-dev \
-    liblzma-dev \
-    libncurses5-dev \
-    libncursesw5-dev \
-    llvm \
-    tk-dev \
-    xz-utils \
-    zlib1g-dev \
-    gettext
+# RUN apt-get install -y  \
+#     libbz2-dev \
+#     libreadline-dev \
+#     libsqlite3-dev \
+#     libffi-dev \
+#     liblzma-dev \
+#     libncurses5-dev \
+#     libncursesw5-dev \
+#     llvm \
+#     tk-dev \
+#     xz-utils \
+#     zlib1g-dev \
+#     gettext
 
-RUN apt-get install -y apt-utils python-openssl libcurl4-openssl-dev python3-dev
-RUN apt-get install -y libssl-dev build-essential ca-certificates systemd-sysv
+# RUN apt-get install -y apt-utils python-openssl libcurl4-openssl-dev python3-dev
+# RUN apt-get install -y libssl-dev build-essential ca-certificates systemd-sysv
 
-RUN apt-get install -y make vim unzip git jq
-RUN apt-get install -y curl wget telnet dnsutils
+# RUN apt-get install -y make vim unzip git jq
+RUN apk add bash curl wget bind-tools make vim unzip git jq aws-cli envsubst
+# Some pip packages require binary builds, and pyproj requires proj:
+RUN apk add gcc g++ musl-dev libffi-dev proj-util proj-dev
 
-RUN update-ca-certificates
+# RUN update-ca-certificates
 
 # Install Python.
-RUN cd /opt && \
-    wget https://www.python.org/ftp/python/$PYTHON_FULL_VERSION/Python-$PYTHON_FULL_VERSION.tgz --no-check-certificate && \
-    tar xzvf Python-$PYTHON_FULL_VERSION.tgz && \
-    cd Python-$PYTHON_FULL_VERSION && \
-    ./configure && \
-    make && \
-    make install && \
-    ln -fs /opt/Python-$PYTHON_FULL_VERSION/Python /usr/bin/python$PYTHON_VERSION
+# RUN cd /opt && \
+#     wget https://www.python.org/ftp/python/$PYTHON_FULL_VERSION/Python-$PYTHON_FULL_VERSION.tgz --no-check-certificate && \
+#     tar xzvf Python-$PYTHON_FULL_VERSION.tgz && \
+#     cd Python-$PYTHON_FULL_VERSION && \
+#     ./configure && \
+#     make && \
+#     make install && \
+#     ln -fs /opt/Python-$PYTHON_FULL_VERSION/Python /usr/bin/python$PYTHON_VERSION
 
 # Install AWS CLI
-RUN curl 'https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip' -o 'awscliv2.zip'; unzip 'awscliv2.zip' && \
-    ./aws/install;
+# RUN curl 'https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip' -o 'awscliv2.zip'; unzip 'awscliv2.zip' && \
+#     ./aws/install;
 
 # Install Node JS with NVM.
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh | bash
+# RUN touch $HOME/.bashrc && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh | bash
 
 # Validate the installation
-RUN . $SHELL_CONF && nvm install $NODE_VERSION && nvm use $NODE_VERSION && \
-    node --version || echo 'Could not find node version';
+# RUN bash -c 'source $HOME/.bashrc && nvm install -s $DESIRED_NODE_VERSION \
+#     && nvm use $DESIRED_NODE_VERSION && \
+#     node --version;'
 
 RUN python$PYTHON_VERSION -m venv $VENV_UTILS && . $VENV_UTILS/bin/activate && python$PYTHON_VERSION -m pip install --upgrade pip wheel setuptools
 RUN python$PYTHON_VERSION -m venv $VENV_ADMIN
