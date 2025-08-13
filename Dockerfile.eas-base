@@ -46,7 +46,7 @@ RUN apt-get install -y  \
     zlib1g-dev \
     gettext
 
-RUN apt-get install -y apt-utils python-openssl libcurl4-openssl-dev python3-dev
+RUN apt-get install -y apt-utils python3-openssl libcurl4-openssl-dev python3-dev
 RUN apt-get install -y libssl-dev build-essential ca-certificates systemd-sysv
 
 RUN apt-get install -y make vim unzip git jq
