@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:24.04
 
 ARG DEBIAN_FRONTEND='noninteractive'
 ARG ENVIRONMENT='development'
@@ -8,7 +8,7 @@ ENV VENV_ROOT='/venv'
 ENV SHELL_CONF='/root/.bashrc'
 ENV PYTHON_VERSION='3.12'
 ENV PYTHON_FULL_VERSION=$PYTHON_VERSION'.11'
-ENV NODE_VERSION='v16.14.0'
+ENV NODE_VERSION='v22.18.0'
 ENV NVM_VERSION='v0.39.1'
 ENV FLASK_APP='application.py'
 ENV HOST='hosted'
@@ -46,7 +46,7 @@ RUN apt-get install -y  \
     zlib1g-dev \
     gettext
 
-RUN apt-get install -y apt-utils python-openssl libcurl4-openssl-dev python3-dev
+RUN apt-get install -y apt-utils python3-openssl libcurl4-openssl-dev python3-dev
 RUN apt-get install -y libssl-dev build-essential ca-certificates systemd-sysv
 
 RUN apt-get install -y make vim unzip git jq

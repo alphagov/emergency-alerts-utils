@@ -24,7 +24,7 @@ valid_uk_phone_numbers = [
     "+447123456789",
     "+44 7123 456 789",
     "+44 (0)7123 456 789",
-    "\u200B\t\t+44 (0)7123 \uFEFF 456 789 \r\n",
+    "\u200b\t\t+44 (0)7123 \ufeff 456 789 \r\n",
 ]
 
 
@@ -242,7 +242,7 @@ def test_validate_email_address_accepts_valid(email_address):
         " email@domain.com ",
         "\temail@domain.com",
         "\temail@domain.com\n",
-        "\u200Bemail@domain.com\u200B",
+        "\u200bemail@domain.com\u200b",
     ],
 )
 def test_validate_email_address_strips_whitespace(email):

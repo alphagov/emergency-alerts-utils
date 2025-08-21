@@ -1,8 +1,8 @@
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 
-NVM_VERSION := 0.39.7
-NODE_VERSION := 16.14.0
+NVM_VERSION := 0.40.3
+NODE_VERSION := 22.18.0
 
 write-source-file:
 	@if [ -f ~/.zshrc ]; then \

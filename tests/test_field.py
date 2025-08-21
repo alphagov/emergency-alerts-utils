@@ -250,7 +250,7 @@ def test_what_will_trigger_conditional_placeholder(value):
             "list: ",
         ),
         (
-            {"placeholder": [" ", " \t ", "\u180E"]},
+            {"placeholder": [" ", " \t ", "\u180e"]},
             "list: ",
             "list: ",
         ),
