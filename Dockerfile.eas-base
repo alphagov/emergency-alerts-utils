@@ -1,13 +1,5 @@
-FROM node:16-alpine AS node-build
 FROM python:3.12-alpine3.22
 ENV PYTHON_VERSION='3.12'
-
-# Migrate over our desired NodeJS version from the official Docker Node image
-# (NodeJS doesn't provide muslc binaries directly, and Alpine's packages only contain one version)
-COPY --from=node-build /usr/local/bin/node /usr/local/bin/
-COPY --from=node-build /usr/local/lib/node_modules /usr/local/lib/node_modules/
-RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm && \
-    ln -s ../lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
 
 ARG ENVIRONMENT='development'
 ARG PIP_DEFAULT_TIMEOUT=1000
