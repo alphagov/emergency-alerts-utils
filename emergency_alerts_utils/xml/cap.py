@@ -60,8 +60,6 @@ def generate_cap_alert(
 
     xml_subelement(info, "language", text=language)
     xml_subelement(info, "category", text="Safety")
-    # List of potential channel category values is defined in
-    # https://docs.google.com/spreadsheets/d/1NzaIa3BQoZzYVFXkhS2lSyGXLMRlI0Dg/edit#gid=316184578 for details
     cap_event = "RMT"
     if channel == OPERATOR_CHANNEL:
         cap_event = "OPR"

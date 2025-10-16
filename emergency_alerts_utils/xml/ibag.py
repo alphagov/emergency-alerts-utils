@@ -77,8 +77,6 @@ def generate_ibag_alert(
         text=str(len(description.encode("utf-8"))),
     )
     xml_subelement(info, "IBAG_text_alert_message", text=description)
-    # List of potential channel category values is defined in
-    # https://docs.google.com/spreadsheets/d/1UKi18SpfIgaRhmD6iVGaItY-E3MJkxbB/edit#gid=2013248044
     IBAG_channel_category = "4380-CAT5-ENGLISH"
     if channel == OPERATOR_CHANNEL:
         IBAG_channel_category = "4382-CAT7-ENGLISH"
