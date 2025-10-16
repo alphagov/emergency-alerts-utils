@@ -32,7 +32,7 @@ setup(
         "Jinja2>=2.11.3",
         "pyyaml>=6.0.1",
         "phonenumbers>=8.13.20",
-        "pyproj>=3.4.1,<=3.6.1",
+        "pyproj>=3.7.1",
         "pytz>=2020.4",
         "smartypants>=2.0.1",
         "itsdangerous>=1.1.0",
