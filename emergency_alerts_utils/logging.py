@@ -9,6 +9,7 @@ from pythonjsonlogger.json import JsonFormatter
 
 def init_app(app):
     app.config.setdefault("NOTIFY_LOG_LEVEL", "DEBUG")
+    app.config.setdefault("ROOT_LOG_LEVEL", "INFO")
     app.config.setdefault("EAS_APP_NAME", "none")
 
     override_root_logger(app)
@@ -23,9 +24,10 @@ def override_root_logger(app):
     handler = _create_console_handler(app)
 
     root.addHandler(handler)
-    root.setLevel(logging.INFO)
+    root_log_level = logging.getLevelName(app.config["ROOT_LOG_LEVEL"])
+    root.setLevel(root_log_level)
 
-    logging.info("Root logger configured")
+    logging.info("Root logger configured as %s", root_log_level)
 
     app_log_level = logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"])
     logging.info("Configuring Flask logger as %s", app_log_level)
