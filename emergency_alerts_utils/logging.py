@@ -1,39 +1,48 @@
 import logging
-import logging.handlers
 import sys
 
 from flask import g, request
 from flask.ctx import has_app_context, has_request_context
+from pythonjsonlogger.core import RESERVED_ATTRS
 from pythonjsonlogger.json import JsonFormatter
 
 
 def init_app(app):
-    app.config.setdefault("NOTIFY_LOG_LEVEL", "INFO")
+    app.config.setdefault("NOTIFY_LOG_LEVEL", "DEBUG")
     app.config.setdefault("EAS_APP_NAME", "none")
 
-    configure_application_logger(app)
+    override_root_logger(app)
 
     app.logger.info("Logging configured")
+    app.logger.debug("Debug test")
 
 
-def configure_application_logger(app):
-    del app.logger.handlers[:]
+def override_root_logger(app):
+    root = logging.getLogger()
 
-    handler = _configure_root_handler(app)
+    handler = _create_console_handler(app)
 
-    app.logger.addHandler(handler)
-    app.logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
+    root.addHandler(handler)
+    root.setLevel(logging.INFO)
+
+    logging.info("Root logger configured")
+
+    app_log_level = logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"])
+    logging.info("Configuring Flask logger as %s", app_log_level)
+
+    app.logger.setLevel(app_log_level)
 
 
-def _configure_root_handler(app):
+def _create_console_handler(app):
     handler = logging.StreamHandler(sys.stdout)
 
-    handler.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
-    handler.setFormatter(JsonFormatterForCloudWatch())
+    # Allow the handler to log anything - we filter by setting logger levels:
+    handler.setLevel(logging.DEBUG)
+    handler.setFormatter(
+        JsonFormatterForCloudWatch(reserved_attrs=list(set(RESERVED_ATTRS) - {"process", "thread", "name"}))
+    )
 
-    handler.addFilter(AppNameFilter(app.config["EAS_APP_NAME"]))
-    handler.addFilter(RequestIdFilter())
-    handler.addFilter(ServiceIdFilter())
+    handler.addFilter(CodeContextFilter())
 
     return handler
 
@@ -48,12 +57,9 @@ class JsonFormatterForCloudWatch(JsonFormatter):
         return result.replace("\n", "\r")
 
 
-class AppNameFilter(logging.Filter):
-    def __init__(self, app_name):
-        self.app_name = app_name
-
+class CodeContextFilter(logging.Filter):
     def filter(self, record):
-        record.app_name = self.app_name
+        record.line = f"{record.filename}:{record.lineno}"
 
         return record
 
