@@ -2,7 +2,7 @@
 SHELL := /bin/bash
 
 NVM_VERSION := 0.40.3
-NODE_VERSION := 22.18.0
+NODE_VERSION := 22.21.0
 
 write-source-file:
 	@if [ -f ~/.zshrc ]; then \
