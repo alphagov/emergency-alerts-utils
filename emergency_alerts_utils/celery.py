@@ -148,15 +148,24 @@ class NotifyCelery(Celery):
         self.config_from_object(app.config["CELERY"])
 
     def send_task(self, name, args=None, kwargs=None, **other_kwargs):
+        logger = logging.getLogger("celery")  # Don't require a Flask context to log sends
+
         other_kwargs["headers"] = other_kwargs.get("headers") or {}
 
         if has_request_context() and hasattr(request, "request_id"):
             other_kwargs["headers"]["notify_request_id"] = request.request_id
+            logger = current_app.logger
 
         elif has_app_context() and "request_id" in g:
             other_kwargs["headers"]["notify_request_id"] = g.request_id
+            logger = current_app.logger
 
-        return super().send_task(name, args, kwargs, **other_kwargs)
+        logger.info("Sending Celery task %s: %s / %s", name, kwargs, other_kwargs)
+
+        sent = super().send_task(name, args, kwargs, **other_kwargs)
+
+        logger.info("Sent task: %s", sent)
+        return sent
 
 
 class QueueNames:
