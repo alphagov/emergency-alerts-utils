@@ -29,6 +29,7 @@ setup(
         "Flask>=3.0.2",
         "Werkzeug>=3.1.3",
         "ordered-set>=4.1.0",
+        "opentelemetry-instrumentation-celery>=0.59b0",
         "Jinja2>=2.11.3",
         "pyyaml>=6.0.1",
         "phonenumbers>=8.13.20",
