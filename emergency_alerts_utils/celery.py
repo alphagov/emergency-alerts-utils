@@ -4,7 +4,7 @@ from contextlib import contextmanager
 from os import getpid
 
 from celery import Celery, Task
-from celery.signals import setup_logging, worker_process_init
+from celery.signals import setup_logging, worker_init
 from flask import current_app, g, request
 from flask.ctx import has_app_context, has_request_context
 from opentelemetry.instrumentation.celery import CeleryInstrumentor
@@ -135,7 +135,7 @@ def make_task(app):  # noqa: C901
     return NotifyTask
 
 
-@worker_process_init.connect(weak=False)
+@worker_init.connect(weak=False)
 def init_celery_tracing(*args, **kwargs):
     CeleryInstrumentor().instrument()
 
@@ -146,6 +146,7 @@ class NotifyCelery(Celery):
             task_cls=make_task(app),
         )
         self.config_from_object(app.config["CELERY"])
+        CeleryInstrumentor().instrument()
 
     def send_task(self, name, args=None, kwargs=None, **other_kwargs):
         logger = logging.getLogger("celery")  # Don't require a Flask context to log sends
