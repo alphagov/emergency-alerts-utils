@@ -1,12 +1,20 @@
 import logging
 import time
+import traceback
+import uuid
 from contextlib import contextmanager
 from os import getpid
 
+from botocore.exceptions import ClientError
 from celery import Celery, Task
 from celery.signals import setup_logging, worker_init
 from flask import current_app, g, request
 from flask.ctx import has_app_context, has_request_context
+from kombu.asynchronous.aws.sqs.message import AsyncMessage
+from kombu.transport import SQS
+from kombu.transport.SQS import AccessDeniedQueueException
+from kombu.transport.SQS import Channel as SQSChannel
+from kombu.utils.json import dumps
 from opentelemetry.instrumentation.celery import CeleryInstrumentor
 
 
@@ -19,6 +27,82 @@ def setup_logger(*args, **kwargs):
     celery signal and just do a NOP
     """
     pass
+
+
+logger = logging.getLogger(__name__)
+
+
+class LoggingSQSChannel(SQSChannel):
+
+    def _message_to_python(self, message, queue_name, q_url):
+        logger.info("Converted SQS message: %s", str(message))
+        logger.info("Converted stack: %s", "".join(traceback.format_stack()))
+        return super()._message_to_python(message, queue_name, q_url)
+
+    def _put(self, queue, message, **kwargs):  # noqa: C901
+        """Put message onto queue."""
+        q_url = self._new_queue(queue)
+        kwargs = {"QueueUrl": q_url}
+        if "properties" in message:
+            if "message_attributes" in message["properties"]:
+                # we don't want to want to have the attribute in the body
+                kwargs["MessageAttributes"] = message["properties"].pop("message_attributes")
+            if queue.endswith(".fifo"):
+                if "MessageGroupId" in message["properties"]:
+                    kwargs["MessageGroupId"] = message["properties"]["MessageGroupId"]
+                else:
+                    kwargs["MessageGroupId"] = "default"
+                if "MessageDeduplicationId" in message["properties"]:
+                    kwargs["MessageDeduplicationId"] = message["properties"]["MessageDeduplicationId"]
+                else:
+                    kwargs["MessageDeduplicationId"] = str(uuid.uuid4())
+            else:
+                if "DelaySeconds" in message["properties"]:
+                    kwargs["DelaySeconds"] = message["properties"]["DelaySeconds"]
+
+        if self.sqs_base64_encoding:
+            body = AsyncMessage().encode(dumps(message))
+        else:
+            body = dumps(message)
+        kwargs["MessageBody"] = body
+
+        c = self.sqs(queue=self.canonical_queue_name(queue))
+        if message.get("redelivered"):
+            logger.info("SQS change message visibility? %s", message)
+            c.change_message_visibility(
+                QueueUrl=q_url, ReceiptHandle=message["properties"]["delivery_tag"], VisibilityTimeout=0
+            )
+        else:
+            resp = c.send_message(**kwargs)
+            logger.info("SQS send: %s", str(resp))
+
+    def basic_ack(self, delivery_tag, multiple=False):
+        try:
+            message = self.qos.get(delivery_tag).delivery_info
+            sqs_message = message["sqs_message"]
+        except KeyError:
+            logger.exception("basic_ack key error?")
+            super().basic_ack(delivery_tag)
+        else:
+            logger.info(f"basic_ack: {str(delivery_tag)} / {message}")
+
+            queue = None
+            if "routing_key" in message:
+                queue = self.canonical_queue_name(message["routing_key"])
+
+            try:
+                self.sqs(queue=queue).delete_message(
+                    QueueUrl=message["sqs_queue"], ReceiptHandle=sqs_message["ReceiptHandle"]
+                )
+            except ClientError as exception:
+                if exception.response["Error"]["Code"] == "AccessDenied":
+                    raise AccessDeniedQueueException(exception.response["Error"]["Message"])
+                super().basic_reject(delivery_tag)
+            else:
+                super().basic_ack(delivery_tag)
+
+
+SQS.Channel = LoggingSQSChannel
 
 
 def make_task(app):  # noqa: C901
