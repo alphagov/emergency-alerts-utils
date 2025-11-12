@@ -1,9 +1,7 @@
 import logging
-import logging.handlers
 import sys
 
-from flask import g, request
-from flask.ctx import has_app_context, has_request_context
+from pythonjsonlogger.core import RESERVED_ATTRS
 from pythonjsonlogger.json import JsonFormatter
 
 
@@ -11,29 +9,41 @@ def init_app(app):
     app.config.setdefault("NOTIFY_LOG_LEVEL", "INFO")
     app.config.setdefault("EAS_APP_NAME", "none")
 
-    configure_application_logger(app)
+    override_root_logger(app)
 
     app.logger.info("Logging configured")
 
 
-def configure_application_logger(app):
-    del app.logger.handlers[:]
+def override_root_logger(app):
+    root = logging.getLogger()
 
-    handler = _configure_root_handler(app)
+    handler = _create_console_handler(app)
 
-    app.logger.addHandler(handler)
+    root.addHandler(handler)
+    root.setLevel(logging.DEBUG)
+
+    # logging.getLogger("celery").setLevel(logging.DEBUG)
+    # logging.getLogger("kombu").setLevel(logging.DEBUG)
+    # logging.getLogger("billiard").setLevel(logging.DEBUG)
+    logging.getLogger("botocore").setLevel(logging.INFO)
+    # logging.getLogger("botocore.hooks").setLevel(logging.DEBUG)
+    # logging.getLogger("botocore.parsers").setLevel(logging.DEBUG)
+
+    logging.info("Root logger configured")
+
     app.logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
 
 
-def _configure_root_handler(app):
+def _create_console_handler(app):
     handler = logging.StreamHandler(sys.stdout)
 
-    handler.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
-    handler.setFormatter(JsonFormatterForCloudWatch())
+    # Allow the handler to log anything - we filter by setting logger levels
+    handler.setLevel(logging.DEBUG)
+    handler.setFormatter(
+        JsonFormatterForCloudWatch(reserved_attrs=list(set(RESERVED_ATTRS) - {"process", "thread", "name"}))
+    )
 
-    handler.addFilter(AppNameFilter(app.config["EAS_APP_NAME"]))
-    handler.addFilter(RequestIdFilter())
-    handler.addFilter(ServiceIdFilter())
+    handler.addFilter(CodeContextFilter())
 
     return handler
 
@@ -48,41 +58,8 @@ class JsonFormatterForCloudWatch(JsonFormatter):
         return result.replace("\n", "\r")
 
 
-class AppNameFilter(logging.Filter):
-    def __init__(self, app_name):
-        self.app_name = app_name
-
+class CodeContextFilter(logging.Filter):
     def filter(self, record):
-        record.app_name = self.app_name
-
-        return record
-
-
-class RequestIdFilter(logging.Filter):
-    @property
-    def request_id(self):
-        if has_request_context() and hasattr(request, "request_id"):
-            return request.request_id
-        elif has_app_context() and "request_id" in g:
-            return g.request_id
-        else:
-            return "no-request-id"
-
-    def filter(self, record):
-        record.request_id = self.request_id
-
-        return record
-
-
-class ServiceIdFilter(logging.Filter):
-    @property
-    def service_id(self):
-        if has_app_context() and "service_id" in g:
-            return g.service_id
-        else:
-            return "no-service-id"
-
-    def filter(self, record):
-        record.service_id = self.service_id
+        record.line = f"{record.filename}:{record.lineno}"
 
         return record
