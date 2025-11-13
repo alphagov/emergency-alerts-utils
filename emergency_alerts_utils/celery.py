@@ -1,42 +1,7 @@
-import logging
-import time
-import traceback
-import uuid
-from contextlib import contextmanager
-from os import getpid
-
-from botocore.exceptions import ClientError
-from celery import Celery, Task
-from celery.signals import setup_logging, worker_init, worker_process_init
-from flask import current_app, g, request
-from flask.ctx import has_app_context, has_request_context
-from kombu.asynchronous.aws.sqs.message import AsyncMessage
 from kombu.transport import SQS
-from kombu.transport.SQS import AccessDeniedQueueException
-from kombu.transport.SQS import Channel as SQSChannel
-from kombu.utils.json import dumps
-from opentelemetry import trace
-from opentelemetry.instrumentation.celery import CeleryInstrumentor
-
-tracer = trace.get_tracer("celery")
 
 
-@setup_logging.connect
-def setup_logger(*args, **kwargs):
-    logger.info("setup_logger")
-    """
-    Using '"worker_hijack_root_logger": False' in the Celery config
-    should block celery from overriding the logger configuration.
-    In practice, this doesn't seem to work, so we intercept this
-    celery signal and just do a NOP
-    """
-    pass
-
-
-logger = logging.getLogger(__name__)
-
-
-class LoggingSQSChannel(SQSChannel):
+class LoggingSQSChannel(SQS.Channel):
 
     def _message_to_python(self, message, queue_name, q_url):
         logger.info("Converted SQS message: %s", str(message))
@@ -65,7 +30,7 @@ class LoggingSQSChannel(SQSChannel):
                     kwargs["DelaySeconds"] = message["properties"]["DelaySeconds"]
 
         if self.sqs_base64_encoding:
-            body = AsyncMessage().encode(dumps(message))
+            body = SQS.AsyncMessage().encode(dumps(message))
         else:
             body = dumps(message)
         kwargs["MessageBody"] = body
@@ -100,13 +65,47 @@ class LoggingSQSChannel(SQSChannel):
                 )
             except ClientError as exception:
                 if exception.response["Error"]["Code"] == "AccessDenied":
-                    raise AccessDeniedQueueException(exception.response["Error"]["Message"])
+                    raise SQS.AccessDeniedQueueException(exception.response["Error"]["Message"])
                 super().basic_reject(delivery_tag)
             else:
                 super().basic_ack(delivery_tag)
 
 
 SQS.Channel = LoggingSQSChannel
+
+import logging
+import time
+import traceback
+import uuid
+from contextlib import contextmanager
+from os import getpid
+
+from botocore.exceptions import ClientError
+from celery import Celery, Task
+from celery.signals import setup_logging, worker_init, worker_process_init
+from flask import current_app, g, request
+from flask.ctx import has_app_context, has_request_context
+from kombu.asynchronous.aws.sqs.message import AsyncMessage
+from kombu.utils.json import dumps
+from opentelemetry import trace
+from opentelemetry.instrumentation.celery import CeleryInstrumentor
+
+tracer = trace.get_tracer("celery")
+
+
+@setup_logging.connect
+def setup_logger(*args, **kwargs):
+    logger.info("setup_logger")
+    """
+    Using '"worker_hijack_root_logger": False' in the Celery config
+    should block celery from overriding the logger configuration.
+    In practice, this doesn't seem to work, so we intercept this
+    celery signal and just do a NOP
+    """
+    pass
+
+
+logger = logging.getLogger(__name__)
 
 
 def make_task(app):  # noqa: C901
@@ -229,12 +228,18 @@ def init_celery_tracing_process(*args, **kwargs):
     from opentelemetry.instrumentation.auto_instrumentation import initialize
 
     initialize()
+    from opentelemetry.instrumentation.boto3sqs import Boto3SQSInstrumentor
+
+    Boto3SQSInstrumentor().instrument()
 
     logger.info("init_celery_tracing_process")
 
 
 @worker_init.connect(weak=False)
 def init_celery_tracing(*args, **kwargs):
+    from opentelemetry.instrumentation.boto3sqs import Boto3SQSInstrumentor
+
+    Boto3SQSInstrumentor().instrument()
     from opentelemetry.instrumentation.auto_instrumentation import initialize
 
     initialize()
