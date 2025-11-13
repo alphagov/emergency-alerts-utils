@@ -7,7 +7,7 @@ from os import getpid
 
 from botocore.exceptions import ClientError
 from celery import Celery, Task
-from celery.signals import setup_logging, worker_init
+from celery.signals import setup_logging, worker_init, worker_process_init
 from flask import current_app, g, request
 from flask.ctx import has_app_context, has_request_context
 from kombu.asynchronous.aws.sqs.message import AsyncMessage
@@ -224,10 +224,22 @@ def make_task(app):  # noqa: C901
     return NotifyTask
 
 
+@worker_process_init.connect(weak=False)
+def init_celery_tracing_process(*args, **kwargs):
+    from opentelemetry.instrumentation.auto_instrumentation import initialize
+
+    initialize()
+
+    logger.info("init_celery_tracing_process")
+
+
 @worker_init.connect(weak=False)
 def init_celery_tracing(*args, **kwargs):
+    from opentelemetry.instrumentation.auto_instrumentation import initialize
+
+    initialize()
+
     logger.info("init_celery_tracing")
-    CeleryInstrumentor().instrument()
 
 
 class NotifyCelery(Celery):
