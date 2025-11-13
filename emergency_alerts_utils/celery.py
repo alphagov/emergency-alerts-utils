@@ -15,7 +15,10 @@ from kombu.transport import SQS
 from kombu.transport.SQS import AccessDeniedQueueException
 from kombu.transport.SQS import Channel as SQSChannel
 from kombu.utils.json import dumps
+from opentelemetry import trace
 from opentelemetry.instrumentation.celery import CeleryInstrumentor
+
+tracer = trace.get_tracer("celery")
 
 
 @setup_logging.connect
@@ -214,8 +217,9 @@ def make_task(app):  # noqa: C901
         def __call__(self, *args, **kwargs):
             # ensure task has flask context to access config, logger, etc
             with self.app_context():
-                self.start = time.monotonic()
-                return super().__call__(*args, **kwargs)
+                with tracer.start_as_current_span(f"celery task {self.name}"):
+                    self.start = time.monotonic()
+                    return super().__call__(*args, **kwargs)
 
     return NotifyTask
 
