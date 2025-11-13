@@ -20,6 +20,7 @@ from opentelemetry.instrumentation.celery import CeleryInstrumentor
 
 @setup_logging.connect
 def setup_logger(*args, **kwargs):
+    logger.info("setup_logger")
     """
     Using '"worker_hijack_root_logger": False' in the Celery config
     should block celery from overriding the logger configuration.
@@ -221,6 +222,7 @@ def make_task(app):  # noqa: C901
 
 @worker_init.connect(weak=False)
 def init_celery_tracing(*args, **kwargs):
+    logger.info("init_celery_tracing")
     CeleryInstrumentor().instrument()
 
 
