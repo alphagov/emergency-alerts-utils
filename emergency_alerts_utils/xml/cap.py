@@ -32,17 +32,7 @@ def generate_cap_link_test(
     return alert
 
 
-def generate_cap_alert(
-    identifier,
-    headline,
-    description,
-    areas,
-    sent,
-    expires,
-    language,
-    channel,
-    web=None
-):
+def generate_cap_alert(identifier, headline, description, areas, sent, expires, language, channel, web=None):
     alert = ET.Element(
         "alert",
         attrib={

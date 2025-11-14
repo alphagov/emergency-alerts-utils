@@ -86,6 +86,7 @@ def test_cap_alert_creation(channel, expected_event):
         expires=expires,
         language="en-GB",
         channel=channel,
+        web="https://www.gov.uk/alerts",
     )
 
     assert_valid_cap_xml(alert_body)
@@ -154,6 +155,11 @@ def test_cap_alert_creation(channel, expected_event):
         alert_body,
         "/cap:alert/cap:info/cap:certainty//text()",
     ) == ["Likely"]
+
+    assert xml_path(
+        alert_body,
+        "/cap:alert/cap:info/cap:web//text()",
+    ) == ["https://www.gov.uk/alerts"]
 
 
 def test_generate_cap_cancel_message():
