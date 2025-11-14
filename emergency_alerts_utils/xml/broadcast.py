@@ -79,6 +79,7 @@ def generate_xml_body(event, signing_enabled=False, signing_key=None, signing_ce
                 expires=event["expires"],
                 language=event["language"],
                 channel=channel,
+                web=event.get("web", None)
             )
 
     elif message_type == CANCEL_MESSAGE_TYPE:
