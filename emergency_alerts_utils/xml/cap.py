@@ -41,6 +41,7 @@ def generate_cap_alert(
     expires,
     language,
     channel,
+    web=None
 ):
     alert = ET.Element(
         "alert",
@@ -75,6 +76,9 @@ def generate_cap_alert(
     xml_subelement(info, "senderName", text="GOV.UK Emergency Alerts")
     xml_subelement(info, "headline", text=headline)
     xml_subelement(info, "description", text=description)
+
+    if web:
+        xml_subelement(info, "web", text=web)
 
     for i, a in enumerate(areas):
         area = xml_subelement(info, "area")
