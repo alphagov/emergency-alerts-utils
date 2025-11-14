@@ -49,7 +49,11 @@ def assert_valid_cap_xml(cap_alert_xml):
         ["government", "EAN"],
     ],
 )
-def test_cap_alert_creation(channel, expected_event):
+@pytest.mark.parametrize(
+    "web_url",
+    ["https://www.gov.uk/alerts", None],
+)
+def test_cap_alert_creation(channel, expected_event, web_url):
     tz = dateutil.tz.gettz("UTC")
 
     sent = datetime.datetime.now()
@@ -86,7 +90,7 @@ def test_cap_alert_creation(channel, expected_event):
         expires=expires,
         language="en-GB",
         channel=channel,
-        web="https://www.gov.uk/alerts",
+        web=web_url,
     )
 
     assert_valid_cap_xml(alert_body)
@@ -156,10 +160,13 @@ def test_cap_alert_creation(channel, expected_event):
         "/cap:alert/cap:info/cap:certainty//text()",
     ) == ["Likely"]
 
-    assert xml_path(
-        alert_body,
-        "/cap:alert/cap:info/cap:web//text()",
-    ) == ["https://www.gov.uk/alerts"]
+    if web_url:
+        assert xml_path(
+            alert_body,
+            "/cap:alert/cap:info/cap:web//text()",
+        ) == [web_url]
+    else:
+        assert not xml_path(alert_body, "/cap:alert/cap:info/cap:web//text()")
 
 
 def test_generate_cap_cancel_message():
