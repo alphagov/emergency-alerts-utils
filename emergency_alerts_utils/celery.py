@@ -9,7 +9,12 @@ from flask import current_app, g, request
 from flask.ctx import has_app_context, has_request_context
 from opentelemetry import trace
 
-tracer = trace.get_tracer("celery")
+from emergency_alerts_utils.celery_sqs_instrumentor import CelerySqsInstrumentor
+
+tracer = trace.get_tracer(__name__)
+logger = logging.getLogger(__name__)
+
+CelerySqsInstrumentor().instrument()
 
 
 @setup_logging.connect
@@ -22,9 +27,6 @@ def setup_logger(*args, **kwargs):
     celery signal and just do a NOP
     """
     pass
-
-
-logger = logging.getLogger(__name__)
 
 
 def make_task(app):  # noqa: C901
@@ -133,10 +135,14 @@ def make_task(app):  # noqa: C901
                 )
 
         def __call__(self, *args, **kwargs):
-            # ensure task has flask context to access config, logger, etc
-            with self.app_context():
-                with tracer.start_as_current_span(f"celery task {self.name}"):
-                    self.start = time.monotonic()
+            with tracer.start_as_current_span(f"celery task {self.name}") as span:
+                sqs_message_id = (
+                    self.request.properties.get("delivery_info", {}).get("sqs_message", {}).get("MessageId")
+                )
+                span.set_attribute("messaging.message.id", sqs_message_id)
+                self.start = time.monotonic()
+                # ensure task has flask context to access config, logger, etc
+                with self.app_context():
                     return super().__call__(*args, **kwargs)
 
     return NotifyTask
