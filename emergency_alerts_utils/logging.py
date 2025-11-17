@@ -6,7 +6,7 @@ from pythonjsonlogger.json import JsonFormatter
 
 
 def init_app(app):
-    app.config.setdefault("NOTIFY_LOG_LEVEL", "INFO")
+    app.config.setdefault("NOTIFY_LOG_LEVEL", "DEBUG")
     app.config.setdefault("EAS_APP_NAME", "none")
 
     override_root_logger(app)
