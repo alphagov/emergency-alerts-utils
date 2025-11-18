@@ -151,11 +151,13 @@ def make_task(app):  # noqa: C901
 @worker_process_init.connect(weak=False)
 def init_celery_tracing_process(*args, **kwargs):
     logger.info("init_celery_tracing_process")
+    CelerySqsInstrumentor().instrument()
 
 
 @worker_init.connect(weak=False)
 def init_celery_tracing(*args, **kwargs):
     logger.info("init_celery_tracing")
+    CelerySqsInstrumentor().instrument()
 
 
 class NotifyCelery(Celery):
