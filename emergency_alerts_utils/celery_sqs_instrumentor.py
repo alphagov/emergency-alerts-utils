@@ -59,7 +59,7 @@ class CelerySqsInstrumentor(BaseInstrumentor):
                         with self._tracer.start_as_current_span("ReceiveMessage " + message["MessageId"]) as span:
                             span.set_attribute("messaging.message.id", message["MessageId"])
                             span.add_event(message["MessageId"])
-                            logger.info("Sent message %s", message["MessageId"])
+                            logger.info("Received message %s", message["MessageId"])
 
                     callback(*args, **kwargs)
 
