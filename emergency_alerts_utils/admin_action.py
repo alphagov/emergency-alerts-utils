@@ -30,9 +30,9 @@ ADMIN_STATUS_LIST = [
 ADMIN_SENSITIVE_PERMISSIONS = ["create_broadcasts", "approve_broadcasts"]
 
 # How long elevation requests (AdminAction) can exist before automatically invalidating
-ADMIN_ELEVATION_ACTION_TIMEOUT = timedelta(hours=2)
+ADMIN_ELEVATION_ACTION_TIMEOUT = timedelta(hours=1)
 # How long an approved elevation can remain unredeemed for before the next login doesn't grant platform admin
-ADMIN_ELEVATION_REDEMPTION_TIMEOUT = timedelta(hours=24)
+ADMIN_ELEVATION_REDEMPTION_TIMEOUT = timedelta(hours=1)
 
 ADMIN_ZENDESK_TICKET_TITLE_PREFIX = "Out of Hours Admin Activity"
 # Treat outside of 8am - 6pm as outside office hours:
