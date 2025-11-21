@@ -24,11 +24,9 @@ ENV DIR_API='/eas/emergency-alerts-api'
 ENV DIR_GOVUK='/eas/emergency-alerts-govuk'
 ENV DIR_ADMIN='/eas/emergency-alerts-admin'
 
-# Update OS to latest.
-RUN apt-get update -y
 
 # Install commonly used tools, python related pre-reqs, ca-certs and OS tools
-RUN apt-get install -y \
+RUN apt-get update && apt-get install -y \
     build-essential \
     ca-certificates \
     # Python build dependencies:
@@ -53,7 +51,9 @@ RUN apt-get install -y \
     curl \
     wget \
     telnet \
-    dnsutils
+    dnsutils && \
+    # And cleanup the package caches
+    rm -rf /var/cache/apt/archives /var/lib/apt/lists/*
 
 RUN update-ca-certificates
 
