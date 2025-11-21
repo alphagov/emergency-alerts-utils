@@ -28,7 +28,10 @@ ENV DIR_ADMIN='/eas/emergency-alerts-admin'
 RUN apt-get update -y
 
 # Install commonly used tools, python related pre-reqs, ca-certs and OS tools
-RUN apt-get install -y  \
+RUN apt-get install -y \
+    build-essential \
+    ca-certificates \
+    # Python build dependencies:
     libbz2-dev \
     libreadline-dev \
     libsqlite3-dev \
@@ -36,17 +39,21 @@ RUN apt-get install -y  \
     liblzma-dev \
     libncurses5-dev \
     libncursesw5-dev \
-    llvm \
+    libssl-dev \
     tk-dev \
     xz-utils \
     zlib1g-dev \
-    gettext
-
-RUN apt-get install -y apt-utils python3-openssl libcurl4-openssl-dev python3-dev
-RUN apt-get install -y libssl-dev build-essential ca-certificates systemd-sysv
-
-RUN apt-get install -y make vim unzip git jq
-RUN apt-get install -y curl wget telnet dnsutils
+    # General utils
+    gettext \
+    make \
+    vim \
+    unzip \
+    git \
+    jq \
+    curl \
+    wget \
+    telnet \
+    dnsutils
 
 RUN update-ca-certificates
 
