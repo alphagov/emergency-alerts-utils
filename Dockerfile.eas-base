@@ -3,9 +3,6 @@ FROM ubuntu:24.04
 ARG DEBIAN_FRONTEND='noninteractive'
 ARG ENVIRONMENT='development'
 ARG PIP_DEFAULT_TIMEOUT=1000
-# App root required to be ENV due to start.sh script
-ENV VENV_ROOT='/venv'
-ENV SHELL_CONF='/root/.bashrc'
 ENV PYTHON_VERSION='3.12'
 ENV PYTHON_FULL_VERSION=$PYTHON_VERSION'.11'
 ENV NODE_VERSION='v22.21.0'
@@ -14,25 +11,25 @@ ENV FLASK_APP='application.py'
 ENV HOST='hosted'
 
 # Virtual Envs
+ENV VENV_ROOT='/venv'
 ENV VENV_UTILS='/venv/emergency-alerts-utils'
 ENV VENV_API='/venv/emergency-alerts-api'
 ENV VENV_GOVUK='/venv/emergency-alerts-govuk'
 ENV VENV_ADMIN='/venv/emergency-alerts-admin'
 
 # Directories
+ENV DIR_EAS='/eas'
 ENV DIR_UTILS='/eas/emergency-alerts-utils'
 ENV DIR_API='/eas/emergency-alerts-api'
 ENV DIR_GOVUK='/eas/emergency-alerts-govuk'
 ENV DIR_ADMIN='/eas/emergency-alerts-admin'
 
-# Copy the bashrc file and remove command that exits bashrc file if not running interactively.
-RUN mv $SHELL_CONF $SHELL_CONF.bak; cat $SHELL_CONF.bak | sed 's/\[ -z "$PS1" \] && return//' > $SHELL_CONF;
-
-# Update OS to latest.
-RUN apt-get update -y
 
 # Install commonly used tools, python related pre-reqs, ca-certs and OS tools
-RUN apt-get install -y  \
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    ca-certificates \
+    # Python build dependencies:
     libbz2-dev \
     libreadline-dev \
     libsqlite3-dev \
@@ -40,46 +37,53 @@ RUN apt-get install -y  \
     liblzma-dev \
     libncurses5-dev \
     libncursesw5-dev \
-    llvm \
+    libssl-dev \
     tk-dev \
     xz-utils \
     zlib1g-dev \
-    gettext
-
-RUN apt-get install -y apt-utils python3-openssl libcurl4-openssl-dev python3-dev
-RUN apt-get install -y libssl-dev build-essential ca-certificates systemd-sysv
-
-RUN apt-get install -y make vim unzip git jq
-RUN apt-get install -y curl wget telnet dnsutils
+    # General utils
+    gettext \
+    make \
+    vim \
+    unzip \
+    git \
+    jq \
+    curl \
+    wget \
+    telnet \
+    dnsutils && \
+    # And cleanup the package caches
+    rm -rf /var/cache/apt/archives /var/lib/apt/lists/*
 
 RUN update-ca-certificates
 
 # Install Python.
-RUN cd /opt && \
-    wget https://www.python.org/ftp/python/$PYTHON_FULL_VERSION/Python-$PYTHON_FULL_VERSION.tgz --no-check-certificate && \
+RUN wget https://www.python.org/ftp/python/$PYTHON_FULL_VERSION/Python-$PYTHON_FULL_VERSION.tgz && \
     tar xzvf Python-$PYTHON_FULL_VERSION.tgz && \
     cd Python-$PYTHON_FULL_VERSION && \
     ./configure && \
     make && \
     make install && \
-    ln -fs /opt/Python-$PYTHON_FULL_VERSION/Python /usr/bin/python$PYTHON_VERSION
+    rm -rf Python-$PYTHON_FULL_VERSION && \
+    cd .. && rm Python-$PYTHON_FULL_VERSION.tgz
 
-# Install AWS CLI
-RUN curl 'https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip' -o 'awscliv2.zip'; unzip 'awscliv2.zip' && \
-    ./aws/install;
+# Install AWS CLI globally
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-$(uname -p).zip" -o 'awscliv2.zip' && \
+    unzip 'awscliv2.zip' && \
+    ./aws/install && \
+    rm -rf ./aws awscliv2.zip
+
+# Create a normal user and run all subsequent steps as them
+RUN useradd -ms /bin/bash easuser && mkdir -p ${VENV_ROOT} ${DIR_EAS} && chown easuser:easuser ${VENV_ROOT} ${DIR_EAS}
+USER easuser
 
 # Install Node JS with NVM.
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh | bash
-
-# Validate the installation
-RUN . $SHELL_CONF && nvm install $NODE_VERSION && nvm use $NODE_VERSION && \
+RUN nvm install $NODE_VERSION && nvm use $NODE_VERSION && \
     node --version || echo 'Could not find node version';
 
-RUN python$PYTHON_VERSION -m venv $VENV_UTILS && . $VENV_UTILS/bin/activate && python$PYTHON_VERSION -m pip install --upgrade pip wheel setuptools
-RUN python$PYTHON_VERSION -m venv $VENV_ADMIN
-RUN python$PYTHON_VERSION -m venv $VENV_API
-RUN python$PYTHON_VERSION -m venv $VENV_GOVUK
+RUN python$PYTHON_VERSION -m venv $VENV_UTILS
 
 # Build emergency-alerts-utils
-COPY . $DIR_UTILS
+COPY --chown=easuser:easuser . $DIR_UTILS
 RUN cd $DIR_UTILS && . $VENV_UTILS/bin/activate && make bootstrap
