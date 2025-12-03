@@ -62,8 +62,9 @@ RUN wget https://www.python.org/ftp/python/$PYTHON_FULL_VERSION/Python-$PYTHON_F
     ./configure && \
     make && \
     make install && \
+    cd .. && \
     rm -rf Python-$PYTHON_FULL_VERSION && \
-    cd .. && rm Python-$PYTHON_FULL_VERSION.tgz
+    rm Python-$PYTHON_FULL_VERSION.tgz
 
 # Install AWS CLI globally
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-$(uname -p).zip" -o 'awscliv2.zip' && \
