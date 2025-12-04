@@ -22,12 +22,8 @@ def override_root_logger(app):
     root.addHandler(handler)
     root.setLevel(logging.DEBUG)
 
-    # logging.getLogger("celery").setLevel(logging.DEBUG)
-    # logging.getLogger("kombu").setLevel(logging.DEBUG)
-    # logging.getLogger("billiard").setLevel(logging.DEBUG)
+    # Very noisy in debug:
     logging.getLogger("botocore").setLevel(logging.INFO)
-    # logging.getLogger("botocore.hooks").setLevel(logging.DEBUG)
-    # logging.getLogger("botocore.parsers").setLevel(logging.DEBUG)
 
     logging.info("Root logger configured")
 
@@ -40,7 +36,10 @@ def _create_console_handler(app):
     # Allow the handler to log anything - we filter by setting logger levels
     handler.setLevel(logging.DEBUG)
     handler.setFormatter(
-        JsonFormatterForCloudWatch(reserved_attrs=list(set(RESERVED_ATTRS) - {"process", "thread", "name"}))
+        JsonFormatterForCloudWatch(
+            # Let these attributes be logged too:
+            reserved_attrs=list(set(RESERVED_ATTRS) - {"process", "thread", "name", "levelname"})
+        )
     )
 
     handler.addFilter(CodeContextFilter())
