@@ -79,7 +79,7 @@ def generate_xml_body(event, signing_enabled=False, signing_key=None, signing_ce
                 expires=event["expires"],
                 language=event["language"],
                 channel=channel,
-                web="TEST TEST TEST",
+                web=event.get("web"),
             )
 
     elif message_type == CANCEL_MESSAGE_TYPE:
@@ -103,6 +103,5 @@ def generate_xml_body(event, signing_enabled=False, signing_key=None, signing_ce
             xml = format_ibag_signature(xml)
 
     body = convert_etree_to_string(xml)
-    logger.info("Event: " + str(event))
     logger.info("Body: " + body)
     return body
