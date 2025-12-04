@@ -69,9 +69,6 @@ def generate_cap_alert(identifier, headline, description, areas, sent, expires, 
 
     if web:
         xml_subelement(info, "web", text=web)
-    else:
-        # Adds this as default effectively, just for testing
-        xml_subelement(info, "web", text="https://www.gov.uk/alerts")
 
     for i, a in enumerate(areas):
         area = xml_subelement(info, "area")
