@@ -38,11 +38,12 @@ def _create_console_handler(app):
     handler.setFormatter(
         JsonFormatterForCloudWatch(
             # Let these attributes be logged too:
-            reserved_attrs=list(set(RESERVED_ATTRS) - {"process", "thread", "name", "levelname"})
+            reserved_attrs=list(set(RESERVED_ATTRS) - {"process", "name", "levelname"})
         )
     )
 
     handler.addFilter(CodeContextFilter())
+    handler.addFilter(OtelFilter())
 
     return handler
 
@@ -60,5 +61,14 @@ class JsonFormatterForCloudWatch(JsonFormatter):
 class CodeContextFilter(logging.Filter):
     def filter(self, record):
         record.line = f"{record.filename}:{record.lineno}"
+
+        return record
+
+
+class OtelFilter(logging.Filter):
+    def filter(self, record):
+        # This is pointless as span ID and trace ID end up as 0 anyway
+        if hasattr(record, "otelTraceSampled"):
+            del record.otelTraceSampled
 
         return record
