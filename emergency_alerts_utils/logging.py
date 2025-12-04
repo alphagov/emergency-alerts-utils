@@ -24,6 +24,8 @@ def override_root_logger(app):
 
     # Very noisy in debug:
     logging.getLogger("botocore").setLevel(logging.INFO)
+    logging.getLogger("urllib3.connectionpool").setLevel(logging.INFO)
+    logging.getLogger("amazon.opentelemetry.distro._aws_metric_attribute_generator").setLevel(logging.INFO)
 
     logging.info("Root logger configured")
 
