@@ -136,10 +136,18 @@ def make_task(app):  # noqa: C901
 
         def __call__(self, *args, **kwargs):
             with tracer.start_as_current_span(f"celery task {self.name}") as span:
-                sqs_message_id = (
-                    self.request.properties.get("delivery_info", {}).get("sqs_message", {}).get("MessageId")
-                )
+                sqs_message_id = "unknown"
+                try:
+                    sqs_message_id = (
+                        self.request.properties.get("delivery_info", {}).get("sqs_message", {}).get("MessageId")
+                    )
+                except Exception:
+                    # We could be running in a mock context, or libraries have changed the structure.
+                    # Don't break anything
+                    logger.warning("Couldn't get SQS message ID from Celery task: %s", self.request.properties)
+
                 span.set_attribute("messaging.message.id", sqs_message_id)
+
                 self.start = time.monotonic()
                 # ensure task has flask context to access config, logger, etc
                 with self.app_context():
