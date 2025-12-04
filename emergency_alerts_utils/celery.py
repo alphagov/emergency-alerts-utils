@@ -4,7 +4,7 @@ from contextlib import contextmanager
 from os import getpid
 
 from celery import Celery, Task
-from celery.signals import setup_logging, worker_init, worker_process_init
+from celery.signals import setup_logging
 from flask import current_app, g, request
 from flask.ctx import has_app_context, has_request_context
 from opentelemetry import trace
@@ -146,18 +146,6 @@ def make_task(app):  # noqa: C901
                     return super().__call__(*args, **kwargs)
 
     return NotifyTask
-
-
-@worker_process_init.connect(weak=False)
-def init_celery_tracing_process(*args, **kwargs):
-    logger.info("init_celery_tracing_process")
-    CelerySqsInstrumentor().instrument()
-
-
-@worker_init.connect(weak=False)
-def init_celery_tracing(*args, **kwargs):
-    logger.info("init_celery_tracing")
-    CelerySqsInstrumentor().instrument()
 
 
 class NotifyCelery(Celery):
