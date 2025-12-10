@@ -54,12 +54,17 @@ class CelerySqsInstrumentor(BaseInstrumentor):
                 callback = kwargs["callback"]
 
                 def wrapped_callback(*args, **kwargs):
-                    aws_response = args[0]
-                    for message in aws_response["Messages"]:
-                        with self._tracer.start_as_current_span("ReceiveMessage " + message["MessageId"]) as span:
-                            span.set_attribute("messaging.message.id", message["MessageId"])
-                            span.add_event(message["MessageId"])
-                            logger.info("Received message %s", message["MessageId"])
+                    try:
+                        aws_response = args[0]
+                        for message in aws_response["Messages"]:
+                            with self._tracer.start_as_current_span("ReceiveMessage " + message["MessageId"]) as span:
+                                span.set_attribute("messaging.message.id", message["MessageId"])
+                                span.add_event(message["MessageId"])
+                                logger.info("Received message %s", message["MessageId"])
+                    except Exception:
+                        logger.exception(
+                            "Exception in instrumentation when wrapping receive message. Carrying on anyway."
+                        )
 
                     callback(*args, **kwargs)
 
