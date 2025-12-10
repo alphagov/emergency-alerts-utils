@@ -157,6 +157,7 @@ class QueueNames:
     PERIODIC = "periodic-tasks"
     BROADCASTS = "broadcast-tasks"
     GOVUK_ALERTS = "govuk-alerts"
+    HIGH_PRIORITY = "high-priority-tasks"
 
 
 class TaskNames:
