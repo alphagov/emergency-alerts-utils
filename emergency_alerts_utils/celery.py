@@ -9,12 +9,8 @@ from flask import current_app, g, request
 from flask.ctx import has_app_context, has_request_context
 from opentelemetry import trace
 
-from emergency_alerts_utils.celery_sqs_instrumentor import CelerySqsInstrumentor
-
 tracer = trace.get_tracer(__name__)
 logger = logging.getLogger(__name__)
-
-CelerySqsInstrumentor().instrument()
 
 
 @setup_logging.connect
