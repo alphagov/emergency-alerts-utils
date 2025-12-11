@@ -7,10 +7,15 @@ from celery import Celery, Task
 from celery.signals import setup_logging
 from flask import current_app, g, request
 from flask.ctx import has_app_context, has_request_context
+from opentelemetry import trace
+
+tracer = trace.get_tracer(__name__)
+logger = logging.getLogger(__name__)
 
 
 @setup_logging.connect
 def setup_logger(*args, **kwargs):
+    logger.info("setup_logger")
     """
     Using '"worker_hijack_root_logger": False' in the Celery config
     should block celery from overriding the logger configuration.
@@ -126,10 +131,23 @@ def make_task(app):  # noqa: C901
                 )
 
         def __call__(self, *args, **kwargs):
-            # ensure task has flask context to access config, logger, etc
-            with self.app_context():
+            with tracer.start_as_current_span(f"celery task {self.name}") as span:
+                sqs_message_id = "unknown"
+                try:
+                    sqs_message_id = (
+                        self.request.properties.get("delivery_info", {}).get("sqs_message", {}).get("MessageId")
+                    )
+                except Exception:
+                    # We could be running in a mock context, or libraries have changed the structure.
+                    # Don't break anything
+                    logger.warning("Couldn't get SQS message ID from Celery task: %s", self.request.properties)
+
+                span.set_attribute("messaging.message.id", sqs_message_id)
+
                 self.start = time.monotonic()
-                return super().__call__(*args, **kwargs)
+                # ensure task has flask context to access config, logger, etc
+                with self.app_context():
+                    return super().__call__(*args, **kwargs)
 
     return NotifyTask
 
@@ -142,15 +160,24 @@ class NotifyCelery(Celery):
         self.config_from_object(app.config["CELERY"])
 
     def send_task(self, name, args=None, kwargs=None, **other_kwargs):
+        logger = logging.getLogger("celery")  # Don't require a Flask context to log sends
+
         other_kwargs["headers"] = other_kwargs.get("headers") or {}
 
         if has_request_context() and hasattr(request, "request_id"):
             other_kwargs["headers"]["notify_request_id"] = request.request_id
+            logger = current_app.logger
 
         elif has_app_context() and "request_id" in g:
             other_kwargs["headers"]["notify_request_id"] = g.request_id
+            logger = current_app.logger
 
-        return super().send_task(name, args, kwargs, **other_kwargs)
+        logger.info("Sending Celery task %s: %s / %s", name, kwargs, other_kwargs)
+
+        sent = super().send_task(name, args, kwargs, **other_kwargs)
+
+        logger.info("Sent task: %s", sent)
+        return sent
 
 
 class QueueNames:
