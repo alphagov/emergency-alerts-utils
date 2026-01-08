@@ -79,8 +79,7 @@ def generate_xml_body(event, signing_enabled=False, signing_key=None, signing_ce
                 expires=event["expires"],
                 language=event["language"],
                 channel=channel,
-                # Temporary default added for testing addition of web element
-                web=event.get("web", "https://www.gov.uk/alerts"),
+                web=event.get("web"),
             )
 
     elif message_type == CANCEL_MESSAGE_TYPE:
