@@ -16,7 +16,9 @@ phases:
         fi
       - echo Build started on `date`
       - echo Building Docker image...
-      - docker build $TAGS -f Dockerfile.eas-base --no-cache
+      - docker build $TAGS -f Dockerfile.eas-base
+        --build-arg HTTPS_PROXY=$HTTPS_PROXY
+        --build-arg NO_PROXY=$NO_PROXY --no-cache
         .
   post_build:
     commands:
