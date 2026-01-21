@@ -81,3 +81,6 @@ RUN python$PYTHON_VERSION -m venv $VENV_UTILS
 # Build emergency-alerts-utils
 COPY --chown=easuser:easuser . $DIR_UTILS
 RUN cd $DIR_UTILS && . $VENV_UTILS/bin/activate && make bootstrap
+
+# Remove our .git folder, we don't need it once the build is complete
+RUN rm -rf $DIR_UTILS/.git
