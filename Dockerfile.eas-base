@@ -29,19 +29,17 @@ ENV DIR_GOVUK='/eas/emergency-alerts-govuk'
 ENV DIR_ADMIN='/eas/emergency-alerts-admin'
 
 RUN cat >/etc/apt/apt.conf.d/proxy.conf <<EOF
+Acquire::http::Proxy "${HTTPS_PROXY}";
+Acquire::http::NoProxy "${NO_PROXY}";
 Acquire::https::Proxy "${HTTPS_PROXY}";
 Acquire::https::NoProxy "${NO_PROXY}";
 EOF
 
-RUN sed -i 's|http://|https://|g' /etc/apt/sources.list.d/ubuntu.sources
-
 # Install commonly used tools, python related pre-reqs, ca-certs and OS tools
-RUN apt-get update
-RUN apt-get install -y build-essential
-RUN apt-get install -y ca-certificates
-
-# Python build dependencies:
-RUN apt-get install -y \
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    ca-certificates \
+    # Python build dependencies:
     libbz2-dev \
     libreadline-dev \
     libsqlite3-dev \
