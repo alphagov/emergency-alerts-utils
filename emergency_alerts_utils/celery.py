@@ -191,6 +191,7 @@ class TaskNames:
     PUBLISH_GOVUK_ALERTS = "publish-govuk-alerts"
     SEND_BROADCAST_EVENT = "send-broadcast-event"
     SEND_BROADCAST_PROVIDER_MESSAGE = "send-broadcast-provider-message"
+    REQUEST_LOG_INGEST = "request-log-ingest"
     TRIGGER_LINK_TEST = "trigger-link-test"
 
     # Scheduled
