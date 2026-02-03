@@ -33,8 +33,7 @@ Acquire::https::Proxy "${HTTPS_PROXY}";
 Acquire::https::NoProxy "${NO_PROXY}";
 EOF
 
-RUN sed -i 's|http://archive.ubuntu.com|https://archive.ubuntu.com|g' /etc/apt/sources.list
-RUN sed -i 's|http://security.ubuntu.com|https://security.ubuntu.com|g' /etc/apt/sources.list
+RUN sed -i 's|http://|https://|g' /etc/apt/sources.list.d/ubuntu.sources
 
 # Install commonly used tools, python related pre-reqs, ca-certs and OS tools
 RUN apt-get update && apt-get install -y \
