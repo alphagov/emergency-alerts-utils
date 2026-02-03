@@ -38,8 +38,10 @@ RUN sed -i 's|http://|https://|g' /etc/apt/sources.list.d/ubuntu.sources
 # Install commonly used tools, python related pre-reqs, ca-certs and OS tools
 RUN apt-get update && apt-get install -y \
     build-essential \
-    ca-certificates \
-    # Python build dependencies:
+    ca-certificates
+
+# Python build dependencies:
+RUN apt-get install -y \
     libbz2-dev \
     libreadline-dev \
     libsqlite3-dev \
