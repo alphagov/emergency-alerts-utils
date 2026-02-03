@@ -1,4 +1,6 @@
-FROM ubuntu:24.04
+# Most likely this will be substituted with a cached image in ECR
+ARG BASE_IMAGE='ubuntu:24.04'
+FROM ${BASE_IMAGE}
 
 ARG DEBIAN_FRONTEND='noninteractive'
 ARG ENVIRONMENT='development'
