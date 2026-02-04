@@ -33,10 +33,16 @@ Acquire::https::Proxy "${HTTPS_PROXY}";
 Acquire::https::NoProxy "${NO_PROXY}";
 EOF
 
+RUN sed -i 's|http://|https://|g' /etc/apt/sources.list.d/ubuntu.sources
+
+COPY ca-certificates_*.deb /tmp/
+
+RUN dpkg -i /tmp/ca-certificates-*.deb || true
+
 # Install commonly used tools, python related pre-reqs, ca-certs and OS tools
-RUN update-ca-certificates
 RUN apt-get update && apt-get install -y \
     build-essential \
+    ca-certificates \
     # Python build dependencies:
     libbz2-dev \
     libreadline-dev \
@@ -63,7 +69,7 @@ RUN apt-get update && apt-get install -y \
     # And cleanup the package caches
     rm -rf /var/cache/apt/archives /var/lib/apt/lists/*
 
-
+RUN update-ca-certificates
 
 # Install Python.
 RUN wget https://www.python.org/ftp/python/$PYTHON_FULL_VERSION/Python-$PYTHON_FULL_VERSION.tgz && \

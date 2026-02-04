@@ -6,6 +6,8 @@ phases:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS
         --password-stdin $ACCOUNT_NUMBER.dkr.ecr.$AWS_REGION.amazonaws.com
+      - apt-get update
+      - apt-get download ca-certificates
   build:
     commands:
       - |
