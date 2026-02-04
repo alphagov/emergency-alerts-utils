@@ -35,9 +35,8 @@ EOF
 
 RUN sed -i 's|http://|https://|g' /etc/apt/sources.list.d/ubuntu.sources
 
-COPY ca-certificates_*.deb /tmp/
-
-RUN dpkg -i /tmp/ca-certificates-*.deb || true
+RUN mkdir -p /etc/ssl/certs
+COPY /etc/ssl/certs/ca-bundle.crt /etc/ssl/certs/ca-certificates.crt
 
 # Install commonly used tools, python related pre-reqs, ca-certs and OS tools
 RUN apt-get update && apt-get install -y \
