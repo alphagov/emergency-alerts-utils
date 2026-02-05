@@ -8,6 +8,7 @@ flake8-print==5.0.0
 flake8==7.3.0
 freezegun==1.5.5
 isort==8.0.1
+ip-updates group across 1 directory with 10 updates)
 pytest-mock==3.15.1
 pytest-profiling==1.8.1
 pytest-xdist==3.8.0
