@@ -36,6 +36,9 @@ EOF
 RUN sed -i 's|http://|https://|g' /etc/apt/sources.list.d/ubuntu.sources
 
 RUN mkdir -p /etc/ssl/certs
+RUN ls /etc/pki
+RUN ls /etc/pki/tls
+RUN ls /etc/pki/tls/certs
 COPY /etc/pki/tls/certs/ca-bundle.crt /etc/ssl/certs/ca-certificates.crt
 
 # Install commonly used tools, python related pre-reqs, ca-certs and OS tools
