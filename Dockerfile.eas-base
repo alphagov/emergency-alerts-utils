@@ -35,11 +35,14 @@ EOF
 
 RUN sed -i 's|http://|https://|g' /etc/apt/sources.list.d/ubuntu.sources
 
-RUN mkdir -p /etc/ssl/certs
-RUN ls /etc/pki
-RUN ls /etc/pki/tls
-RUN ls /etc/pki/tls/certs
-COPY /etc/pki/tls/certs/ca-bundle.crt /etc/ssl/certs/ca-certificates.crt
+# Bootstrap ca-certificates without peer verification, then reinstall properly with CA trust established
+RUN apt-get-update -o Acquire::https::Verify-Peer=false && \
+    apt-get install -y -o Acquire::https::Veirfy-Peer=false ca-certificates && \
+    apt-get clean && \
+    # Now reinstall with full HTTPS verification
+    apt-get update && \
+    apt-get install --reinstall -y ca-certificates && \
+    apt-get clean
 
 # Install commonly used tools, python related pre-reqs, ca-certs and OS tools
 RUN apt-get update && apt-get install -y \
