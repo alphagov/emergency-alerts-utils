@@ -28,11 +28,13 @@ ENV DIR_API='/eas/emergency-alerts-api'
 ENV DIR_GOVUK='/eas/emergency-alerts-govuk'
 ENV DIR_ADMIN='/eas/emergency-alerts-admin'
 
+# Configure our HTTPS Proxy and co variables
 RUN cat >/etc/apt/apt.conf.d/proxy.conf <<EOF
 Acquire::https::Proxy "${HTTPS_PROXY}";
 Acquire::https::NoProxy "${NO_PROXY}";
 EOF
 
+# We only proxy HTTPS traffic, so we want our apt sources to be over HTTPS
 RUN sed -i 's|http://|https://|g' /etc/apt/sources.list.d/ubuntu.sources
 
 # Bootstrap ca-certificates without peer verification, then reinstall properly with CA trust established
@@ -47,7 +49,8 @@ RUN apt-get update && \
     apt-get clean && \
     update-ca-certificates
 
-# Install commonly used tools, python related pre-reqs, ca-certs and OS tools
+# Install commonly used tools, python related pre-reqs, and OS tools
+# We need to have ca-certificates installed before this point
 RUN apt-get update && apt-get install -y \
     build-essential \
     # Python build dependencies:
