@@ -36,7 +36,7 @@ EOF
 RUN sed -i 's|http://|https://|g' /etc/apt/sources.list.d/ubuntu.sources
 
 # Bootstrap ca-certificates without peer verification, then reinstall properly with CA trust established
-RUN apt-get-update -o Acquire::https::Verify-Peer=false && \
+RUN apt-get update -o Acquire::https::Verify-Peer=false && \
     apt-get install -y -o Acquire::https::Veirfy-Peer=false ca-certificates && \
     apt-get clean && \
     # Now reinstall with full HTTPS verification
