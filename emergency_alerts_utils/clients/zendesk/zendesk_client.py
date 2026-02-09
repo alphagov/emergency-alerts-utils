@@ -8,6 +8,7 @@ from emergency_alerts_utils.admin_action import ADMIN_ZENDESK_TICKET_TITLE_PREFI
 
 class ZendeskError(Exception):
     def __init__(self, response):
+        super().__init__(response)
         self.response = response
 
 
