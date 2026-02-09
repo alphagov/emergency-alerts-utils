@@ -61,21 +61,17 @@ print("")
 
 if version_part == "minor":
     print(f"{color.YELLOW}{color.BOLD}Consider updating CHANGELOG.md, for example:{color.END}")
-    print(
-        f"""
+    print(f"""
     ## {new_major}.{new_minor}.{new_patch}
 
     * Details of change 1
     * Details of change 2
-    """
-    )
+    """)
 
 if version_part == "major":
     print(f"{color.YELLOW}{color.BOLD}Make sure to update CHANGELOG.md, for example:{color.END}")
-    print(
-        f"""
+    print(f"""
     ## {new_major}.{new_minor}.{new_patch}
 
     * Details of breaking change
-    """
-    )
+    """)

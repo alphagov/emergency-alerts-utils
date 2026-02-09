@@ -4,6 +4,7 @@ from flask import current_app
 
 class SlackError(Exception):
     def __init__(self, response):
+        super().__init__(response)
         self.response = response
 
 
