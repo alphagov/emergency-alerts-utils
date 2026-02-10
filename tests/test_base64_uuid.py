@@ -35,17 +35,23 @@ def test_base64_converter_to_url(python_val):
 
 
 @pytest.mark.parametrize(
-    "url_val",
+    "url_val, expected_response",
     [
-        "this_is_valid_base64_but_is_too_long_to_be_a_uuid",
-        "this_one_has_emoji_➕➕➕",
+        (
+            "this_is_valid_base64_but_is_too_long_to_be_a_uuid",
+            "Invalid base64-encoded string",
+        ),
+        (
+            "this_one_has_emoji_➕➕➕",
+            "codec can't encode characters",
+        ),
     ],
 )
-def test_base64_converter_to_python_raises_validation_error(url_val):
-    with pytest.raises(Exception):
+def test_base64_converter_to_python_raises_validation_error(url_val, expected_response):
+    with pytest.raises(Exception, match=expected_response):
         base64_to_uuid(url_val)
 
 
 def test_base64_converter_to_url_raises_validation_error():
-    with pytest.raises(Exception):
+    with pytest.raises(Exception, match="object has no attribute 'replace'"):
         uuid_to_base64(object())

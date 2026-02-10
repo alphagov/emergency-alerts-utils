@@ -10,17 +10,29 @@ from emergency_alerts_utils.timezones import (
 
 
 @pytest.mark.parametrize(
-    "input_value",
+    "input_value, expected_response",
     [
-        "foo",
-        100,
-        True,
-        False,
-        None,
+        (
+            "foo",
+            "Unknown string format: foo",
+        ),
+        (
+            100,
+            "Parser must be a string or character stream, not int",
+        ),
+        (
+            True,
+            "Parser must be a string or character stream, not bool",
+        ),
+        (
+            False,
+            "Parser must be a string or character stream, not bool",
+        ),
+        (None, "Parser must be a string or character stream, not NoneType"),
     ],
 )
-def test_utc_string_to_aware_gmt_datetime_rejects_bad_input(input_value):
-    with pytest.raises(Exception):
+def test_utc_string_to_aware_gmt_datetime_rejects_bad_input(input_value, expected_response):
+    with pytest.raises(Exception, match=expected_response):
         utc_string_to_aware_gmt_datetime(input_value)
 
 
