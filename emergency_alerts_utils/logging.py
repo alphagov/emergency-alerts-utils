@@ -26,8 +26,7 @@ def override_root_logger(app):
     logging.getLogger("botocore").setLevel(logging.INFO)
     logging.getLogger("urllib3.connectionpool").setLevel(logging.INFO)
     logging.getLogger("opentelemetry.instrumentation.botocore").setLevel(logging.INFO)
-    logging.getLogger("boto3.resources.action").setLevel(logging.INFO)
-    logging.getLogger("boto3.resources.model").setLevel(logging.INFO)
+    logging.getLogger("boto3.resources").setLevel(logging.INFO)
     logging.getLogger("amazon.opentelemetry.distro._aws_metric_attribute_generator").setLevel(logging.INFO)
 
     logging.info("Root logger configured")
