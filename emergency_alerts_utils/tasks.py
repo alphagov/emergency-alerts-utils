@@ -1,11 +1,3 @@
-import logging
-
-from opentelemetry import trace
-
-tracer = trace.get_tracer(__name__)
-logger = logging.getLogger(__name__)
-
-
 class QueueNames:
     PERIODIC = "periodic-tasks"
     BROADCASTS = "broadcast-tasks"
@@ -18,7 +10,11 @@ class TaskNames:
     SEND_BROADCAST_EVENT = "send-broadcast-event"
     SEND_BROADCAST_PROVIDER_MESSAGE = "send-broadcast-provider-message"
     REQUEST_LOG_INGEST = "request-log-ingest"
-    TRIGGER_LINK_TEST = "trigger-link-test"
+    TRIGGER_LINK_TEST = "trigger-link-test"  # (singular - not to be confused with the plural that's scheduled)
+    TRIGGER_LINK_TEST_PRIMARY_TO_A = "trigger-link-test-primary-to-A"
+    TRIGGER_LINK_TEST_PRIMARY_TO_B = "trigger-link-test-primary-to-B"
+    TRIGGER_LINK_TEST_SECONDARY_TO_A = "trigger-link-test-secondary-to-A"
+    TRIGGER_LINK_TEST_SECONDARY_TO_B = "trigger-link-test-secondary-to-B"
 
     # Scheduled
     TRIGGER_GOVUK_HEALTHCHECK = "trigger-govuk-alerts-healthcheck"
