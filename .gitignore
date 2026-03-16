@@ -67,5 +67,5 @@ target/
 .DS_Store
 .envrc
 
-# The VPN root CA cert, which is requires to get the applications built locally
+# The VPN root CA cert, which is required to get the applications built locally
 vpn-ca.pem
