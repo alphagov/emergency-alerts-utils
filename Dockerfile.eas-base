@@ -28,6 +28,9 @@ ENV DIR_API='/eas/emergency-alerts-api'
 ENV DIR_GOVUK='/eas/emergency-alerts-govuk'
 ENV DIR_ADMIN='/eas/emergency-alerts-admin'
 
+# Copy over our VPN CA certificate if it exists; if it doesn't, this will do nothing
+COPY vpn-ca.pem* /usr/local/share/ca-certificates/vpn-ca.crt
+
 # Configure our HTTPS Proxy and co variables
 RUN cat >/etc/apt/apt.conf.d/proxy.conf <<EOF
 Acquire::https::Proxy "${HTTPS_PROXY}";
