@@ -17,7 +17,7 @@ phases:
       - echo Build started on `date`
       - echo Building Docker image...
       - docker build $TAGS -f Dockerfile.eas-base
-        --build-arg BASE_IMAGE=$BASE_IMAGE
+        --build-arg BASE_IMAGE=${BASE_IMAGE:-ubuntu:24.04}
         --build-arg HTTPS_PROXY=$HTTPS_PROXY
         --build-arg NO_PROXY=$NO_PROXY --no-cache
         .
