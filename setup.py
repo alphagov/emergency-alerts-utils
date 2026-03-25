@@ -44,5 +44,7 @@ setup(
         "signxml>=4.0.3",
         "dramatiq>=1.18.0",
         "dramatiq_sqs>=0.3.1",
+        "flask-dramatiq>=0.6.0",
+        "periodiq>=0.13.0",
     ],
 )
