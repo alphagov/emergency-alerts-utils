@@ -41,14 +41,14 @@ class SqsRetryMiddleware(Middleware):
 
     So:
       - If an actor throws and it's not configured for retry, we just log it as failed and drop it.
-      - If an actor throws and it's configured for retry, we fail() the message.
+      - If an actor throws and it's configured for retry (and it's of type 'retry_for', if set), we fail() the message.
         - For a fail() message, the SqsConsumer will avoid deleting (acknowledging) the message and
           get SQS to redeliver it.
 
       - After many attempts the SQS queue should DLQ the message - no involvement from the logic here.
     """
 
-    actor_options = {"allow_retry"}
+    actor_options = {"allow_retry", "retry_for"}
 
     def before_process_message(self, broker, message: _SQSMessage):
         try:
@@ -64,12 +64,16 @@ class SqsRetryMiddleware(Middleware):
         actor = broker.get_actor(message.actor_name)
 
         retry_allowed = actor.options.get("allow_retry")
+        retry_for = actor.options.get("retry_for")
 
         if retry_allowed:
-            logger.warning(
-                "Message %s had an exception but allows retries, failing it so SQS can retry or DLQ it",
-                message.message_id,
-            )
-            message.fail()
+            if retry_for is None or isinstance(exception, retry_for):
+                logger.warning(
+                    "Message %s had an exception but allows retries, failing it so SQS can retry or DLQ it",
+                    message.message_id,
+                )
+                message.fail()
+            else:
+                logger.warning("Message %s had an exception but it didn't match retry_for. It will be dropped")
         else:
             logger.warning("Message %s had an exception but isn't configured for retries. It will be dropped.")
