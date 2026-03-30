@@ -89,23 +89,21 @@ class DramatiqInstrumentor(BaseInstrumentor):
                 inject(context_carrier)
 
                 try:
-                    result = original_message_with_options(
+                    message = original_message_with_options(
                         actor_self,
                         args=args,
                         kwargs=kwargs,
-                        options={
-                            **options,
-                            "trace_context": context_carrier,
-                        },
+                        trace_context=context_carrier,
+                        **options,
                     )
                 except Exception as e:
                     span.set_status(StatusCode.ERROR)
                     span.record_exception(e)
                     raise e
                 else:
-                    span.set_attribute("dramatiq.message_id", result.message_id)
+                    span.set_attribute("dramatiq.message_id", message.message_id)
                     span.set_status(StatusCode.OK)
-                    return result
+                    return message
 
         Actor.message_with_options = instrumented_message_with_options
 
@@ -116,10 +114,13 @@ class DramatiqInstrumentor(BaseInstrumentor):
         def instrumented_process_message(thread_self, message):
             span_name = f"dramatiq.worker.{message.actor_name}.process_message"
 
-            options = message.options.get("options")
-            message_trace_context = options.get("trace_context") if options else None
+            message_trace_context = message.options.get("trace_context") if message.options else None
+            trace_context = None
 
-            trace_context = extract(message_trace_context) or None
+            try:
+                trace_context = extract(message_trace_context)
+            except Exception:
+                pass
 
             with self.tracer.start_as_current_span(
                 span_name,
