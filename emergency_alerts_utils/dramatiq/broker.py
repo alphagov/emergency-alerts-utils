@@ -62,6 +62,8 @@ class EasSqsConsumer(SQSConsumer):
         self.message_refc -= 1
 
         try:
+            # 10s is arbitrary - but something a lot sooner than potentially a 5 minute timeout
+            # defined on the queue.
             message._sqs_message.change_visibility(VisibilityTimeout=10)
         except Exception:
             self.logger.exception("Error when shortening SQS visibility (is it about to be redelivered anyway?)")
