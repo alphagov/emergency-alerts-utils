@@ -42,8 +42,8 @@ class SqsRetryMiddleware(Middleware):
     So:
       - If an actor throws and it's not configured for retry, we just log it as failed and drop it.
       - If an actor throws and it's configured for retry (and it's of type 'retry_for', if set), we fail() the message.
-        - For a fail() message, the SqsConsumer will avoid deleting (acknowledging) the message and
-          get SQS to redeliver it.
+        - For a fail() message, Dramatiq will call the consumer's nack and thus the SqsConsumer will avoid deleting
+          (acknowledging) the message and thus get SQS to redeliver it.
 
       - After many attempts the SQS queue should DLQ the message - no involvement from the logic here.
     """
