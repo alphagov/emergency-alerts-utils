@@ -73,12 +73,18 @@ def generate_cap_alert(identifier, headline, description, areas, sent, expires, 
     for i, a in enumerate(areas):
         area = xml_subelement(info, "area")
 
-        xml_subelement(area, "areaDesc", text="area-{}".format(i + 1))
-        xml_subelement(
-            area,
-            "polygon",
-            text=" ".join(["{},{}".format(pair[0], pair[1]) for pair in a["polygon"]]),
-        )
+        # Uses area description if provided, else default to "area-{n}""
+        area_desc = a.get("description", "area-{}".format(i + 1))
+        xml_subelement(area, "areaDesc", text=area_desc)
+
+        # Area can have one or more polygons
+        polygons = a.get("polygons") or [a["polygon"]]
+        for polygon in polygons:
+            xml_subelement(
+                area,
+                "polygon",
+                text=" ".join(["{},{}".format(pair[0], pair[1]) for pair in polygon]),
+            )
 
     return alert
 
