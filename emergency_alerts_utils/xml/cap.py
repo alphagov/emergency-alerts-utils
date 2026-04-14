@@ -32,7 +32,9 @@ def generate_cap_link_test(
     return alert
 
 
-def generate_cap_alert(identifier, headline, description, areas, sent, expires, language, channel, web=None):
+def generate_cap_alert(
+    identifier, headline, description, areas, sent, expires, language, channel, web=None, sender=None, sender_name=None
+):
     alert = ET.Element(
         "alert",
         attrib={
@@ -41,7 +43,7 @@ def generate_cap_alert(identifier, headline, description, areas, sent, expires, 
     )
 
     xml_subelement(alert, "identifier", text=identifier)
-    xml_subelement(alert, "sender", text=SENDER)
+    xml_subelement(alert, "sender", text=sender or SENDER)
     xml_subelement(alert, "sent", text=sent)
     xml_subelement(alert, "status", text="Actual")
     xml_subelement(alert, "msgType", text="Alert")
@@ -63,7 +65,7 @@ def generate_cap_alert(identifier, headline, description, areas, sent, expires, 
     xml_subelement(info, "severity", text="Severe")
     xml_subelement(info, "certainty", text="Likely")
     xml_subelement(info, "expires", text=expires)
-    xml_subelement(info, "senderName", text="GOV.UK Emergency Alerts")
+    xml_subelement(info, "senderName", text=sender_name or "GOV.UK Emergency Alerts")
     xml_subelement(info, "headline", text=headline)
     xml_subelement(info, "description", text=description)
 
@@ -89,7 +91,7 @@ def generate_cap_alert(identifier, headline, description, areas, sent, expires, 
     return alert
 
 
-def generate_cap_cancel_message(identifier, sent, references):
+def generate_cap_cancel_message(identifier, sent, references, sender=None):
     alert = ET.Element(
         "alert",
         attrib={
@@ -97,11 +99,11 @@ def generate_cap_cancel_message(identifier, sent, references):
         },
     )
 
-    references_list = [f"{SENDER},{ref['message_id']},{ref['sent']}" for ref in references]
+    references_list = [f"{sender or SENDER},{ref['message_id']},{ref['sent']}" for ref in references]
     references_string = " ".join(references_list)
 
     xml_subelement(alert, "identifier", text=identifier)
-    xml_subelement(alert, "sender", text=SENDER)
+    xml_subelement(alert, "sender", text=sender or SENDER)
     xml_subelement(alert, "sent", text=sent)
     xml_subelement(alert, "status", text="Actual")
     xml_subelement(alert, "msgType", text="Cancel")

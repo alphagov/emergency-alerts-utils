@@ -80,6 +80,8 @@ def generate_xml_body(event, signing_enabled=False, signing_key=None, signing_ce
                 language=event["language"],
                 channel=channel,
                 web=event.get("web"),
+                sender=event.get("sender"),
+                sender_name=event.get("sender_name")
             )
 
     elif message_type == CANCEL_MESSAGE_TYPE:
@@ -95,6 +97,7 @@ def generate_xml_body(event, signing_enabled=False, signing_key=None, signing_ce
                 identifier=identifier,
                 references=event["references"],
                 sent=event["sent"],
+                sender=event.get("sender")
             )
 
     if signing_enabled:
