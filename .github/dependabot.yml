@@ -26,7 +26,3 @@ updates:
         applies-to: security-updates
         patterns:
           - "*"
-      pip-updates:
-        applies-to: version-updates
-        patterns:
-          - "*"
