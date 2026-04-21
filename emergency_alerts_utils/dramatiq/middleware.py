@@ -53,7 +53,12 @@ class SqsRetryMiddleware(Middleware):
     def before_process_message(self, broker, message: _SQSMessage):
         try:
             receive_count = int(message._sqs_message.attributes["ApproximateReceiveCount"])
-            logger.info("Message %s has been received %d times", message._sqs_message.message_id, receive_count)
+            logger.info(
+                "Message %s (SQS: %s) has been received %d times",
+                message.message_id,
+                message._sqs_message.message_id,
+                receive_count,
+            )
         except Exception:
             pass
 
