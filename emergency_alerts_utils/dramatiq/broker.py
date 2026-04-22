@@ -58,7 +58,7 @@ class EasSqsConsumer(SQSConsumer):
         suppress the nack and let it ack.
         """
         # message._sqs_message is https://docs.aws.amazon.com/boto3/latest/reference/services/sqs/message/#SQS.Message
-        self.logger.warning("nack-ing SQS message ID: %s", message._sqs_message.message_id)
+        self.logger.warning("nack-ing message ID: %s (SQS: %s)", message.message_id, message._sqs_message.message_id)
         self.message_refc -= 1
 
         try:
