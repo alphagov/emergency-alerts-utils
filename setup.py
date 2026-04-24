@@ -29,7 +29,6 @@ setup(
         "Flask>=3.0.2",
         "Werkzeug>=3.1.3",
         "ordered-set>=4.1.0",
-        "opentelemetry-instrumentation-celery>=0.54b1",
         "Jinja2>=2.11.3",
         "pyyaml>=6.0.1",
         "phonenumbers>=8.13.20",
@@ -43,5 +42,10 @@ setup(
         "boto3>=1.38.10",
         "lxml>=5.4.0",
         "signxml>=4.0.3",
+        "dramatiq>=1.18.0",
+        # README suggests breaking changes before v1.0.0 so we should pin:
+        "dramatiq_sqs==0.3.1",
+        "flask-dramatiq>=0.6.0",
+        "periodiq>=0.13.0",
     ],
 )

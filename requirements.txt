@@ -2,12 +2,12 @@
 
 beautifulsoup4==4.14.3
 black==26.3.1
-celery==5.6.3
 flake8-bugbear==25.11.29
 flake8-print==5.0.0
 flake8==7.3.0
 freezegun==1.5.5
 isort==8.0.1
+moto==5.1.22
 pytest-mock==3.15.1
 pytest-profiling==1.8.1
 pytest-xdist==3.8.0
