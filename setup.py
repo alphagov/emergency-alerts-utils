@@ -43,7 +43,8 @@ setup(
         "lxml>=5.4.0",
         "signxml>=4.0.3",
         "dramatiq>=1.18.0",
-        "dramatiq_sqs>=0.3.1",
+        # README suggests breaking changes before v1.0.0 so we should pin:
+        "dramatiq_sqs==0.3.1",
         "flask-dramatiq>=0.6.0",
         "periodiq>=0.13.0",
     ],
