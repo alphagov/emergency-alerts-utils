@@ -42,7 +42,7 @@ def _create_console_handler(app):
     handler.setFormatter(
         JsonFormatterForCloudWatch(
             # Let these attributes be logged too:
-            reserved_attrs=list(set(RESERVED_ATTRS) - {"process", "name", "levelname"})
+            reserved_attrs=list(set(RESERVED_ATTRS) - {"process", "name", "levelname", "thread"})
         )
     )
 
