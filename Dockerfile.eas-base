@@ -1,8 +1,14 @@
-FROM ubuntu:24.04
+# Most likely this will be substituted with a cached image in ECR
+ARG BASE_IMAGE='ubuntu:24.04'
+FROM ${BASE_IMAGE}
 
 ARG DEBIAN_FRONTEND='noninteractive'
 ARG ENVIRONMENT='development'
 ARG PIP_DEFAULT_TIMEOUT=1000
+ARG HTTPS_PROXY=''
+ARG NO_PROXY=''
+ENV HTTPS_PROXY=${HTTPS_PROXY}
+ENV NO_PROXY=${NO_PROXY}
 ENV PYTHON_VERSION='3.12'
 ENV PYTHON_FULL_VERSION=$PYTHON_VERSION'.11'
 ENV FLASK_APP='application.py'
@@ -22,11 +28,34 @@ ENV DIR_API='/eas/emergency-alerts-api'
 ENV DIR_GOVUK='/eas/emergency-alerts-govuk'
 ENV DIR_ADMIN='/eas/emergency-alerts-admin'
 
+# Copy over our VPN CA certificate if it exists; if it doesn't, this will do nothing
+COPY vpn-ca.pem* /usr/local/share/ca-certificates/vpn-ca.crt
 
-# Install commonly used tools, python related pre-reqs, ca-certs and OS tools
+# Configure our HTTPS Proxy and co variables
+RUN cat >/etc/apt/apt.conf.d/proxy.conf <<EOF
+Acquire::https::Proxy "${HTTPS_PROXY}";
+Acquire::https::NoProxy "${NO_PROXY}";
+EOF
+
+# We only proxy HTTPS traffic, so we want our apt sources to be over HTTPS
+RUN sed -i 's|http://|https://|g' /etc/apt/sources.list.d/ubuntu.sources
+
+# Bootstrap ca-certificates without peer verification, then reinstall properly with CA trust established
+RUN apt-get update -o Acquire::https::Verify-Peer=false && \
+    apt-get install -y -o Acquire::https::Verify-Peer=false ca-certificates && \
+    apt-get clean && \
+    update-ca-certificates
+
+# Now reinstall with full HTTPS verification
+RUN apt-get update && \
+    apt-get install --reinstall -y ca-certificates && \
+    apt-get clean && \
+    update-ca-certificates
+
+# Install commonly used tools, python related pre-reqs, and OS tools
+# We need to have ca-certificates installed before this point
 RUN apt-get update && apt-get install -y \
     build-essential \
-    ca-certificates \
     # Python build dependencies:
     libbz2-dev \
     libreadline-dev \
