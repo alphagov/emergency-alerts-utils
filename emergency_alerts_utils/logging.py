@@ -25,6 +25,8 @@ def override_root_logger(app):
     # Very noisy in debug:
     logging.getLogger("botocore").setLevel(logging.INFO)
     logging.getLogger("urllib3.connectionpool").setLevel(logging.INFO)
+    logging.getLogger("opentelemetry.instrumentation.botocore").setLevel(logging.INFO)
+    logging.getLogger("boto3.resources").setLevel(logging.INFO)
     logging.getLogger("amazon.opentelemetry.distro._aws_metric_attribute_generator").setLevel(logging.INFO)
 
     logging.info("Root logger configured")
@@ -40,7 +42,7 @@ def _create_console_handler(app):
     handler.setFormatter(
         JsonFormatterForCloudWatch(
             # Let these attributes be logged too:
-            reserved_attrs=list(set(RESERVED_ATTRS) - {"process", "name", "levelname"})
+            reserved_attrs=list(set(RESERVED_ATTRS) - {"process", "name", "levelname", "thread"})
         )
     )
 
