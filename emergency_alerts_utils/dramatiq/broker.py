@@ -1,4 +1,5 @@
 from base64 import b64decode
+from time import sleep
 
 from dramatiq.message import Message
 from dramatiq_sqs.broker import SQSBroker, SQSConsumer, _SQSMessage
@@ -17,12 +18,15 @@ class EasSqsConsumer(SQSConsumer):
         The overridden method does not provide a way to adjust the params to the SQS receive call.
         Namely, we'd rather have the attributes/metadata about messages which can be used by our
         retry middleware (e.g. ApproximateReceiveCount) and logged.
+
+        It also works around an infinite spin loop while enough messages are in-memory by sleeping
+        before returning None.
         """
 
         kw = {
             "MaxNumberOfMessages": self.prefetch,
             "WaitTimeSeconds": self.wait_time_seconds,
-            "MessageSystemAttributeNames": ["All"],  # The only part of this method that's changed
+            "MessageSystemAttributeNames": ["All"],  # The only extra kw
         }
         if self.visibility_timeout is not None:
             kw["VisibilityTimeout"] = self.visibility_timeout
@@ -43,6 +47,13 @@ class EasSqsConsumer(SQSConsumer):
             try:
                 return self.messages.popleft()
             except IndexError:
+                # If we return None this method will be called again right away, leading to a loop
+                # if not self.message_refc < self.prefetch (i.e. we have enough messages).
+                # Thus we should wait a bit to let the CPU not burn cycles needlessly while
+                # competing against other thread(s) that are trying to process messages.
+                if not self.message_refc < self.prefetch:
+                    sleep(0.1)
+
                 return None
 
     def nack(self, message: _SQSMessage):
