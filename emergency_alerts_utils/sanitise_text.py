@@ -46,7 +46,7 @@ class SanitiseText:
         # lets just make sure we aren't evaling anything weird
         if not set(codepoint) <= set("0123456789ABCDEF") or not len(codepoint) == 4:
             raise ValueError(f"{codepoint} is not a valid unicode codepoint")
-        return eval(f'"\\u{codepoint}"')
+        return chr(int(codepoint, 16))
 
     @classmethod
     def downgrade_character(cls, c):
