@@ -110,7 +110,6 @@ RUN python$PYTHON_VERSION -m venv $VENV_UTILS
 # Build emergency-alerts-utils
 COPY --chown=easuser:easuser . $DIR_UTILS
 RUN cd $DIR_UTILS && . $VENV_UTILS/bin/activate && make bootstrap
-RUN printf '%s' 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*' > $DIR_UTILS/eicar.txt
 
 # Remove our .git folder, we don't need it once the build is complete
 RUN rm -rf $DIR_UTILS/.git
