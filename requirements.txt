@@ -13,4 +13,4 @@ pytest-profiling==1.8.1
 pytest-xdist==3.8.0
 pytest==9.0.3
 requests-mock==1.12.1
-urllib3==2.6.3
+urllib3==2.7.0
