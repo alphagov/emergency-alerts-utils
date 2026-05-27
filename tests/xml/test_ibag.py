@@ -71,6 +71,7 @@ def test_ibag_alert_creation(channel, expected_IBAG_channel_category):
                 [51.74, -1.2],
                 [51.12, -1.2],
             ],
+            "geocodes": ["E07000008", "E07000009"],
         }
     ]
 
@@ -165,6 +166,18 @@ def test_ibag_alert_creation(channel, expected_IBAG_channel_category):
         "/ibag:IBAG_Alert_Attributes/ibag:IBAG_alert_info/ibag:IBAG_Alert_Area[1]/ibag:IBAG_polygon//text()",
         "ibag",
     ) == ["51.12,-1.2 51.12,1.2 51.74,1.2 51.74,-1.2 51.12,-1.2"]
+
+    assert xml_path(
+        alert_body,
+        "/ibag:IBAG_Alert_Attributes/ibag:IBAG_alert_info/ibag:IBAG_Alert_Area[1]/ibag:IBAG_geocode[1]//text()",
+        "ibag",
+    ) == ["E07000008"]
+
+    assert xml_path(
+        alert_body,
+        "/ibag:IBAG_Alert_Attributes/ibag:IBAG_alert_info/ibag:IBAG_Alert_Area[1]/ibag:IBAG_geocode[2]//text()",
+        "ibag",
+    ) == ["E07000009"]
 
     assert xml_path(
         alert_body,

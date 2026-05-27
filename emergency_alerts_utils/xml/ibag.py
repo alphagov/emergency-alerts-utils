@@ -95,6 +95,8 @@ def generate_ibag_alert(
             "IBAG_polygon",
             text=" ".join(["{},{}".format(pair[0], pair[1]) for pair in a["polygon"]]),
         )
+        for geocode in a.get("geocodes", []):
+            xml_subelement(area, "IBAG_geocode", text=geocode)
 
     xml_subelement(alert, "IBAG_Digital_Signature", text="")
 
