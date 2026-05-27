@@ -90,11 +90,12 @@ def generate_ibag_alert(
         area = xml_subelement(info, "IBAG_Alert_Area")
 
         xml_subelement(area, "IBAG_area_description", text="area-{}".format(i + 1))
-        xml_subelement(
-            area,
-            "IBAG_polygon",
-            text=" ".join(["{},{}".format(pair[0], pair[1]) for pair in a["polygon"]]),
-        )
+        if polygon := a.get("polygon", []):
+            xml_subelement(
+                area,
+                "IBAG_polygon",
+                text=" ".join(["{},{}".format(pair[0], pair[1]) for pair in polygon]),
+            )
         for geocode in a.get("geocodes", []):
             xml_subelement(area, "IBAG_geocode", text=geocode)
 
