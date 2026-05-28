@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from functools import lru_cache
 from os import path
 
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 from markupsafe import Markup
 
 from emergency_alerts_utils import MAGIC_SEQUENCE, SMS_CHAR_COUNT_LIMIT
@@ -32,7 +32,11 @@ template_env = Environment(
             path.dirname(path.abspath(__file__)),
             "jinja_templates",
         )
-    )
+    ),
+    autoescape=select_autoescape(
+        enabled_extensions=("jinja2",),
+        default_for_string=True,
+    ),
 )
 
 
@@ -279,25 +283,27 @@ class SMSPreviewTemplate(BaseSMSTemplate):
                 {
                     "sender": self.sender,
                     "show_sender": self.show_sender,
-                    "recipient": Field("((phone number))", self.values, with_brackets=False, html="escape"),
+                    "recipient": Markup(Field("((phone number))", self.values, with_brackets=False, html="escape")),
                     "show_recipient": self.show_recipient,
-                    "body": Take(
-                        Field(
-                            self.content,
-                            self.values,
-                            html="escape",
-                            redact_missing_personalisation=self.redact_missing_personalisation,
+                    "body": Markup(
+                        Take(
+                            Field(
+                                self.content,
+                                self.values,
+                                html="escape",
+                                redact_missing_personalisation=self.redact_missing_personalisation,
+                            )
                         )
-                    )
-                    .then(add_prefix, (escape_html(self.prefix) or None) if self.show_prefix else None)
-                    .then(sms_encode if self.downgrade_non_sms_characters else str)
-                    .then(remove_whitespace_before_punctuation)
-                    .then(normalise_whitespace_and_newlines)
-                    .then(normalise_multiple_newlines)
-                    .then(nl2br)
-                    .then(
-                        autolink_urls,
-                        classes="govuk-link govuk-link--no-visited-state",
+                        .then(add_prefix, (escape_html(self.prefix) or None) if self.show_prefix else None)
+                        .then(sms_encode if self.downgrade_non_sms_characters else str)
+                        .then(remove_whitespace_before_punctuation)
+                        .then(normalise_whitespace_and_newlines)
+                        .then(normalise_multiple_newlines)
+                        .then(nl2br)
+                        .then(
+                            autolink_urls,
+                            classes="govuk-link govuk-link--no-visited-state",
+                        )
                     ),
                 }
             )
