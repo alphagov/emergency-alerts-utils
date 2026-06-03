@@ -16,7 +16,6 @@ ENV HOST='hosted'
 
 # Virtual Envs
 ENV VENV_ROOT='/venv'
-ENV VENV_UTILS='/venv/emergency-alerts-utils'
 ENV VENV_API='/venv/emergency-alerts-api'
 ENV VENV_GOVUK='/venv/emergency-alerts-govuk'
 ENV VENV_ADMIN='/venv/emergency-alerts-admin'
@@ -103,15 +102,8 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-$(uname -p).zip" -o 'aws
     ./aws/install && \
     rm -rf ./aws awscliv2.zip
 
-# Create a normal user and run all subsequent steps as them
+# Create a normal user and run all downstream containers as them
 RUN useradd -ms /bin/bash easuser && mkdir -p ${VENV_ROOT} ${DIR_EAS} && chown easuser:easuser ${VENV_ROOT} ${DIR_EAS}
 USER easuser
 
-RUN python$PYTHON_VERSION -m venv $VENV_UTILS
-
-# Build emergency-alerts-utils
 COPY --chown=easuser:easuser . $DIR_UTILS
-RUN cd $DIR_UTILS && . $VENV_UTILS/bin/activate && make bootstrap
-
-# Remove our .git folder, we don't need it once the build is complete
-RUN rm -rf $DIR_UTILS/.git
