@@ -53,6 +53,18 @@ def test_zendesk_client_send_ticket_to_zendesk_error(zendesk_client, app, mocker
     mock_logger.assert_called_with("Zendesk create ticket request failed with 401 '{'foo': 'bar'}'")
 
 
+def test_zendesk_client_skips_send_if_no_api_key(zendesk_client, app, mocker, rmock):
+    del app.config["ZENDESK_API_KEY"]
+    zendesk_client.init_app(app)
+    mock_logger = mocker.patch.object(app.logger, "error")
+
+    ticket = EASSupportTicket("subject", "message", "incident")
+    zendesk_client.send_ticket_to_zendesk(ticket)
+
+    assert rmock.last_request is None
+    mock_logger.assert_called_once_with("Skipping posting to ZenDesk because ZENDESK_API_KEY is empty")
+
+
 @pytest.mark.parametrize(
     "p1_arg, expected_tags, expected_priority, is_alarm_tag_expected",
     (
