@@ -23,10 +23,17 @@ class ZendeskClient:
     def init_app(self, app, *args, **kwargs):
         self.api_key = app.config.get("ZENDESK_API_KEY")
 
+        if self.api_key is None:
+            app.logger.warning("ZENDESK_API_KEY is empty - posting to ZenDesk will be unavailable")
+
     def headers(self):
         return {"Accept": "application/json", "Authorization": f"Basic {self.api_key}"}
 
     def send_ticket_to_zendesk(self, ticket):
+        if self.api_key is None:
+            current_app.logger.error("Skipping posting to ZenDesk because ZENDESK_API_KEY is empty")
+            return False
+
         response = requests.post(self.ZENDESK_TICKET_URL, json=ticket.request_data, headers=self.headers())
 
         if response.status_code != 201:
@@ -38,6 +45,7 @@ class ZendeskClient:
         ticket_id = response.json()["ticket"]["id"]
 
         current_app.logger.info(f"Zendesk create ticket {ticket_id} succeeded")
+        return ticket_id
 
     def get_open_admin_zendesk_ticket_id_for_email(self, email) -> Optional[int]:
         """
