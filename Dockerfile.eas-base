@@ -81,6 +81,7 @@ RUN apt-get update && apt-get install -y \
     jq \
     curl \
     wget \
+    telnet \
     dnsutils && \
     apt-get upgrade -y && \
     # And cleanup the package caches
