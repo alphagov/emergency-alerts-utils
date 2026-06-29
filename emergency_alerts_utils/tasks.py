@@ -7,6 +7,7 @@ class QueueNames:
 
 class TaskNames:
     PUBLISH_GOVUK_ALERTS = "publish-govuk-alerts"
+    PUBLISH_GOVUK_ALERTS_FULL = "publish-govuk-alerts-full"
     SEND_BROADCAST_EVENT = "send-broadcast-event"
     SEND_BROADCAST_PROVIDER_MESSAGE = "send-broadcast-provider-message"
     REQUEST_LOG_INGEST = "request-log-ingest"
