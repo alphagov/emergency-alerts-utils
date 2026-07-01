@@ -1,20 +1,14 @@
 """
-Python API client for GOV.UK Notify
+Python API client for GOV.UK Emergency Alerts
 """
-
-import ast
-import re
 
 from setuptools import find_packages, setup
 
-_version_re = re.compile(r"__version__\s+=\s+(.*)")
-
-with open("emergency_alerts_utils/version.py", "rb") as f:
-    version = str(ast.literal_eval(_version_re.search(f.read().decode("utf-8")).group(1)))
-
 setup(
     name="emergency-alerts-utils",
-    version=version,
+    # We don't use Python versions here, utils is grabbed via Git SHAs into a
+    # parent Docker image:
+    version="1.0.0",
     url="https://github.com/alphagov/emergency-alerts-utils",
     license="MIT",
     author="Government Digital Service",
