@@ -34,7 +34,7 @@ template_env = Environment(
         )
     ),
     autoescape=select_autoescape(
-        enabled_extensions=("jinja2",),
+        enabled_extensions=("jinja2", "html", "htm", "xml"),
         default_for_string=True,
     ),
 )
