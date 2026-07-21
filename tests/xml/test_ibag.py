@@ -382,10 +382,8 @@ def test_ibag_link_test_creation():
     ) == ["Link Test"]
 
 
-def test_format_ibag_signature_moves_the_signature_to_a_child_element(mocker):
-    key = open(os.path.join(os.path.dirname(__file__), "example.key")).read()
-    cert = open(os.path.join(os.path.dirname(__file__), "example.pem")).read()
-
+def test_format_ibag_signature_moves_the_signature_to_a_child_element(mocker, test_cert):
+    key, cert = test_cert
     xml_root = etree.fromstring(
         generate_xml_body(
             ALERT_IBAG_EVENT,
@@ -402,10 +400,8 @@ def test_format_ibag_signature_moves_the_signature_to_a_child_element(mocker):
     )
 
 
-def test_signed_ibag_message_is_valid(mocker):
-    key = open(os.path.join(os.path.dirname(__file__), "example.key")).read()
-    cert = open(os.path.join(os.path.dirname(__file__), "example.pem")).read()
-
+def test_signed_ibag_message_is_valid(mocker, test_cert):
+    key, cert = test_cert
     xml_root = generate_xml_body(
         ALERT_IBAG_EVENT,
         signing_enabled=True,

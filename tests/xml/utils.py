@@ -7,6 +7,7 @@ LINK_TEST_IBAG_EVENT = {
     "message_type": "test",
     "message_format": "ibag",
     "message_number": "00000073",
+    "cbc_target": "cbc_a",
 }
 
 ALERT_IBAG_EVENT = {
@@ -17,6 +18,7 @@ ALERT_IBAG_EVENT = {
     "headline": "my-headline",
     "description": "  description\nwith\nnewlines",
     "language": "English",
+    "cbc_target": "cbc_a",
     "areas": [
         {
             "polygon": [
@@ -39,6 +41,7 @@ CANCEL_IBAG_EVENT = {
     "message_format": "ibag",
     "message_number": "00000075",
     "sent": "2020-01-01T00:00:00-01:00",
+    "cbc_target": "cbc_a",
     "references": [
         {
             "message_id": str(uuid.uuid4()),
@@ -57,6 +60,7 @@ LINK_TEST_CAP_EVENT = {
     "identifier": str(uuid.uuid4()),
     "message_type": "test",
     "message_format": "cap",
+    "cbc_target": "cbc_a",
 }
 
 ALERT_CAP_EVENT = {
@@ -88,6 +92,7 @@ CANCEL_CAP_EVENT = {
     "message_type": "cancel",
     "message_format": "cap",
     "sent": "2020-01-01T00:00:00-01:00",
+    "cbc_target": "cbc_a",
     "references": [
         {
             "message_id": str(uuid.uuid4()),
