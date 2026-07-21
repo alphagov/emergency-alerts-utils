@@ -35,7 +35,7 @@ setup(
         "setuptools>=78.1.0",
         "boto3>=1.38.10",
         "lxml>=5.4.0",
-        "signxml>=4.0.3,<5.0.0",
+        "signxml>=4.0.3",
         "dramatiq>=1.18.0",
         # README suggests breaking changes before v1.0.0 so we should pin:
         "dramatiq_sqs==0.3.1",
