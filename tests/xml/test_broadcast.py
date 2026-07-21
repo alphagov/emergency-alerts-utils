@@ -140,10 +140,10 @@ def test_generate_xml_body_chooses_right_flow_for_message_type_and_format_ibag(
     assert status == expected_status
 
 
-def test_message_signature_is_valid(mocker):
+def test_message_signature_is_valid(mocker, test_cert):
     data_to_sign = "<Test><Child>Some Value</Child></Test>"
-    key = open(os.path.join(os.path.dirname(__file__), "example.key")).read()
-    cert = open(os.path.join(os.path.dirname(__file__), "example.pem")).read()
+
+    key, cert = test_cert
 
     root = etree.fromstring(data_to_sign)
     signed_xml = digitally_sign(root, key=key, cert=cert)
@@ -152,10 +152,8 @@ def test_message_signature_is_valid(mocker):
     assert_valid_xmldsig(etree.tostring(signature, encoding="unicode"))
 
 
-def test_signed_cap_message_is_valid(mocker):
-    key = open(os.path.join(os.path.dirname(__file__), "example.key")).read()
-    cert = open(os.path.join(os.path.dirname(__file__), "example.pem")).read()
-
+def test_signed_cap_message_is_valid(mocker, test_cert):
+    key, cert = test_cert
     xml_root = generate_xml_body(ALERT_CAP_EVENT, signing_enabled=True, signing_key=key, signing_certificate=cert)
     assert_valid_cap_xml(etree.fromstring(xml_root))
 
