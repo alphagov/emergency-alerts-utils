@@ -95,7 +95,7 @@ def validate_message_event(message_type, message_format, event):
     assert isinstance(event, dict), f"'event' must be a dict, got {type(event).__name__}"
 
     # Keys present in all event dicts
-    common_keys = ["message_type", "identifier", "message_format"]
+    common_keys = ["message_type", "identifier", "message_format", "cbc_target"]
 
     event_keys_by_type = {
         ALERT_MESSAGE_TYPE: common_keys
