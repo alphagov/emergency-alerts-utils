@@ -129,10 +129,6 @@ def validate_message_event(message_type, message_format, event):
     if "headers" in event_keys:
         event_keys.remove("headers")
 
-    # cbc_target not mandatory in event, so not needed for asserting valid structure
-    if "cbc_target" in event_keys:
-        event_keys.remove("cbc_target")
-
     assert event_keys == expected_keys_set, f"""'{message_type}' {message_format} event keys {sorted(event_keys)}
     do not match expected {sorted(expected_keys)}"""
 
