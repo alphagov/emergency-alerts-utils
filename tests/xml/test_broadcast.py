@@ -6,8 +6,15 @@ from signxml import XMLVerifier
 
 from emergency_alerts_utils.xml.broadcast import generate_xml_body
 from emergency_alerts_utils.xml.common import (
+    ALERT_MESSAGE_TYPE,
+    CANCEL_MESSAGE_TYPE,
+    CAP_MESSAGE_FORMAT,
+    IBAG_MESSAGE_FORMAT,
+    TEST_MESSAGE_TYPE,
+    UPDATE_MESSAGE_TYPE,
     digitally_sign,
     validate_channel,
+    validate_message_event,
     validate_message_format,
     validate_message_type,
 )
@@ -133,10 +140,10 @@ def test_generate_xml_body_chooses_right_flow_for_message_type_and_format_ibag(
     assert status == expected_status
 
 
-def test_message_signature_is_valid(mocker):
+def test_message_signature_is_valid(mocker, test_cert):
     data_to_sign = "<Test><Child>Some Value</Child></Test>"
-    key = open(os.path.join(os.path.dirname(__file__), "example.key")).read()
-    cert = open(os.path.join(os.path.dirname(__file__), "example.pem")).read()
+
+    key, cert = test_cert
 
     root = etree.fromstring(data_to_sign)
     signed_xml = digitally_sign(root, key=key, cert=cert)
@@ -145,10 +152,8 @@ def test_message_signature_is_valid(mocker):
     assert_valid_xmldsig(etree.tostring(signature, encoding="unicode"))
 
 
-def test_signed_cap_message_is_valid(mocker):
-    key = open(os.path.join(os.path.dirname(__file__), "example.key")).read()
-    cert = open(os.path.join(os.path.dirname(__file__), "example.pem")).read()
-
+def test_signed_cap_message_is_valid(mocker, test_cert):
+    key, cert = test_cert
     xml_root = generate_xml_body(ALERT_CAP_EVENT, signing_enabled=True, signing_key=key, signing_certificate=cert)
     assert_valid_cap_xml(etree.fromstring(xml_root))
 
@@ -171,3 +176,83 @@ def assert_valid_cap_xml(cap_alert_xml):
     cap_alert_doc = etree.fromstring(cap_alert_xml, parser=xml_parser)
 
     cap_alert_schema.assertValid(cap_alert_doc)
+
+
+@pytest.mark.parametrize(
+    "event_type, event, message_format",
+    [  # ----- CAP MESSAGES
+        (ALERT_MESSAGE_TYPE, ALERT_CAP_EVENT, CAP_MESSAGE_FORMAT),
+        (CANCEL_MESSAGE_TYPE, CANCEL_CAP_EVENT, CAP_MESSAGE_FORMAT),
+        (TEST_MESSAGE_TYPE, LINK_TEST_CAP_EVENT, CAP_MESSAGE_FORMAT),
+        # ----- IBAG MESSAGES
+        (ALERT_MESSAGE_TYPE, ALERT_IBAG_EVENT, IBAG_MESSAGE_FORMAT),
+        (CANCEL_MESSAGE_TYPE, CANCEL_IBAG_EVENT, IBAG_MESSAGE_FORMAT),
+        (TEST_MESSAGE_TYPE, LINK_TEST_IBAG_EVENT, IBAG_MESSAGE_FORMAT),
+    ],
+)
+def test_validate_message_event_accepts_valid_structure(event_type, event, message_format):
+    # Asserts that `validate_message_event` returns unchanged event if valid
+    event = validate_message_event(event_type, message_format, event)
+    # asserts event returned unchanged but validated
+    assert event == event
+
+
+@pytest.mark.parametrize(
+    "message_type, message_format, event",
+    [
+        (ALERT_MESSAGE_TYPE, CAP_MESSAGE_FORMAT, ["not-a-dict"]),
+        (UPDATE_MESSAGE_TYPE, CAP_MESSAGE_FORMAT, "not-a-dict"),
+        (CANCEL_MESSAGE_TYPE, "IBAG", 123),
+        (TEST_MESSAGE_TYPE, CAP_MESSAGE_FORMAT, None),
+    ],
+)
+def test_validate_message_event_rejects_non_dict(message_type, message_format, event):
+    # Asserts that `validate_message_event` raises AssertionError if event not dict
+    with pytest.raises(AssertionError) as exc:
+        validate_message_event(message_type, message_format, event)
+
+    assert "must be a dict" in str(exc.value)
+
+
+@pytest.mark.parametrize(
+    "event, message_type",
+    [
+        (
+            {
+                "message_type": TEST_MESSAGE_TYPE,
+                "identifier": "abc",
+                "message_format": IBAG_MESSAGE_FORMAT,
+                "cbc_target": "target",
+            },
+            TEST_MESSAGE_TYPE,
+        ),
+        (
+            {
+                "message_type": TEST_MESSAGE_TYPE,
+                "identifier": "abc",
+                "message_format": CAP_MESSAGE_FORMAT,
+                "cbc_target": "target",
+                "unexpected": "value",
+            },
+            TEST_MESSAGE_TYPE,
+        ),
+    ],
+)
+def test_validate_message_event_rejects_missing_or_extra_keys(event, message_type):
+    # Asserts that `validate_message_event` returns AssertionError if event has extra or missing keys
+    with pytest.raises(AssertionError) as exc:
+        validate_message_event(message_type, event["message_format"], event)
+
+    assert "do not match expected" in str(exc.value)
+
+
+def test_validate_message_event_unknown_message_type_raises_keyerror():
+    # Asserts that `validate_message_event` returns KeyError if message_type
+    # not ALERT_MESSAGE_TYPE, CANCEL_MESSAGE_TYPE or TEST_MESSAGE_TYPE
+    event = {
+        "message_type": "UnknownType",
+        "identifier": "abc",
+        "message_format": CAP_MESSAGE_FORMAT,
+    }
+    with pytest.raises(KeyError):
+        validate_message_event(event["message_type"], event["message_format"], event)

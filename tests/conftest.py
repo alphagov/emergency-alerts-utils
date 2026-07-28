@@ -1,7 +1,12 @@
+import datetime
 import os
 
 import pytest
 import requests_mock
+from cryptography import x509
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.x509.oid import NameOID
 from flask import Flask
 from moto import mock_aws
 
@@ -74,3 +79,23 @@ def mocked_aws(os_environ):
 
     with mock_aws():
         yield
+
+
+@pytest.fixture
+def test_cert():
+    key = rsa.generate_private_key(65537, 2048)
+    name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "test")])
+    cert = (
+        x509.CertificateBuilder()
+        .subject_name(name)
+        .issuer_name(name)
+        .public_key(key.public_key())
+        .serial_number(1)
+        .not_valid_before(datetime.datetime.now(datetime.UTC))
+        .not_valid_after(datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=1))
+        .sign(key, hashes.SHA256())
+    )
+
+    key = key.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8, serialization.NoEncryption())
+    cert = cert.public_bytes(serialization.Encoding.PEM)
+    return key, cert

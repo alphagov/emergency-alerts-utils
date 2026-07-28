@@ -88,3 +88,48 @@ def validate_channel(channel):
     if channel not in ALLOWED_CHANNELS:
         raise AssertionError(f"'{channel}' is not an allowed channel. Must be in {ALLOWED_CHANNELS}")
     return channel
+
+
+def validate_message_event(message_type, message_format, event):
+    """validate that `event` has the expected structure for `message_type` and `message_format`."""
+    assert isinstance(event, dict), f"'event' must be a dict, got {type(event).__name__}"
+
+    # Keys present in all event dicts
+    common_keys = ["message_type", "identifier", "message_format", "cbc_target"]
+
+    event_keys_by_type = {
+        ALERT_MESSAGE_TYPE: common_keys
+        + [
+            "headline",
+            "description",
+            "areas",
+            "sent",
+            "expires",
+            "language",
+            "channel",
+        ],
+        CANCEL_MESSAGE_TYPE: common_keys
+        + [
+            "references",
+            "sent",
+        ],
+        TEST_MESSAGE_TYPE: common_keys,
+    }
+
+    # KeyError if message_type not recognised
+    expected_keys = event_keys_by_type[message_type]
+
+    if message_format == IBAG_MESSAGE_FORMAT:
+        expected_keys = expected_keys + ["message_number"]
+
+    expected_keys_set = set(expected_keys)
+    event_keys = set(event.keys())
+
+    # headers not mandatory in event, so not needed for asserting valid structure
+    if "headers" in event_keys:
+        event_keys.remove("headers")
+
+    assert event_keys == expected_keys_set, f"""'{message_type}' {message_format} event keys {sorted(event_keys)}
+    do not match expected {sorted(expected_keys)}"""
+
+    return event
