@@ -1,4 +1,5 @@
 import logging
+from collections.abc import Iterable
 
 from dramatiq.actor import Actor
 from dramatiq.middleware import Middleware
@@ -41,7 +42,8 @@ class SqsRetryMiddleware(Middleware):
 
     So:
       - If an actor throws and it's not configured for retry, we just log it as failed and drop it.
-      - If an actor throws and it's configured for retry (and it's of type 'retry_for', if set), we fail() the message.
+      - If an actor throws and it's configured for retry (and it's one of the types in 'retry_for', if set),
+        we fail() the message.
         - For a fail() message, Dramatiq will call the consumer's nack and thus the SqsConsumer will avoid deleting
           (acknowledging) the message and thus get SQS to redeliver it.
 
@@ -69,16 +71,35 @@ class SqsRetryMiddleware(Middleware):
         actor = broker.get_actor(message.actor_name)
 
         retry_allowed = actor.options.get("allow_retry")
-        retry_for = actor.options.get("retry_for")
 
         if retry_allowed:
-            if retry_for is None or isinstance(exception, retry_for):
+            retry_for: BaseException | Iterable[BaseException] = actor.options.get("retry_for")
+
+            if retry_for is None:
+                retry_for_iterable = []
+            elif isinstance(retry_for, Iterable):
+                retry_for_iterable = retry_for
+            else:
+                retry_for_iterable = [retry_for]
+
+            matches_retry_for = any([isinstance(exception, x) for x in retry_for_iterable])
+
+            if retry_for is None or matches_retry_for:
                 logger.warning(
                     "Message %s had an exception but allows retries, failing it so SQS can retry or DLQ it",
                     message.message_id,
+                    exc_info=exception,
                 )
                 message.fail()
             else:
-                logger.warning("Message %s had an exception but it didn't match retry_for. It will be dropped")
+                logger.warning(
+                    "Message %s had an exception but it didn't match retry_for. It will be dropped",
+                    message.message_id,
+                    exc_info=exception,
+                )
         else:
-            logger.warning("Message %s had an exception but isn't configured for retries. It will be dropped.")
+            logger.warning(
+                "Message %s had an exception but isn't configured for retries. It will be dropped.",
+                message.message_id,
+                exc_info=exception,
+            )
