@@ -76,7 +76,7 @@ def test_retry_middleware_fails_message_for_exception_when_allow_retry():
     mock_message.fail.assert_called_once()
 
 
-def test_retry_middleware_fails_message_for_specific_exceptions_only():
+def test_retry_middleware_fails_message_for_specific_exception_only():
     mock_message = Mock()
     mock_broker = Mock()
     mock_actor = Mock()
@@ -94,4 +94,32 @@ def test_retry_middleware_fails_message_for_specific_exceptions_only():
     mock_message.fail.assert_not_called()
 
     middleware.after_process_message(mock_broker, mock_message, exception=SpecificException("test"))
+    mock_message.fail.assert_called_once()
+
+
+def test_retry_middleware_fails_message_for_specific_exception_in_set():
+    mock_message = Mock()
+    mock_broker = Mock()
+    mock_actor = Mock()
+
+    class SpecificException(Exception):
+        pass
+
+    class OtherSpecificException(Exception):
+        pass
+
+    mock_actor.options = {"allow_retry": True, "retry_for": {OtherSpecificException, SpecificException}}
+
+    mock_broker.get_actor.return_value = mock_actor
+
+    middleware = SqsRetryMiddleware()
+
+    middleware.after_process_message(mock_broker, mock_message, exception=Exception("test"))
+    mock_message.fail.assert_not_called()
+
+    middleware.after_process_message(mock_broker, mock_message, exception=SpecificException("test"))
+    mock_message.fail.assert_called_once()
+    mock_message.reset_mock()
+
+    middleware.after_process_message(mock_broker, mock_message, exception=OtherSpecificException("test"))
     mock_message.fail.assert_called_once()
