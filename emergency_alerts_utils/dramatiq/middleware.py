@@ -79,6 +79,12 @@ class SqsRetryMiddleware(Middleware):
                 )
                 message.fail()
             else:
-                logger.warning("Message %s had an exception but it didn't match retry_for. It will be dropped")
+                logger.warning(
+                    "Message %s had an exception but it didn't match retry_for. It will be dropped",
+                    message.message_id,
+                )
         else:
-            logger.warning("Message %s had an exception but isn't configured for retries. It will be dropped.")
+            logger.warning(
+                "Message %s had an exception but isn't configured for retries. It will be dropped.",
+                message.message_id,
+            )
