@@ -28,3 +28,4 @@ class TaskNames:
     DELETE_OLD_RECORDS_FROM_EVENTS_TABLE = "delete-old-records-from-events-table"
     VALIDATE_FUNCTIONAL_TEST_ACCOUNT_EMAILS = "validate-functional-test-account-emails"
     QUEUE_AFTER_ALERT_ACTIVITIES = "queue-after-alert-activities"
+    PURGE_OLD_ALERTS_FROM_PREVIEW_ENVIRONMENT = "purge-old-alerts-from-preview-environment"
