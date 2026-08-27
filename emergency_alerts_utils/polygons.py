@@ -3,6 +3,7 @@ import itertools
 from pyproj import CRS, Transformer
 from pyproj.aoi import AreaOfInterest
 from pyproj.database import query_utm_crs_info
+from shapely import wkt
 from shapely.geometry import JOIN_STYLE, GeometryCollection, MultiPolygon, Polygon
 from shapely.ops import unary_union
 from werkzeug.utils import cached_property
@@ -83,6 +84,33 @@ class Polygons:
                     raise TypeError(f"Can’t initiate with {Polygon.__name__} objects and no CRS")
                 if not isinstance(polygon, list):
                     raise TypeError(f"Can’t make {Polygon.__name__} from {type(polygon).__name__} `{polygon}`")
+
+    @classmethod
+    def from_wkt(cls, wkt_string, utm_crs=None):
+        area_from_wkt = wkt.loads(wkt_string)
+        full = None
+        if isinstance(area_from_wkt, MultiPolygon):
+            for polygon in list(area_from_wkt.geoms):
+                assert polygon.is_valid, "Polygon in MultiPolygon is invalid"
+            multipolygons = [[[y, x] for x, y in polygon.exterior.coords] for polygon in list(area_from_wkt.geoms)]
+            polygons = Polygons(multipolygons)
+            full = polygons
+        elif isinstance(area_from_wkt, Polygon):
+            fixed_polygon = Polygon(area_from_wkt.exterior)
+            assert fixed_polygon.is_valid, "Polygon is invalid"
+            full = Polygons([[[y, x] for x, y in fixed_polygon.exterior.coords]])
+        elif isinstance(area_from_wkt, GeometryCollection):
+            # We want to remove any that aren't Polygon or MultiPolygon
+            remaining = [
+                geom for geom in area_from_wkt.geoms if isinstance(geom, Polygon) or isinstance(geom, MultiPolygon)
+            ]
+            for polygon in remaining:
+                assert polygon.is_valid, "Polygon in MultiPolygon is invalid"
+                multipolygons = [[[y, x] for x, y in polygon.exterior.coords] for polygon in remaining]
+                polygons = Polygons(multipolygons)
+                full = polygons
+
+        return cls(full.as_coordinate_pairs_long_lat, utm_crs=None)
 
     @cached_property
     def transform_from_wgs84(self):
@@ -330,6 +358,15 @@ class Polygons:
         order, for example CAP XML.
         """
         return [[[y, x] for x, y in coordinate_pairs] for coordinate_pairs in self.as_coordinate_pairs_long_lat]
+
+    @cached_property
+    def as_wkt(self):
+        polygons = []
+        for ring in self.as_coordinate_pairs_long_lat:
+            polygons.append(Polygon(ring))
+        if len(polygons) == 1:
+            return polygons[0].wkt
+        return MultiPolygon(polygons).wkt
 
     @cached_property
     def point_count(self):
