@@ -332,6 +332,15 @@ class Polygons:
         return [[[y, x] for x, y in coordinate_pairs] for coordinate_pairs in self.as_coordinate_pairs_long_lat]
 
     @cached_property
+    def as_wkt(self):
+        polygons = []
+        for ring in self.as_coordinate_pairs_long_lat:
+            polygons.append(Polygon(ring))
+        if len(polygons) == 1:
+            return polygons[0].wkt
+        return MultiPolygon(polygons).wkt
+
+    @cached_property
     def point_count(self):
         """
         Total number of points in all polygons.
