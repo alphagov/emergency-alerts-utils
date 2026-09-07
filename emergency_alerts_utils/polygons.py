@@ -334,8 +334,10 @@ class Polygons:
     @cached_property
     def as_wkt(self):
         polygons = []
-        for ring in self.as_coordinate_pairs_long_lat:
-            polygons.append(Polygon(ring))
+
+        for polygon in self.as_coordinate_pairs_long_lat:
+            polygons.append(Polygon(polygon))
+
         if len(polygons) == 1:
             return polygons[0].wkt
         return MultiPolygon(polygons).wkt
