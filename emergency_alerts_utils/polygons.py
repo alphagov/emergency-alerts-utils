@@ -340,6 +340,7 @@ class Polygons:
 
         if len(polygons) == 1:
             return polygons[0].wkt
+
         return MultiPolygon(polygons).wkt
 
     @cached_property
