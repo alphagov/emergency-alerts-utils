@@ -415,3 +415,38 @@ def test_passes_through_coordinates_without_converting_to_crs():
     assert all(isinstance(polygon, list) for polygon in with_crs)
 
     assert without_crs.utm_polygons.utm_crs == with_crs.utm_crs
+
+
+@pytest.mark.parametrize(
+    "polygons, expected_wkt",
+    (
+        (
+            [HACKNEY_MARSHES],
+            (
+                "POLYGON ((-0.03828 51.557383, -0.031843 51.553914, -0.023174 51.55813, ",
+                "-0.023174 51.55813, -0.029869 51.561652, -0.03828 51.557383))",
+            ),
+        ),
+        (
+            [
+                [
+                    [0, 0],
+                    [1, 0],
+                    [1, 1],
+                    [0, 1],
+                    [0, 0],
+                ],
+                [
+                    [2, 2],
+                    [3, 2],
+                    [3, 3],
+                    [2, 3],
+                    [2, 2],
+                ],
+            ],
+            ("MULTIPOLYGON (((0 0, 1 0, 1 1, 0 1, 0 0)), " "((2 2, 3 2, 3 3, 2 3, 2 2)))"),
+        ),
+    ),
+)
+def test_as_wkt(polygons, expected_wkt):
+    assert Polygons(polygons).as_wkt == "".join(expected_wkt)
