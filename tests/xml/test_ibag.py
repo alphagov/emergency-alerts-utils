@@ -103,6 +103,12 @@ def test_ibag_alert_creation(channel, expected_IBAG_channel_category):
 
     assert xml_path(
         alert_body,
+        "/ibag:IBAG_Alert_Attributes/ibag:IBAG_cap_identifier//text()",
+        "ibag",
+    ) == [identifier]
+
+    assert xml_path(
+        alert_body,
         "/ibag:IBAG_Alert_Attributes/ibag:IBAG_sender//text()",
         "ibag",
     ) == [SENDER]
@@ -249,6 +255,12 @@ def test_generate_ibag_cancel_message():
         "/ibag:IBAG_Alert_Attributes/ibag:IBAG_message_number//text()",
         "ibag",
     ) == ["00000090"]
+
+    assert xml_path(
+        alert_body,
+        "/ibag:IBAG_Alert_Attributes/ibag:IBAG_cap_identifier//text()",
+        "ibag",
+    ) == [identifier]
 
     assert xml_path(
         alert_body,
