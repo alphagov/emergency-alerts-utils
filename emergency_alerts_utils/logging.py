@@ -34,6 +34,7 @@ def override_root_logger(app: Flask):
     logging.getLogger("opentelemetry.instrumentation.botocore").setLevel(logging.INFO)
     logging.getLogger("boto3.resources").setLevel(logging.INFO)
     logging.getLogger("amazon.opentelemetry.distro._aws_metric_attribute_generator").setLevel(logging.INFO)
+    logging.getLogger("opentelemetry.propagators.aws.aws_xray_propagator").setLevel(logging.INFO)
 
     logging.info("Root logger configured")
 
