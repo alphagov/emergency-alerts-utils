@@ -1,23 +1,29 @@
 import logging
 import sys
 
+from flask import Flask, Response, current_app, request
+from flask.logging import default_handler
 from pythonjsonlogger.core import RESERVED_ATTRS
 from pythonjsonlogger.json import JsonFormatter
 
 
-def init_app(app):
+def init_app(app: Flask):
     app.config.setdefault("NOTIFY_LOG_LEVEL", "DEBUG")
     app.config.setdefault("EAS_APP_NAME", "none")
 
     override_root_logger(app)
 
+    # Flask sets up its own handler prior, but we want to inherit Python's root's
+    app.logger.removeHandler(default_handler)
+
+    app.after_request(_log_after_request)
     app.logger.info("Logging configured")
 
 
-def override_root_logger(app):
+def override_root_logger(app: Flask):
     root = logging.getLogger()
 
-    handler = _create_console_handler(app)
+    handler = _create_console_handler()
 
     root.addHandler(handler)
     root.setLevel(logging.DEBUG)
@@ -28,13 +34,14 @@ def override_root_logger(app):
     logging.getLogger("opentelemetry.instrumentation.botocore").setLevel(logging.INFO)
     logging.getLogger("boto3.resources").setLevel(logging.INFO)
     logging.getLogger("amazon.opentelemetry.distro._aws_metric_attribute_generator").setLevel(logging.INFO)
+    logging.getLogger("opentelemetry.propagators.aws.aws_xray_propagator").setLevel(logging.INFO)
 
     logging.info("Root logger configured")
 
     app.logger.setLevel(logging.getLevelName(app.config["NOTIFY_LOG_LEVEL"]))
 
 
-def _create_console_handler(app):
+def _create_console_handler():
     handler = logging.StreamHandler(sys.stdout)
 
     # Allow the handler to log anything - we filter by setting logger levels
@@ -50,6 +57,13 @@ def _create_console_handler(app):
     handler.addFilter(OtelFilter())
 
     return handler
+
+
+def _log_after_request(response: Response):
+    current_app.logger.info(
+        "Responded %s: %s %s %s", response.status, request.remote_addr, request.method, request.full_path
+    )
+    return response
 
 
 class JsonFormatterForCloudWatch(JsonFormatter):
