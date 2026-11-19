@@ -12,11 +12,9 @@ from emergency_alerts_utils.formatters import (
     add_prefix,
     autolink_urls,
     escape_html,
-    make_quotes_smart,
     nl2br,
     normalise_multiple_newlines,
     normalise_whitespace_and_newlines,
-    remove_smart_quotes_from_email_addresses,
     remove_whitespace_before_punctuation,
     sms_encode,
 )

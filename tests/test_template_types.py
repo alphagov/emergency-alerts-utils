@@ -661,37 +661,6 @@ def test_templates_remove_whitespace_before_punctuation(
 
 
 @pytest.mark.parametrize(
-    "template_class, template_type, extra_args, expected_calls",
-    [
-        (SMSMessageTemplate, "sms", {}, []),
-        (SMSPreviewTemplate, "sms", {}, []),
-        (BroadcastMessageTemplate, "broadcast", {}, []),
-        (BroadcastPreviewTemplate, "broadcast", {}, []),
-    ],
-)
-@mock.patch("emergency_alerts_utils.template.make_quotes_smart", side_effect=lambda x: x)
-def test_templates_make_quotes_smart_and_dashes_en(
-    mock_en_dash_replacement,
-    mock_smart_quotes,
-    template_class,
-    template_type,
-    extra_args,
-    expected_calls,
-):
-    template = template_class(
-        {"content": "content", "subject": "subject", "template_type": template_type}, **extra_args
-    )
-
-    assert str(template)
-
-    if hasattr(template, "subject"):
-        assert template.subject
-
-    mock_smart_quotes.assert_has_calls(expected_calls)
-    mock_en_dash_replacement.assert_has_calls(expected_calls)
-
-
-@pytest.mark.parametrize(
     "template_instance, expected_placeholders",
     [
         (

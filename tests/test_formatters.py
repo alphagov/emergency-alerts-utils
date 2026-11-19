@@ -7,7 +7,6 @@ from emergency_alerts_utils.formatters import (
     formatted_list,
     make_quotes_smart,
     normalise_whitespace,
-    remove_smart_quotes_from_email_addresses,
     remove_whitespace_before_punctuation,
     sms_encode,
     strip_all_whitespace,
@@ -277,21 +276,6 @@ def test_strip_and_remove_obscure_whitespace(value):
 def test_strip_and_remove_obscure_whitespace_only_removes_normal_whitespace_from_ends():
     sentence = "   words \n over multiple lines with \ttabs\t   "
     assert strip_and_remove_obscure_whitespace(sentence) == "words \n over multiple lines with \ttabs"
-
-
-def test_remove_smart_quotes_from_email_addresses():
-    assert (
-        remove_smart_quotes_from_email_addresses("""
-        line one’s quote
-        first.o’last@example.com is someone’s email address
-        line ‘three’
-    """)
-        == ("""
-        line one’s quote
-        first.o'last@example.com is someone’s email address
-        line ‘three’
-    """)
-    )
 
 
 def test_strip_unsupported_characters():
