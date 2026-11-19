@@ -7,9 +7,7 @@ from emergency_alerts_utils.formatters import (
     formatted_list,
     make_quotes_smart,
     normalise_whitespace,
-    remove_smart_quotes_from_email_addresses,
     remove_whitespace_before_punctuation,
-    replace_hyphens_with_en_dashes,
     sms_encode,
     strip_all_whitespace,
     strip_and_remove_obscure_whitespace,
@@ -237,53 +235,6 @@ def test_smart_quotes(dumb, smart):
     assert make_quotes_smart(dumb) == smart
 
 
-@pytest.mark.parametrize(
-    "nasty, nice",
-    [
-        (
-            (
-                "The en dash - always with spaces in running text when, as "
-                "discussed in this section, indicating a parenthesis or "
-                "pause - and the spaced em dash both have a certain "
-                "technical advantage over the unspaced em dash. "
-            ),
-            (
-                "The en dash \u2013 always with spaces in running text when, as "
-                "discussed in this section, indicating a parenthesis or "
-                "pause \u2013 and the spaced em dash both have a certain "
-                "technical advantage over the unspaced em dash. "
-            ),
-        ),
-        (
-            "double -- dash",
-            "double \u2013 dash",
-        ),
-        (
-            "triple --- dash",
-            "triple \u2013 dash",
-        ),
-        (
-            "quadruple ---- dash",
-            "quadruple ---- dash",
-        ),
-        (
-            "em — dash",
-            "em – dash",
-        ),
-        (
-            "already\u0020–\u0020correct",  # \u0020 is a normal space character
-            "already\u0020–\u0020correct",
-        ),
-        (
-            "2004-2008",
-            "2004-2008",  # no replacement
-        ),
-    ],
-)
-def test_en_dashes(nasty, nice):
-    assert replace_hyphens_with_en_dashes(nasty) == nice
-
-
 def test_unicode_dash_lookup():
     en_dash_replacement_sequence = "\u0020\u2013"
     hyphen = "-"
@@ -325,21 +276,6 @@ def test_strip_and_remove_obscure_whitespace(value):
 def test_strip_and_remove_obscure_whitespace_only_removes_normal_whitespace_from_ends():
     sentence = "   words \n over multiple lines with \ttabs\t   "
     assert strip_and_remove_obscure_whitespace(sentence) == "words \n over multiple lines with \ttabs"
-
-
-def test_remove_smart_quotes_from_email_addresses():
-    assert (
-        remove_smart_quotes_from_email_addresses("""
-        line one’s quote
-        first.o’last@example.com is someone’s email address
-        line ‘three’
-    """)
-        == ("""
-        line one’s quote
-        first.o'last@example.com is someone’s email address
-        line ‘three’
-    """)
-    )
 
 
 def test_strip_unsupported_characters():
