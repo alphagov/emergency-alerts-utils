@@ -394,16 +394,6 @@ def count_extended_gsm_chars(content):
     return sum(map(content.count, SanitiseSMS.EXTENDED_GSM_CHARACTERS))
 
 
-def do_nice_typography(value):
-    return (
-        Take(value)
-        .then(remove_whitespace_before_punctuation)
-        .then(make_quotes_smart)
-        .then(remove_smart_quotes_from_email_addresses)
-        .then(replace_hyphens_with_en_dashes)
-    )
-
-
 @lru_cache(maxsize=1024)
 def get_placeholders(content):
     return Field(content).placeholders
