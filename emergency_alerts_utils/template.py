@@ -18,7 +18,6 @@ from emergency_alerts_utils.formatters import (
     normalise_whitespace_and_newlines,
     remove_smart_quotes_from_email_addresses,
     remove_whitespace_before_punctuation,
-    replace_hyphens_with_en_dashes,
     sms_encode,
 )
 from emergency_alerts_utils.insensitive_dict import InsensitiveDict

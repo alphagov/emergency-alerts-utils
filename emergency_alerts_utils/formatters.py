@@ -216,15 +216,6 @@ def remove_whitespace_before_punctuation(value):
 def make_quotes_smart(value):
     return smartypants.smartypants(value, smartypants.Attr.q | smartypants.Attr.u)
 
-
-def replace_hyphens_with_en_dashes(value):
-    return re.sub(
-        hyphens_surrounded_by_spaces,
-        (" " "\u2013" " "),  # space  # en dash  # space
-        value,
-    )
-
-
 def replace_hyphens_with_non_breaking_hyphens(value):
     return value.replace(
         "-",

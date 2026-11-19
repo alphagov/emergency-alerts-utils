@@ -670,7 +670,6 @@ def test_templates_remove_whitespace_before_punctuation(
     ],
 )
 @mock.patch("emergency_alerts_utils.template.make_quotes_smart", side_effect=lambda x: x)
-@mock.patch("emergency_alerts_utils.template.replace_hyphens_with_en_dashes", side_effect=lambda x: x)
 def test_templates_make_quotes_smart_and_dashes_en(
     mock_en_dash_replacement,
     mock_smart_quotes,
