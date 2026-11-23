@@ -12,13 +12,10 @@ from emergency_alerts_utils.formatters import (
     add_prefix,
     autolink_urls,
     escape_html,
-    make_quotes_smart,
     nl2br,
     normalise_multiple_newlines,
     normalise_whitespace_and_newlines,
-    remove_smart_quotes_from_email_addresses,
     remove_whitespace_before_punctuation,
-    replace_hyphens_with_en_dashes,
     sms_encode,
 )
 from emergency_alerts_utils.insensitive_dict import InsensitiveDict
@@ -393,16 +390,6 @@ def non_gsm_characters(content):
 
 def count_extended_gsm_chars(content):
     return sum(map(content.count, SanitiseSMS.EXTENDED_GSM_CHARACTERS))
-
-
-def do_nice_typography(value):
-    return (
-        Take(value)
-        .then(remove_whitespace_before_punctuation)
-        .then(make_quotes_smart)
-        .then(remove_smart_quotes_from_email_addresses)
-        .then(replace_hyphens_with_en_dashes)
-    )
 
 
 @lru_cache(maxsize=1024)

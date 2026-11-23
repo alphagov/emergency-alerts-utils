@@ -8,8 +8,6 @@ from markupsafe import Markup
 
 from emergency_alerts_utils.sanitise_text import SanitiseSMS
 
-from . import email_with_smart_quotes_regex
-
 OBSCURE_ZERO_WIDTH_WHITESPACE = (
     "\u180e"  # Mongolian vowel separator
     "\u200b"  # zero width space
@@ -217,14 +215,6 @@ def make_quotes_smart(value):
     return smartypants.smartypants(value, smartypants.Attr.q | smartypants.Attr.u)
 
 
-def replace_hyphens_with_en_dashes(value):
-    return re.sub(
-        hyphens_surrounded_by_spaces,
-        (" " "\u2013" " "),  # space  # en dash  # space
-        value,
-    )
-
-
 def replace_hyphens_with_non_breaking_hyphens(value):
     return value.replace(
         "-",
@@ -264,19 +254,6 @@ def strip_leading_whitespace(value):
 
 def add_trailing_newline(value):
     return f"{value}\n"
-
-
-def remove_smart_quotes_from_email_addresses(value):
-    def remove_smart_quotes(match):
-        value = match.group(0)
-        for character in "‘’":
-            value = value.replace(character, "'")
-        return value
-
-    return email_with_smart_quotes_regex.sub(
-        remove_smart_quotes,
-        value,
-    )
 
 
 def strip_all_whitespace(value, extra_characters=""):
