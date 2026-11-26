@@ -30,3 +30,4 @@ class TaskNames:
     QUEUE_AFTER_ALERT_ACTIVITIES = "queue-after-alert-activities"
     PURGE_FUNCTIONAL_TEST_ALERTS = "purge-functional-test-alerts"
     PURGE_OLD_ALERTS_FROM_PREVIEW_ENVIRONMENT = "purge-old-alerts-from-preview-environment"
+    CHECK_API_KEY_EXPIRY = "check-api-key-expiry"
